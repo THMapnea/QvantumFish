@@ -14,7 +14,7 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="File di intestazione\glad">
-      <UniqueIdentifier>{21e4faa4-4918-4786-abc2-8dfa636b12a6}</UniqueIdentifier>
+      <UniqueIdentifier>{e1ab79d4-2c0f-4bb5-b30a-ceac4aa3db07}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

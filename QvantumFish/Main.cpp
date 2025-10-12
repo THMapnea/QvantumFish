@@ -1,3 +1,4 @@
+#include<glad/glad.h>
 #include<GLFW/glfw3.h>
 #include<iostream>
 #include<vector>
@@ -20,6 +21,7 @@ void error_callback(int error, const char* description);
 
 */
 int main() {
+
 	//setting the callback funtion for glfw
 	glfwSetErrorCallback(error_callback);
 
@@ -44,6 +46,14 @@ int main() {
 
 	//create the openGL current context
 	glfwMakeContextCurrent(window);
+
+
+	//check if glad has been correctly initializedonly after creating the context
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		std::cout << "Failed to initialize GLAD" << std::endl;
+		return -1;
+	}
 
 	while (!glfwWindowShouldClose(window))
 	{
