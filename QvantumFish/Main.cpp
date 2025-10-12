@@ -14,7 +14,11 @@ void error_callback(int error, const char* description);
 
 
 
+/*
 
+	MAIN
+
+*/
 int main() {
 	//setting the callback funtion for glfw
 	glfwSetErrorCallback(error_callback);
