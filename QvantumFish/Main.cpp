@@ -6,6 +6,18 @@
 
 
 
+
+/*
+
+	Structures
+
+*/
+//structure that holds the size of the windows created if it's needed to pass the values
+typedef struct {
+	int width;
+	int height;
+}WindowSize;
+
 /*
 
 	Prototypes
@@ -21,6 +33,10 @@ void error_callback(int error, const char* description);
 
 */
 int main() {
+	//here we declare all the variables we might need
+	WindowSize main_window;
+	main_window.width = 640;
+	main_window.height = 480;
 
 	//setting the callback funtion for glfw
 	glfwSetErrorCallback(error_callback);
@@ -34,7 +50,7 @@ int main() {
 	}
 
 	//create the window
-	GLFWwindow* window = glfwCreateWindow(640, 480, "Main", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(main_window.width, main_window.height, "Main", NULL, NULL);
 
 	//handle possible errors
 	if (!window)
@@ -60,6 +76,9 @@ int main() {
 		// Clear the color buffer
 		glClear(GL_COLOR_BUFFER_BIT);
 		
+		//handle the viewport creation to tell glfw the size of the rendering window
+		glViewport(0, 0, main_window.width, main_window.width);
+
 		//rendering must go here
 
 		// Swap the front and back buffers
