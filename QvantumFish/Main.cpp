@@ -24,6 +24,7 @@ typedef struct {
 
 */
 void error_callback(int error, const char* description);
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 
 
@@ -52,6 +53,8 @@ int main() {
 	//create the window
 	GLFWwindow* window = glfwCreateWindow(main_window.width, main_window.height, "Main", NULL, NULL);
 
+
+
 	//handle possible errors
 	if (!window)
 	{
@@ -75,11 +78,14 @@ int main() {
 	{
 		// Clear the color buffer
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		//set the callback function for dinamically resizing the viewport
+		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 		
 		//handle the viewport creation to tell glfw the size of the rendering window
 		glViewport(0, 0, main_window.width, main_window.width);
 
-		//rendering must go here
+		//rendering must go here...
 
 		// Swap the front and back buffers
 		glfwSwapBuffers(window);
@@ -105,4 +111,17 @@ int main() {
 */
 void error_callback(int error, const char* description){
 	fprintf(stderr, "Error: %s\n", description);
+}
+
+
+
+/*
+
+	Callback function than handles resizing
+
+*/
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	//when the function get's called the viewport get's adjusted to the parameters passed to the callback function
+	glViewport(0, 0, width, height);
 }
