@@ -16,6 +16,12 @@
     <Filter Include="File di intestazione\glad">
       <UniqueIdentifier>{e1ab79d4-2c0f-4bb5-b30a-ceac4aa3db07}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Graphic">
+      <UniqueIdentifier>{fb54a953-5eac-4ff5-b0d7-082996b788fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\Qubit">
+      <UniqueIdentifier>{cca81cc9-c456-4855-9586-4a27df0bf172}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -24,10 +30,16 @@
     <ClCompile Include="glad.c">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="Qubit.cpp">
+      <Filter>File di origine\Qubit</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h">
       <Filter>File di intestazione\glad</Filter>
+    </ClInclude>
+    <ClInclude Include="Qubit.h">
+      <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
