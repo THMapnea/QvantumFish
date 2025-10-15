@@ -35,6 +35,10 @@ public:
     double probabilityZero() const;
     double probabilityOne() const;
 
+    //static factory
+    static Qubit ketOne();
+    static Qubit ketZero();
+
 
 };
 

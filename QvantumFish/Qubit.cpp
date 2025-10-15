@@ -133,4 +133,15 @@ double Qubit::probabilityOne() const {
     STATIC FACTORY 
 
 */
+Qubit Qubit::ketZero() {
+    std::complex<double> ket_zero_state[] = { 0.0, 0.0 };
+    return Qubit(ket_zero_state);
+}
+
+
+Qubit Qubit::ketOne() {
+    std::complex<double> ket_one_state[] = {0.0, 1.0};
+    return Qubit(ket_one_state);
+}
+
 
