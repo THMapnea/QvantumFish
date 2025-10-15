@@ -212,31 +212,6 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Axes
-    float axes[] = {
-        -1.2f,0.0f,0.0f,  1.2f,0.0f,0.0f,
-         0.0f,-1.2f,0.0f, 0.0f,1.2f,0.0f,
-         0.0f,0.0f,-1.2f, 0.0f,0.0f,1.2f
-    };
-    unsigned int axisVAO, axisVBO;
-    glGenVertexArrays(1, &axisVAO);
-    glGenBuffers(1, &axisVBO);
-    glBindVertexArray(axisVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, axisVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(axes), axes, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // Cone (arrow tip)
-    std::vector<float> coneVerts = generateCone(0.1f, 0.03f, 20);
-    unsigned int coneVAO, coneVBO;
-    glGenVertexArrays(1, &coneVAO);
-    glGenBuffers(1, &coneVBO);
-    glBindVertexArray(coneVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, coneVBO);
-    glBufferData(GL_ARRAY_BUFFER, coneVerts.size() * sizeof(float), coneVerts.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
     glm::mat4 view = glm::lookAt(glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
@@ -258,29 +233,6 @@ int main() {
         glUniform3f(glGetUniformLocation(shader_program, "color"), 0.0f, 1.0f, 0.8f);
         glBindVertexArray(sphereVAO);
         glDrawArrays(GL_LINE_STRIP, 0, sphereVerts.size() / 3);
-
-        // Draw axes (static)
-        model = glm::mat4(1.0f);
-        glUniformMatrix4fv(glGetUniformLocation(shader_program, "model"), 1, GL_FALSE, glm::value_ptr(model));
-        glUniform3f(glGetUniformLocation(shader_program, "color"), 0.0f, 1.0f, 0.0f);
-        glBindVertexArray(axisVAO);
-        glDrawArrays(GL_LINES, 0, 6);
-
-        // Draw cones at positive ends
-        glBindVertexArray(coneVAO);
-        glm::mat4 tipX = glm::translate(glm::mat4(1.0f), glm::vec3(1.2f, 0, 0));
-        tipX = glm::rotate(tipX, glm::radians(90.0f), glm::vec3(0, 1, 0));
-        glUniformMatrix4fv(glGetUniformLocation(shader_program, "model"), 1, GL_FALSE, glm::value_ptr(tipX));
-        glDrawArrays(GL_LINES, 0, coneVerts.size() / 3);
-
-        glm::mat4 tipY = glm::translate(glm::mat4(1.0f), glm::vec3(0, 1.2f, 0));
-        tipY = glm::rotate(tipY, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-        glUniformMatrix4fv(glGetUniformLocation(shader_program, "model"), 1, GL_FALSE, glm::value_ptr(tipY));
-        glDrawArrays(GL_LINES, 0, coneVerts.size() / 3);
-
-        glm::mat4 tipZ = glm::translate(glm::mat4(1.0f), glm::vec3(0, 0, 1.2f));
-        glUniformMatrix4fv(glGetUniformLocation(shader_program, "model"), 1, GL_FALSE, glm::value_ptr(tipZ));
-        glDrawArrays(GL_LINES, 0, coneVerts.size() / 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
