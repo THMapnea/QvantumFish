@@ -30,13 +30,14 @@ void main(){
 
 
 
-// Fragment shader with glow effect
+// Fragment shader with glow effect and opacity
 const char* fragment_shader_source = R"(
 #version 330 core
 out vec4 FragColor;
 
 uniform vec3 color;
 uniform float time;
+uniform float opacity;
 
 void main(){
     // Cyan color with subtle pulsing effect
@@ -46,8 +47,8 @@ void main(){
     float pulse = sin(time * 2.0) * 0.05 + 0.95;
     glowColor *= pulse;
     
-    // Add a slight glow effect by making edges brighter
-    FragColor = vec4(glowColor, 1.0);
+    // Apply opacity for depth effect
+    FragColor = vec4(glowColor, opacity);
 }
 )";
 
@@ -70,12 +71,14 @@ unsigned int compileShader(unsigned int type, const char* source) {
 
 
 
-// Generate ultra high-precision wireframe sphere vertices with oscilloscope-style lines
-std::vector<float> generateOscilloscopeSphere(float radius, int slices, int stacks) {
+// Generate sphere with only 4 longitudinal lines
+std::vector<float> generateMinimalSphere(float radius, int slices, int stacks) {
     std::vector<float> vertices;
 
-    // Generate longitude lines (vertical) - ultra high precision
-    for (int i = 0; i <= slices; ++i) {
+    // Generate only 4 longitudinal lines (vertical)
+    int selectedLongitudes[] = { 0, 8, 16, 24 }; // Evenly spaced around the sphere
+    for (int k = 0; k < 4; ++k) {
+        int i = selectedLongitudes[k];
         float lng = 2 * M_PI * i / slices;
         for (int j = 0; j <= stacks; ++j) {
             float lat = M_PI * (-0.5 + (float)j / stacks);
@@ -86,7 +89,7 @@ std::vector<float> generateOscilloscopeSphere(float radius, int slices, int stac
         }
     }
 
-    // Generate latitude lines (horizontal) - ultra high precision
+    // Generate latitude lines (horizontal) for sphere definition
     for (int j = 0; j <= stacks; ++j) {
         float lat = M_PI * (-0.5 + (float)j / stacks);
         float z = radius * sin(lat);
@@ -190,7 +193,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe
 
-    // Enable blending for glow effect
+    // Enable blending for opacity effect
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -209,8 +212,8 @@ int main() {
     if (!success) { glGetProgramInfoLog(shader_program, 512, NULL, log); std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << log << std::endl; }
     glDeleteShader(vertex_shader); glDeleteShader(fragment_shader);
 
-    // Ultra high-precision sphere VAO/VBO with oscilloscope-style grid
-    std::vector<float> sphereVerts = generateOscilloscopeSphere(1.0f, 32, 32); 
+    // Sphere VAO/VBO with only 4 longitudinal lines
+    std::vector<float> sphereVerts = generateMinimalSphere(1.0f, 32, 32);
     unsigned int sphereVAO, sphereVBO;
     glGenVertexArrays(1, &sphereVAO);
     glGenBuffers(1, &sphereVBO);
@@ -225,14 +228,14 @@ int main() {
     int stacks = 32;
     int verticesPerLongitude = stacks + 1;
     int verticesPerLatitude = slices + 1;
-    int totalLongitudeVertices = (slices + 1) * verticesPerLongitude;
+    int totalLongitudeVertices = 4 * verticesPerLongitude; 
     int totalLatitudeVertices = (stacks + 1) * verticesPerLatitude;
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
     glm::mat4 view = glm::lookAt(glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
 
-    // Set line width for oscilloscope effect
-    glLineWidth(1.2f);
+    // Set line width for better visibility
+    glLineWidth(2.0f);
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
@@ -254,16 +257,18 @@ int main() {
         model = glm::rotate(model, glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
         glUniformMatrix4fv(glGetUniformLocation(shader_program, "model"), 1, GL_FALSE, glm::value_ptr(model));
 
-        // Cyan color like oscilloscope glow (more blue than green)
+        // Cyan color like oscilloscope glow
         glUniform3f(glGetUniformLocation(shader_program, "color"), 0.2f, 0.8f, 1.0f);
         glBindVertexArray(sphereVAO);
 
-        // Draw longitude lines (vertical) - ultra high precision
-        for (int i = 0; i <= slices; ++i) {
+        // Draw only 4 longitudinal lines (vertical) with full opacity
+        glUniform1f(glGetUniformLocation(shader_program, "opacity"), 1.0f);
+        for (int i = 0; i < 4; ++i) {
             glDrawArrays(GL_LINE_STRIP, i * verticesPerLongitude, verticesPerLongitude);
         }
 
-        // Draw latitude lines (horizontal) - ultra high precision
+        // Draw latitude lines (horizontal) with reduced opacity for depth
+        glUniform1f(glGetUniformLocation(shader_program, "opacity"), 0.3f); // Semi-transparent
         for (int j = 0; j <= stacks; ++j) {
             glDrawArrays(GL_LINE_STRIP, totalLongitudeVertices + j * verticesPerLatitude, verticesPerLatitude);
         }
