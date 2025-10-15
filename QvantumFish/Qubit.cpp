@@ -3,11 +3,7 @@
 #include <stdexcept>
 #include <iostream>
 
-/*
 
-    TODO: implement static factory member
-
-*/
 
 
 /*
@@ -129,4 +125,12 @@ double Qubit::probabilityZero() const {
 double Qubit::probabilityOne() const {
     return std::norm(states[1]);
 }
+
+
+
+/*
+
+    STATIC FACTORY 
+
+*/
 
