@@ -107,6 +107,63 @@ void processInput(GLFWwindow* window) {
 
 
 
+// Mouse input variables
+float lastX = WIDTH / 2.0f;
+float lastY = HEIGHT / 2.0f;
+float yaw = 0.0f;
+float pitch = 0.0f;
+bool firstMouse = true;
+bool mousePressed = false;
+
+
+
+// Mouse callback
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (firstMouse) {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    if (mousePressed) {
+        float xoffset = xpos - lastX;
+        float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+        float sensitivity = 0.1f;
+        xoffset *= sensitivity;
+        yoffset *= sensitivity;
+
+        yaw += xoffset;
+        pitch += yoffset;
+
+        // Constrain pitch to avoid flipping
+        if (pitch > 89.0f)
+            pitch = 89.0f;
+        if (pitch < -89.0f)
+            pitch = -89.0f;
+    }
+
+    lastX = xpos;
+    lastY = ypos;
+}
+
+
+
+// Mouse button callback
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (action == GLFW_PRESS) {
+            mousePressed = true;
+            firstMouse = true; // Reset first mouse to get smooth movement
+        }
+        else if (action == GLFW_RELEASE) {
+            mousePressed = false;
+        }
+    }
+}
+
+
+
 int main() {
     // Initialize GLFW
     glfwInit();
@@ -117,6 +174,10 @@ int main() {
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "QvantumFish", NULL, NULL);
     if (!window) { std::cerr << "Failed to create window\n"; glfwTerminate(); return -1; }
     glfwMakeContextCurrent(window);
+
+    // Set mouse callbacks
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD\n"; return -1;
@@ -189,8 +250,10 @@ int main() {
         glUniformMatrix4fv(glGetUniformLocation(shader_program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(glGetUniformLocation(shader_program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-        // Sphere without rotation
+        // Sphere with mouse rotation
         glm::mat4 model = glm::mat4(1.0f);
+        model = glm::rotate(model, glm::radians(yaw), glm::vec3(0.0f, 0.0f, 1.0f));
+        model = glm::rotate(model, glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
         glUniformMatrix4fv(glGetUniformLocation(shader_program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform3f(glGetUniformLocation(shader_program, "color"), 0.0f, 1.0f, 0.8f);
         glBindVertexArray(sphereVAO);
