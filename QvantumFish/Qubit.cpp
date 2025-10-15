@@ -133,15 +133,50 @@ double Qubit::probabilityOne() const {
     STATIC FACTORY 
 
 */
+//a qubit initialized to |0>
 Qubit Qubit::ketZero() {
     std::complex<double> ket_zero_state[] = { 0.0, 0.0 };
     return Qubit(ket_zero_state);
 }
 
 
+
+//a qubit initialized to |1>
 Qubit Qubit::ketOne() {
     std::complex<double> ket_one_state[] = {0.0, 1.0};
     return Qubit(ket_one_state);
 }
 
 
+
+//a qubit initialized to |+>
+Qubit Qubit::ketPlus() {
+    double factor = 1.0 / std::sqrt(2.0);
+    std::complex<double> plus_state[2] = { factor, factor };
+    return Qubit(plus_state);
+}
+
+
+
+//a qubit initialized to |->
+Qubit Qubit::ketMinus() {
+    double factor = 1.0 / std::sqrt(2.0);
+    std::complex<double> minus_state[2] = { factor, -factor };
+    return Qubit(minus_state);
+}
+
+//a qubit initialized to |+i>
+Qubit Qubit::ketPlusI() {
+    double factor = 1.0 / std::sqrt(2.0);
+    std::complex<double> plus_i_state[2] = { factor, std::complex<double>(0.0, factor) };
+    return Qubit(plus_i_state);
+}
+
+
+
+//a qubit initialized to |-i>
+Qubit Qubit::ketMinusI() {
+    double factor = 1.0 / std::sqrt(2.0);
+    std::complex<double> minus_i_state[2] = { factor, std::complex<double>(0.0, -factor) };
+    return Qubit(minus_i_state);
+}

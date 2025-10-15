@@ -38,6 +38,10 @@ public:
     //static factory
     static Qubit ketOne();
     static Qubit ketZero();
+    static Qubit ketPlus();
+    static Qubit ketMinus();
+    static Qubit ketPlusI();
+    static Qubit ketMinusI();
 
 
 };
