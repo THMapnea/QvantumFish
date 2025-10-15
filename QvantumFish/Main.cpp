@@ -1,6 +1,5 @@
 #define _USE_MATH_DEFINES
 
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -11,17 +10,6 @@
 #include <cmath>
 
 
-/*
-
-    Neon Steampunk Sphere Visualization
-    -----------------------------------
-    - Black background
-    - Rotating neon green/cyan sphere (full 32x32)
-    - Static 3D axes (negative and positive) with cone arrow tips
-    - Sphere rotates only around Z-axis
-    - OpenGL 3.3 core
-
-*/
 
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 600;
@@ -40,6 +28,8 @@ void main(){
 }
 )";
 
+
+
 // Fragment shader
 const char* fragment_shader_source = R"(
 #version 330 core
@@ -51,6 +41,8 @@ void main(){
     FragColor = vec4(color, 1.0);
 }
 )";
+
+
 
 // Compile shader
 unsigned int compileShader(unsigned int type, const char* source) {
@@ -66,6 +58,8 @@ unsigned int compileShader(unsigned int type, const char* source) {
     }
     return shader;
 }
+
+
 
 // Generate wireframe sphere vertices
 std::vector<float> generateSphere(float radius, int slices, int stacks) {
@@ -88,6 +82,8 @@ std::vector<float> generateSphere(float radius, int slices, int stacks) {
     return vertices;
 }
 
+
+
 // Generate a simple cone (arrow tip)
 std::vector<float> generateCone(float height, float baseRadius, int segments) {
     std::vector<float> vertices;
@@ -101,11 +97,15 @@ std::vector<float> generateCone(float height, float baseRadius, int segments) {
     return vertices;
 }
 
+
+
 // Key input
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
+
+
 
 int main() {
     // Initialize GLFW
