@@ -189,8 +189,8 @@ int main() {
         glUniformMatrix4fv(glGetUniformLocation(shader_program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
         glUniformMatrix4fv(glGetUniformLocation(shader_program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-        // Sphere rotation around Z only
-        glm::mat4 model = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime() * glm::radians(25.0f), glm::vec3(0, 0, 1));
+        // Sphere without rotation
+        glm::mat4 model = glm::mat4(1.0f);
         glUniformMatrix4fv(glGetUniformLocation(shader_program, "model"), 1, GL_FALSE, glm::value_ptr(model));
         glUniform3f(glGetUniformLocation(shader_program, "color"), 0.0f, 1.0f, 0.8f);
         glBindVertexArray(sphereVAO);

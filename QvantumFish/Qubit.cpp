@@ -5,7 +5,6 @@
 
 
 
-
 /*
 
     FUNCTION:   checkCorrectInitialization():
@@ -59,7 +58,6 @@ Qubit& Qubit::operator=(const Qubit& other) {
     }
     return *this;
 }
-
 
 
 
