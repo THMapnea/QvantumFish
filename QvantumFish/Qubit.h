@@ -4,6 +4,12 @@
 #include <complex>
 #include <iostream>
 
+typedef struct{
+    double sphericalX;
+    double sphericalY;
+    double sphericalZ;
+}blochSphereCoordinates;
+
 class Qubit {
 private:
     std::complex<double> states[2];
@@ -49,6 +55,9 @@ public:
 
     //find relative phse
     double findRelativePhase() const;
+
+    //convert to bloch sphere coordinates
+    blochSphereCoordinates getBlochSphereCoordinates() const;
 
 };
 

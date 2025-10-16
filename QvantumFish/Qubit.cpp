@@ -184,13 +184,18 @@ Qubit Qubit::ketMinusI() {
 
 /*
 
-    FUNCTIONS: findPolarAngle() and findRelativePhase():
+    FUNCTIONS: findPolarAngle() and findRelativePhase() getBlochSphereCoordinates():
                 on the bloch sphere a certain state can be represented like it follows 
 
-                        |psi> = cos(tetha/2)|0> + exp(i*phi)sin(theta/2)|1>
+                             |psi> = cos(theta/2)|0> + exp(i*phi)sin(theta/2)|1>
 
-                where tetha is a real number defined between [0,pi] and phi is the relative phase
-                and is a real number between [0, 2pi]. the follwoing functions return us the angle and the relative phase
+                where theta is a real number defined between [0,pi] and phi is the relative phase
+                and is a real number between [0, 2pi]. the following functions return us the angle and the relative phase.
+                since we supposed our sphere of radius 1 we can use spheric coordinates and use theta as the polar angle
+                while phi is the azimuthal angle to get a representation of a vector on our sphere as (1, theta, phi), therefore
+                a point on the bloch sphere will have coordinates defined as follows
+                        
+                         (x, y, z) ===> (sin(theta)cos(phi), sin(theta)sin(phi), cos(theta))
 
 */
 double Qubit::findPolarAngle() const {
@@ -206,4 +211,24 @@ double Qubit::findRelativePhase() const {
     //normalize in range [0, 2pi] for visualization on the sphere
     relativePhase = relativePhase - 2 * M_PI * std::floor(relativePhase / (2 * M_PI));
     return relativePhase;
+}
+
+
+
+blochSphereCoordinates Qubit::getBlochSphereCoordinates() const {
+    //create the struct
+    blochSphereCoordinates bsc{};
+
+    //get the angles
+    double theta = findPolarAngle();
+    double phi = findRelativePhase();
+
+    //compute the transformation
+    bsc.sphericalX = std::sin(theta) * std::cos(phi);
+    bsc.sphericalY = std::sin(theta) * std::sin(phi);
+    bsc.sphericalZ = std::cos(theta);
+
+    //return the value
+    return bsc;
+
 }
