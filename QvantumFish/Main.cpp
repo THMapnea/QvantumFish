@@ -17,20 +17,6 @@ const unsigned int HEIGHT = 600;
 BlochSphere* blochSphere = nullptr;
 VectorSphere* quantumVector = nullptr;
 
-// Key input
-void processInput(GLFWwindow* window) {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    // Rebuild sphere when R key is pressed
-    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-        if (blochSphere) {
-            blochSphere->rebuild();
-            std::cout << "Bloch sphere rebuilt!" << std::endl;
-        }
-    }
-}
-
 // Mouse input variables
 float lastX = WIDTH / 2.0f;
 float lastY = HEIGHT / 2.0f;
@@ -38,6 +24,19 @@ float yaw = 0.0f;
 float pitch = 0.0f;
 bool firstMouse = true;
 bool mousePressed = false;
+
+// Key input
+void processInput(GLFWwindow* window) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+
+    // Reset scene when R key is pressed
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
+        yaw = 0.0f;
+        pitch = 0.0f;
+        std::cout << "Scene reset to default view!" << std::endl;
+    }
+}
 
 // Mouse callback
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -51,7 +50,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
         float xoffset = xpos - lastX;
         float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
 
-        float sensitivity = 0.1f;
+        float sensitivity = 0.2f;
         xoffset *= sensitivity;
         yoffset *= sensitivity;
 
@@ -127,7 +126,7 @@ int main() {
 
     std::cout << "Bloch Sphere with Quantum Vector initialized." << std::endl;
     std::cout << "Vector position: (0, 0, 1) - |0> state" << std::endl;
-    std::cout << "Controls: Mouse drag to rotate, R to rebuild, ESC to exit" << std::endl;
+    std::cout << "Controls: Mouse drag to rotate, R to reset view, ESC to exit" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
