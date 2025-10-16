@@ -211,20 +211,16 @@ void VectorSphere::render(float time, const glm::mat4& view, const glm::mat4& pr
     glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 1.0f);
     glBindVertexArray(sphereVAO);
 
-    // Draw sphere as filled
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    for (int i = 0; i < sphereSlices; ++i) {
-        for (int j = 0; j < sphereStacks; ++j) {
-            int first = i * (sphereStacks + 1) + j;
-            int second = first + sphereStacks + 1;
-            glDrawArrays(GL_TRIANGLE_STRIP, first, 2);
-        }
+    // Draw longitude lines (vertical)
+    for (int i = 0; i <= sphereSlices; ++i) {
+        glDrawArrays(GL_LINE_STRIP, i * (sphereStacks + 1), sphereStacks + 1);
     }
 
-    // Switch back to wireframe if needed for other objects
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // Draw latitude lines (horizontal)
+    for (int j = 0; j <= sphereStacks; ++j) {
+        glDrawArrays(GL_LINE_STRIP, (sphereSlices + 1) * (sphereStacks + 1) + j * (sphereSlices + 1), sphereSlices + 1);
+    }
 }
-
 void VectorSphere::setColor(const glm::vec3& newColor) {
     color = newColor;
 }

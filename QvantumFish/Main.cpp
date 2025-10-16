@@ -8,12 +8,14 @@
 #include <iostream>
 #include <cmath>
 #include "BlochSphere.h"
+#include "VectorSphere.h"
 
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 600;
 
 // Global variables
 BlochSphere* blochSphere = nullptr;
+VectorSphere* quantumVector = nullptr;
 
 // Key input
 void processInput(GLFWwindow* window) {
@@ -88,7 +90,11 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "QvantumFish - Bloch Sphere", NULL, NULL);
-    if (!window) { std::cerr << "Failed to create window\n"; glfwTerminate(); return -1; }
+    if (!window) {
+        std::cerr << "Failed to create window\n";
+        glfwTerminate();
+        return -1;
+    }
     glfwMakeContextCurrent(window);
 
     // Set mouse callbacks
@@ -96,7 +102,8 @@ int main() {
     glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Failed to initialize GLAD\n"; return -1;
+        std::cerr << "Failed to initialize GLAD\n";
+        return -1;
     }
 
     glEnable(GL_DEPTH_TEST);
@@ -108,12 +115,19 @@ int main() {
     // Create Bloch Sphere
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
+    // Create Quantum Vector pointing to |0> state (north pole: 0,0,1)
+    quantumVector = new VectorSphere(glm::vec3(0.0f, 0.0f, 1.0f));
+
     // Set line width for better visibility
     glLineWidth(2.0f);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
     glm::mat4 view = glm::lookAt(glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
     glm::mat4 model = glm::mat4(1.0f);
+
+    std::cout << "Bloch Sphere with Quantum Vector initialized." << std::endl;
+    std::cout << "Vector position: (0, 0, 1) - |0> state" << std::endl;
+    std::cout << "Controls: Mouse drag to rotate, R to rebuild, ESC to exit" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
@@ -126,12 +140,17 @@ int main() {
         float time = glfwGetTime();
         blochSphere->render(time, view, projection, model, yaw, pitch);
 
+        // Render the Quantum Vector
+        quantumVector->render(time, view, projection, model, yaw, pitch);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
     // Cleanup
     delete blochSphere;
+    delete quantumVector;
     glfwTerminate();
+
     return 0;
 }
