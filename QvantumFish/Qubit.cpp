@@ -89,7 +89,7 @@ std::complex<double> Qubit::getBeta() const {
 
 /*
 
-    FUNCTION: look():
+    FUNCTION: look()
                 Basic output function to show the qubit's states
                 
 
@@ -177,4 +177,28 @@ Qubit Qubit::ketMinusI() {
     double factor = 1.0 / std::sqrt(2.0);
     std::complex<double> minus_i_state[2] = { factor, std::complex<double>(0.0, -factor) };
     return Qubit(minus_i_state);
+}
+
+
+/*
+
+    FUNCTIONS: findPolarAngle() and findRelativePhase():
+                on the bloch sphere a certain state can be represented like it follows 
+
+                        |psi> = cos(tetha/2)|0> + exp(i*phi)sin(theta/2)|1>
+
+                where tetha is a real number defined between [0,pi] and phi is the relative phase
+                and is a real number between [0, 2pi]. the follwoing functions return us the angle and the relative phase
+
+*/
+double Qubit::findPolarAngle() {
+    double polarAngle = 2.0 * asin(std::abs(states[1]));
+    return polarAngle;
+}
+
+
+
+double Qubit::findRelativePhase() {
+    double relativePhase = std::arg(states[1]) - std::arg(states[0]);
+    return relativePhase;
 }

@@ -8,6 +8,7 @@ class Qubit {
 private:
     std::complex<double> states[2];
 
+
     // Private helper method
     bool checkCorrectInitialization() const;
 
@@ -43,6 +44,11 @@ public:
     static Qubit ketPlusI();
     static Qubit ketMinusI();
 
+    //find polar angle
+    double findPolarAngle();
+
+    //find relative phse
+    double findRelativePhase();
 
 };
 
