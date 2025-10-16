@@ -73,18 +73,34 @@ std::vector<float> VectorSphere::generateLineVertices(const glm::vec3& start, co
     return vertices;
 }
 
-// Generate sphere vertices for the end point
 std::vector<float> VectorSphere::generateSphereVertices(float radius, int slices, int stacks) {
     std::vector<float> vertices;
 
+    // Generate vertices for longitude lines (vertical)
     for (int i = 0; i <= slices; ++i) {
+        float theta = static_cast<float>(i) / slices * 2.0f * M_PI;
         for (int j = 0; j <= stacks; ++j) {
-            float theta = static_cast<float>(i) / slices * 2.0f * M_PI;
-            float phi = static_cast<float>(j) / stacks * M_PI;
+            float phi = static_cast<float>(j) / stacks * M_PI - M_PI_2;
 
-            float x = radius * sin(phi) * cos(theta);
-            float y = radius * sin(phi) * sin(theta);
-            float z = radius * cos(phi);
+            float x = radius * cos(phi) * cos(theta);
+            float y = radius * cos(phi) * sin(theta);
+            float z = radius * sin(phi);
+
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+        }
+    }
+
+    // Generate vertices for latitude lines (horizontal)
+    for (int j = 0; j <= stacks; ++j) {
+        float phi = static_cast<float>(j) / stacks * M_PI - M_PI_2;
+        for (int i = 0; i <= slices; ++i) {
+            float theta = static_cast<float>(i) / slices * 2.0f * M_PI;
+
+            float x = radius * cos(phi) * cos(theta);
+            float y = radius * cos(phi) * sin(theta);
+            float z = radius * sin(phi);
 
             vertices.push_back(x);
             vertices.push_back(y);
@@ -148,6 +164,10 @@ VectorSphere::VectorSphere(const glm::vec3& vecPosition, float vectorRadius,
     : position(vecPosition), radius(vectorRadius), sphereRadius(endSphereRadius),
     lineSegments(lineSegmentsCount), sphereSlices(sphereSlicesCount),
     sphereStacks(sphereStacksCount), color(1.0f, 0.2f, 0.2f) {
+
+    // Use more slices/stacks for smoother sphere (like 16x16 or 32x16)
+    sphereSlices = 16;
+    sphereStacks = 16;
 
     compileShaders();
     createLineGeometry();
