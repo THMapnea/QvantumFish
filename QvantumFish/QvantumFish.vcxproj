@@ -133,11 +133,13 @@
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Qubit.cpp" />
+    <ClCompile Include="VectorSphere.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BlochSphere.h" />
     <ClInclude Include="Libraries\include\glad\glad.h" />
     <ClInclude Include="Qubit.h" />
+    <ClInclude Include="VectorSphere.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

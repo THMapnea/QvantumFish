@@ -25,6 +25,9 @@
     <Filter Include="File di origine\Graphic\BlochSphere">
       <UniqueIdentifier>{c08a30e1-d9d8-4091-8893-566674b96dab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Graphic\VectorsSphere">
+      <UniqueIdentifier>{58439aef-530f-4642-8673-5da1b2bf2d84}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -39,6 +42,9 @@
     <ClCompile Include="BlochSphere.cpp">
       <Filter>File di origine\Graphic\BlochSphere</Filter>
     </ClCompile>
+    <ClCompile Include="VectorSphere.cpp">
+      <Filter>File di origine\Graphic\VectorsSphere</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h">
@@ -48,6 +54,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="BlochSphere.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="VectorSphere.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
