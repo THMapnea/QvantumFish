@@ -322,9 +322,9 @@ int main() {
             glDrawArrays(GL_LINE_STRIP, totalLongitudeVertices + j * verticesPerLatitude, verticesPerLatitude);
         }
 
-        // Draw slice discs as solid filled triangles
+        // Draw slice discs as very transparent filled triangles
         glUniform3f(glGetUniformLocation(shader_program, "color"), 0.15f, 0.6f, 0.8f); // Slightly different cyan
-        glUniform1f(glGetUniformLocation(shader_program, "opacity"), 1.0f); // Fully opaque
+        glUniform1f(glGetUniformLocation(shader_program, "opacity"), 0.20f); // Very transparent (20% opacity)
 
         // Temporarily disable wireframe mode for discs
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
