@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+
 #include "Qubit.h"
 #include <cmath>
 #include <stdexcept>
@@ -201,5 +203,6 @@ double Qubit::findPolarAngle() const {
 double Qubit::findRelativePhase() const {
     double relativePhase = std::arg(states[1]) - std::arg(states[0]);
     //normalize in range [0, 2pi] for visualization on the sphere
+    relativePhase = relativePhase - 2 * M_PI * std::floor(relativePhase / (2 * M_PI));
     return relativePhase;
 }
