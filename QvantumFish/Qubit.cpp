@@ -194,6 +194,7 @@ Qubit Qubit::ketMinusI() {
 
 */
 double Qubit::findPolarAngle() const {
+    //no need for normalization since asin goes from 0 to pi/2 and multiplied by two stays in the correct range of [0, pi]
     double polarAngle = 2.0 * asin(std::abs(states[1]));
     return polarAngle;
 }
