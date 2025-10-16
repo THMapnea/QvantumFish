@@ -191,14 +191,15 @@ Qubit Qubit::ketMinusI() {
                 and is a real number between [0, 2pi]. the follwoing functions return us the angle and the relative phase
 
 */
-double Qubit::findPolarAngle() {
+double Qubit::findPolarAngle() const {
     double polarAngle = 2.0 * asin(std::abs(states[1]));
     return polarAngle;
 }
 
 
 
-double Qubit::findRelativePhase() {
+double Qubit::findRelativePhase() const {
     double relativePhase = std::arg(states[1]) - std::arg(states[0]);
+    //normalize in range [0, 2pi] for visualization on the sphere
     return relativePhase;
 }

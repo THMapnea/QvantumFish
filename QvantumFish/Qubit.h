@@ -45,10 +45,10 @@ public:
     static Qubit ketMinusI();
 
     //find polar angle
-    double findPolarAngle();
+    double findPolarAngle() const;
 
     //find relative phse
-    double findRelativePhase();
+    double findRelativePhase() const;
 
 };
 
