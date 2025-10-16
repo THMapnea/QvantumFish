@@ -129,11 +129,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BlochSphere.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Qubit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BlochSphere.h" />
     <ClInclude Include="Libraries\include\glad\glad.h" />
     <ClInclude Include="Qubit.h" />
   </ItemGroup>

@@ -22,6 +22,9 @@
     <Filter Include="File di origine\Qubit">
       <UniqueIdentifier>{cca81cc9-c456-4855-9586-4a27df0bf172}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Graphic\BlochSphere">
+      <UniqueIdentifier>{c08a30e1-d9d8-4091-8893-566674b96dab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -33,12 +36,18 @@
     <ClCompile Include="Qubit.cpp">
       <Filter>File di origine\Qubit</Filter>
     </ClCompile>
+    <ClCompile Include="BlochSphere.cpp">
+      <Filter>File di origine\Graphic\BlochSphere</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h">
       <Filter>File di intestazione\glad</Filter>
     </ClInclude>
     <ClInclude Include="Qubit.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="BlochSphere.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
