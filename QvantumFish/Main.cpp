@@ -9,6 +9,12 @@
 #include <vector>
 #include <cmath>
 
+/*
+
+
+TODO: add label to north and south and eventualli est and ovest
+
+*/
 
 
 const unsigned int WIDTH = 800;
@@ -105,6 +111,38 @@ std::vector<float> generateMinimalSphere(float radius, int slices, int stacks) {
     return vertices;
 }
 
+// Generate filled discs that slice through the sphere
+std::vector<float> generateSliceDiscs(float radius, int segments) {
+    std::vector<float> vertices;
+
+    // Generate 3 discs at 1/4, 2/4, and 3/4 of sphere height
+    float sliceHeights[] = { -radius * 0.5f, 0.0f, radius * 0.5f };
+
+    for (int plane = 0; plane < 3; plane++) {
+        float z = sliceHeights[plane];
+        float sliceRadius = sqrt(radius * radius - z * z); // Radius of the slice circle
+
+        // Create triangle fan for filled disc
+        // Center point
+        vertices.push_back(0.0f);
+        vertices.push_back(0.0f);
+        vertices.push_back(z);
+
+        // Outer points
+        for (int i = 0; i <= segments; i++) {
+            float angle = 2.0f * M_PI * i / segments;
+            float x = sliceRadius * cos(angle);
+            float y = sliceRadius * sin(angle);
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+        }
+    }
+
+    return vertices;
+}
+
+
 
 // Key input
 void processInput(GLFWwindow* window) {
@@ -191,7 +229,6 @@ int main() {
     }
 
     glEnable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Wireframe
 
     // Enable blending for opacity effect
     glEnable(GL_BLEND);
@@ -223,13 +260,25 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    // Slice discs VAO/VBO
+    std::vector<float> discVerts = generateSliceDiscs(1.0f, 64);
+    unsigned int discVAO, discVBO;
+    glGenVertexArrays(1, &discVAO);
+    glGenBuffers(1, &discVBO);
+    glBindVertexArray(discVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, discVBO);
+    glBufferData(GL_ARRAY_BUFFER, discVerts.size() * sizeof(float), discVerts.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
     // Calculate vertex counts for different parts
     int slices = 32;
     int stacks = 32;
     int verticesPerLongitude = stacks + 1;
     int verticesPerLatitude = slices + 1;
-    int totalLongitudeVertices = 4 * verticesPerLongitude; 
+    int totalLongitudeVertices = 4 * verticesPerLongitude;
     int totalLatitudeVertices = (stacks + 1) * verticesPerLatitude;
+    int verticesPerDisc = 66; // 64 segments + center + duplicate first vertex to close
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
     glm::mat4 view = glm::lookAt(glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
@@ -272,6 +321,19 @@ int main() {
         for (int j = 0; j <= stacks; ++j) {
             glDrawArrays(GL_LINE_STRIP, totalLongitudeVertices + j * verticesPerLatitude, verticesPerLatitude);
         }
+
+        // Draw slice discs as solid filled triangles
+        glUniform3f(glGetUniformLocation(shader_program, "color"), 0.15f, 0.6f, 0.8f); // Slightly different cyan
+        glUniform1f(glGetUniformLocation(shader_program, "opacity"), 1.0f); // Fully opaque
+
+        // Temporarily disable wireframe mode for discs
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glBindVertexArray(discVAO);
+        for (int i = 0; i < 3; ++i) {
+            glDrawArrays(GL_TRIANGLE_FAN, i * verticesPerDisc, verticesPerDisc);
+        }
+        // Re-enable wireframe mode for sphere
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
