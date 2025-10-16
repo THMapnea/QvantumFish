@@ -9,14 +9,6 @@
 #include <vector>
 #include <cmath>
 
-/*
-
-
-TODO: add label to north and south and eventualli est and ovest
-
-*/
-
-
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 600;
 
@@ -33,8 +25,6 @@ void main(){
     gl_Position = projection * view * model * vec4(aPos, 1.0);
 }
 )";
-
-
 
 // Fragment shader with glow effect and opacity
 const char* fragment_shader_source = R"(
@@ -58,8 +48,6 @@ void main(){
 }
 )";
 
-
-
 // Compile shader
 unsigned int compileShader(unsigned int type, const char* source) {
     unsigned int shader = glCreateShader(type);
@@ -74,8 +62,6 @@ unsigned int compileShader(unsigned int type, const char* source) {
     }
     return shader;
 }
-
-
 
 // Generate sphere with only 4 longitudinal lines
 std::vector<float> generateMinimalSphere(float radius, int slices, int stacks) {
@@ -111,46 +97,38 @@ std::vector<float> generateMinimalSphere(float radius, int slices, int stacks) {
     return vertices;
 }
 
-// Generate filled discs that slice through the sphere
-std::vector<float> generateSliceDiscs(float radius, int segments) {
+// Generate only the middle disc that slices through the sphere
+std::vector<float> generateMiddleDisc(float radius, int segments) {
     std::vector<float> vertices;
 
-    // Generate 3 discs at 1/4, 2/4, and 3/4 of sphere height
-    float sliceHeights[] = { -radius * 0.5f, 0.0f, radius * 0.5f };
+    // Generate only the middle disc at z = 0
+    float z = 0.0f;
+    float sliceRadius = sqrt(radius * radius - z * z); // Radius of the slice circle
 
-    for (int plane = 0; plane < 3; plane++) {
-        float z = sliceHeights[plane];
-        float sliceRadius = sqrt(radius * radius - z * z); // Radius of the slice circle
+    // Create triangle fan for filled disc
+    // Center point
+    vertices.push_back(0.0f);
+    vertices.push_back(0.0f);
+    vertices.push_back(z);
 
-        // Create triangle fan for filled disc
-        // Center point
-        vertices.push_back(0.0f);
-        vertices.push_back(0.0f);
+    // Outer points
+    for (int i = 0; i <= segments; i++) {
+        float angle = 2.0f * M_PI * i / segments;
+        float x = sliceRadius * cos(angle);
+        float y = sliceRadius * sin(angle);
+        vertices.push_back(x);
+        vertices.push_back(y);
         vertices.push_back(z);
-
-        // Outer points
-        for (int i = 0; i <= segments; i++) {
-            float angle = 2.0f * M_PI * i / segments;
-            float x = sliceRadius * cos(angle);
-            float y = sliceRadius * sin(angle);
-            vertices.push_back(x);
-            vertices.push_back(y);
-            vertices.push_back(z);
-        }
     }
 
     return vertices;
 }
-
-
 
 // Key input
 void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
-
-
 
 // Mouse input variables
 float lastX = WIDTH / 2.0f;
@@ -159,8 +137,6 @@ float yaw = 0.0f;
 float pitch = 0.0f;
 bool firstMouse = true;
 bool mousePressed = false;
-
-
 
 // Mouse callback
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -192,8 +168,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     lastY = ypos;
 }
 
-
-
 // Mouse button callback
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
@@ -206,8 +180,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         }
     }
 }
-
-
 
 int main() {
     // Initialize GLFW
@@ -260,8 +232,8 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Slice discs VAO/VBO
-    std::vector<float> discVerts = generateSliceDiscs(1.0f, 64);
+    // Single middle disc VAO/VBO
+    std::vector<float> discVerts = generateMiddleDisc(1.0f, 64);
     unsigned int discVAO, discVBO;
     glGenVertexArrays(1, &discVAO);
     glGenBuffers(1, &discVBO);
@@ -322,16 +294,14 @@ int main() {
             glDrawArrays(GL_LINE_STRIP, totalLongitudeVertices + j * verticesPerLatitude, verticesPerLatitude);
         }
 
-        // Draw slice discs as very transparent filled triangles
+        // Draw the single middle disc as very transparent filled triangles
         glUniform3f(glGetUniformLocation(shader_program, "color"), 0.15f, 0.6f, 0.8f); // Slightly different cyan
         glUniform1f(glGetUniformLocation(shader_program, "opacity"), 0.20f); // Very transparent (20% opacity)
 
-        // Temporarily disable wireframe mode for discs
+        // Temporarily disable wireframe mode for disc
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         glBindVertexArray(discVAO);
-        for (int i = 0; i < 3; ++i) {
-            glDrawArrays(GL_TRIANGLE_FAN, i * verticesPerDisc, verticesPerDisc);
-        }
+        glDrawArrays(GL_TRIANGLE_FAN, 0, verticesPerDisc);
         // Re-enable wireframe mode for sphere
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
