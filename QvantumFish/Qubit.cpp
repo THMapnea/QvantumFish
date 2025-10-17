@@ -2,7 +2,7 @@
 
 #include "Qubit.h"
 #include <cmath>
-#include<array>
+#include <array>
 #include <stdexcept>
 #include <iostream>
 

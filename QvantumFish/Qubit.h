@@ -2,7 +2,7 @@
 #define QUBIT_H
 
 #include <complex>
-#include<array>
+#include <array>
 #include <iostream>
 
 
