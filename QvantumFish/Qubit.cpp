@@ -2,6 +2,7 @@
 
 #include "Qubit.h"
 #include <cmath>
+#include<array>
 #include <stdexcept>
 #include <iostream>
 
@@ -26,7 +27,7 @@ bool Qubit::checkCorrectInitialization() const {
     CONSTRUCTOR
 
 */
-Qubit::Qubit(const std::complex<double> input_states[2]) {
+Qubit::Qubit(const std::array<std::complex<double>, 2> input_states) {
     states[0] = input_states[0];
     states[1] = input_states[1];
     if (!checkCorrectInitialization()) {
@@ -135,7 +136,7 @@ double Qubit::probabilityOne() const {
 */
 //a qubit initialized to |0>
 Qubit Qubit::ketZero() {
-    std::complex<double> ket_zero_state[] = { 0.0, 0.0 };
+    std::array<std::complex<double>, 2> ket_zero_state = { 0.0, 0.0 };
     return Qubit(ket_zero_state);
 }
 
@@ -143,7 +144,7 @@ Qubit Qubit::ketZero() {
 
 //a qubit initialized to |1>
 Qubit Qubit::ketOne() {
-    std::complex<double> ket_one_state[] = {0.0, 1.0};
+    std::array<std::complex<double>, 2> ket_one_state = {0.0, 1.0};
     return Qubit(ket_one_state);
 }
 
@@ -152,7 +153,7 @@ Qubit Qubit::ketOne() {
 //a qubit initialized to |+>
 Qubit Qubit::ketPlus() {
     double factor = 1.0 / std::sqrt(2.0);
-    std::complex<double> plus_state[2] = { factor, factor };
+    std::array<std::complex<double>, 2> plus_state = { factor, factor };
     return Qubit(plus_state);
 }
 
@@ -161,14 +162,14 @@ Qubit Qubit::ketPlus() {
 //a qubit initialized to |->
 Qubit Qubit::ketMinus() {
     double factor = 1.0 / std::sqrt(2.0);
-    std::complex<double> minus_state[2] = { factor, -factor };
+    std::array<std::complex<double>, 2> minus_state = { factor, -factor };
     return Qubit(minus_state);
 }
 
 //a qubit initialized to |+i>
 Qubit Qubit::ketPlusI() {
     double factor = 1.0 / std::sqrt(2.0);
-    std::complex<double> plus_i_state[2] = { factor, std::complex<double>(0.0, factor) };
+    std::array<std::complex<double>, 2> plus_i_state = { factor, std::complex<double>(0.0, factor) };
     return Qubit(plus_i_state);
 }
 
@@ -177,7 +178,7 @@ Qubit Qubit::ketPlusI() {
 //a qubit initialized to |-i>
 Qubit Qubit::ketMinusI() {
     double factor = 1.0 / std::sqrt(2.0);
-    std::complex<double> minus_i_state[2] = { factor, std::complex<double>(0.0, -factor) };
+    std::array<std::complex<double>, 2> minus_i_state = { factor, std::complex<double>(0.0, -factor) };
     return Qubit(minus_i_state);
 }
 

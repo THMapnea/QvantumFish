@@ -2,6 +2,7 @@
 #define QUBIT_H
 
 #include <complex>
+#include<array>
 #include <iostream>
 
 
@@ -19,12 +20,8 @@ typedef struct{
 
 class Qubit {
 private:
-    /*
-    
-        Change to std::array for matemathical optimization
-    
-    */
-    std::complex<double> states[2];
+    //states of the qubit for the alpha|0> + beta|1> representation
+    std::array<std::complex<double>, 2> states;
 
 
     // Private helper method
@@ -32,7 +29,7 @@ private:
 
 public:
     // Constructors
-    Qubit(const std::complex<double> input_states[2]);
+    Qubit(const std::array<std::complex<double>, 2> input_states);
 
     // Copy constructor
     Qubit(const Qubit& other);
