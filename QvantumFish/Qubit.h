@@ -19,6 +19,11 @@ typedef struct{
 
 class Qubit {
 private:
+    /*
+    
+        Change to std::array for matemathical optimization
+    
+    */
     std::complex<double> states[2];
 
 
