@@ -225,9 +225,9 @@ blochSphereCoordinates Qubit::getBlochSphereCoordinates() const {
     double phi = findRelativePhase();
 
     //compute the transformation
-    bsc.sphericalX = std::sin(theta) * std::cos(phi);
-    bsc.sphericalY = std::sin(theta) * std::sin(phi);
-    bsc.sphericalZ = std::cos(theta);
+    bsc.sphericalX() = std::sin(theta) * std::cos(phi);
+    bsc.sphericalY() = std::sin(theta) * std::sin(phi);
+    bsc.sphericalZ() = std::cos(theta);
 
     //return the value
     return bsc;
