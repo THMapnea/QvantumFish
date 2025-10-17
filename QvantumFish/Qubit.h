@@ -4,6 +4,13 @@
 #include <complex>
 #include <iostream>
 
+
+/*
+
+    TODO: change to class approach for better optimization
+
+*/
+
 typedef struct{
     double sphericalX;
     double sphericalY;
