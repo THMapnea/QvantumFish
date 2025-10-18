@@ -120,11 +120,10 @@ int main() {
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
     //create qubit from custom class
-    Qubit q = Qubit::ketOne();
-    BlochSphereCoordinates bsc = q.getBlochSphereCoordinates();
+    Qubit q = Qubit::ketZero();
 
     // Create Quantum Vector pointing to |0> state (north pole: 0,0,1)
-    quantumVector = new VectorSphere(glm::vec3(bsc.sphericalX(), bsc.sphericalY(), bsc.sphericalZ()));
+    quantumVector = new VectorSphere(q.getBlochSphereCoordinates().convertToVec3());
 
     // Set line width for better visibility
     glLineWidth(2.0f);

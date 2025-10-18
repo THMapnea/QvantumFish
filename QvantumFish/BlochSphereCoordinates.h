@@ -2,14 +2,11 @@
 #define BLOCH_SPHERE_COORDINATES_H
 
 #include <array>
+#include <glm/glm.hpp>
 
 //personalized class for better coordinates optimization
-/*
-
-    TODO: Implement method to convert to glm::vec3
-
-*/
 class BlochSphereCoordinates {
+
 private:
     std::array<double, 3> coordinates;
 
@@ -18,6 +15,9 @@ public:
     double& sphericalX() { return coordinates.at(0); }
     double& sphericalY() { return coordinates.at(1); }
     double& sphericalZ() { return coordinates.at(2); }
+
+    //the vec3 will contain float since those are required by the graphics for the computation we will use the double
+    glm::vec3 convertToVec3();
 };
 
 
