@@ -18,10 +18,10 @@ BlochSphere* blochSphere = nullptr;
 VectorSphere* quantumVector = nullptr;
 
 // Mouse input variables
-float lastX = WIDTH / 2.0f;
-float lastY = HEIGHT / 2.0f;
-float yaw = 0.0f;
-float pitch = 0.0f;
+double lastX = WIDTH / 2.0f;
+double lastY = HEIGHT / 2.0f;
+double yaw = 0.0f;
+double pitch = 0.0f;
 bool firstMouse = true;
 bool mousePressed = false;
 
@@ -47,10 +47,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     }
 
     if (mousePressed) {
-        float xoffset = xpos - lastX;
-        float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+        double xoffset = xpos - lastX;
+        double yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
 
-        float sensitivity = 0.2f;
+        double sensitivity = 0.2f;
         xoffset *= sensitivity;
         yoffset *= sensitivity;
 
