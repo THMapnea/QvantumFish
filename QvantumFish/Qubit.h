@@ -4,20 +4,15 @@
 #include <complex>
 #include <array>
 #include <iostream>
+#include "BlochSphereCoordinates.h"
 
 
-//personalized class for better coordinates optimization
-class blochSphereCoordinates {
-    private:
-        std::array<double, 3> coordinates;
-    
-public:
-    //we need to be careful here since we are working on the actual data and not the copy
-    double& sphericalX() { return coordinates.at(0); }
-    double& sphericalY() { return coordinates.at(1); }
-    double& sphericalZ() { return coordinates.at(2); }
-};
 
+/*
+
+    Qubit class
+
+*/
 class Qubit {
 private:
     //states of the qubit for the alpha|0> + beta|1> representation
@@ -66,7 +61,7 @@ public:
     double findRelativePhase() const;
 
     //convert to bloch sphere coordinates
-    blochSphereCoordinates getBlochSphereCoordinates() const;
+    BlochSphereCoordinates getBlochSphereCoordinates() const;
 
 };
 

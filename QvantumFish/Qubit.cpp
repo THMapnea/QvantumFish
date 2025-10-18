@@ -216,9 +216,9 @@ double Qubit::findRelativePhase() const {
 
 
 
-blochSphereCoordinates Qubit::getBlochSphereCoordinates() const {
+BlochSphereCoordinates Qubit::getBlochSphereCoordinates() const {
     //create the struct
-    blochSphereCoordinates bsc{};
+    BlochSphereCoordinates bsc{};
 
     //get the angles
     double theta = findPolarAngle();

@@ -45,6 +45,9 @@
     <ClCompile Include="VectorSphere.cpp">
       <Filter>File di origine\Graphic\VectorsSphere</Filter>
     </ClCompile>
+    <ClCompile Include="BlochSphereCoordinates.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h">
@@ -57,6 +60,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="VectorSphere.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="BlochSphereCoordinates.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

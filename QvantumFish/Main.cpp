@@ -1,5 +1,6 @@
 #define _USE_MATH_DEFINES
 
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -9,6 +10,7 @@
 #include <cmath>
 #include "BlochSphere.h"
 #include "VectorSphere.h"
+#include "Qubit.h"
 
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 600;
