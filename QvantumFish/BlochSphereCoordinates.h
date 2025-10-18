@@ -4,6 +4,11 @@
 #include <array>
 
 //personalized class for better coordinates optimization
+/*
+
+    TODO: Implement method to convert to glm::vec3
+
+*/
 class BlochSphereCoordinates {
 private:
     std::array<double, 3> coordinates;

@@ -136,7 +136,7 @@ double Qubit::probabilityOne() const {
 */
 //a qubit initialized to |0>
 Qubit Qubit::ketZero() {
-    std::array<std::complex<double>, 2> ket_zero_state = { 0.0, 0.0 };
+    std::array<std::complex<double>, 2> ket_zero_state = { 1.0, 0.0 };
     return Qubit(ket_zero_state);
 }
 
