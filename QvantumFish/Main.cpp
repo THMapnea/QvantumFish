@@ -122,7 +122,7 @@ int main() {
     //create qubit from custom class
     Qubit q = Qubit::ketZero();
 
-    // Create Quantum Vector pointing to |0> state (north pole: 0,0,1)
+    // Create Quantum Vector
     quantumVector = new VectorSphere(q.getBlochSphereCoordinates().convertToVec3());
 
     // Set line width for better visibility
@@ -133,7 +133,6 @@ int main() {
     glm::mat4 model = glm::mat4(1.0f);
 
     std::cout << "Bloch Sphere with Quantum Vector initialized." << std::endl;
-    std::cout << "Vector position: (0, 0, 1) - |0> state" << std::endl;
     std::cout << "Controls: Mouse drag to rotate, R to reset view, ESC to exit" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
