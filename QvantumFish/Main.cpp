@@ -8,9 +8,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <cmath>
+#include <array>
+#include <complex>
 #include "BlochSphere.h"
 #include "VectorSphere.h"
 #include "Qubit.h"
+
 
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 600;
@@ -116,8 +119,12 @@ int main() {
     // Create Bloch Sphere
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
+    //create qubit from custom class
+    Qubit q = Qubit::ketOne();
+    BlochSphereCoordinates bsc = q.getBlochSphereCoordinates();
+
     // Create Quantum Vector pointing to |0> state (north pole: 0,0,1)
-    quantumVector = new VectorSphere(glm::vec3(0.0f, 0.0f, 1.0f));
+    quantumVector = new VectorSphere(glm::vec3(bsc.sphericalX(), bsc.sphericalY(), bsc.sphericalZ()));
 
     // Set line width for better visibility
     glLineWidth(2.0f);

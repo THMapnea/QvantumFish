@@ -46,7 +46,7 @@
       <Filter>File di origine\Graphic\VectorsSphere</Filter>
     </ClCompile>
     <ClCompile Include="BlochSphereCoordinates.cpp">
-      <Filter>File di origine</Filter>
+      <Filter>File di origine\Qubit</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
