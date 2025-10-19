@@ -3,6 +3,7 @@
 #include "Qubit.h"
 #include <cmath>
 #include <array>
+#include <Eigen/Dense>
 #include <stdexcept>
 #include <iostream>
 #include "BlochSphereCoordinates.h"
