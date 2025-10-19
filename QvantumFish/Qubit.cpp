@@ -5,8 +5,13 @@
 #include <array>
 #include <stdexcept>
 #include <iostream>
+#include "BlochSphereCoordinates.h"
 
+/*
 
+    TODO: Switch to Eigen library
+
+*/
 
 /*
 
@@ -233,3 +238,10 @@ BlochSphereCoordinates Qubit::getBlochSphereCoordinates() const {
     return bsc;
 
 }
+
+/*
+
+    FUNCTION: computeBlochStateDensityMatrix()/computeExternalProductStateDensityMatrix():
+        
+
+*/

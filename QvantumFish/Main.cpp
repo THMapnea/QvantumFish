@@ -31,7 +31,7 @@ bool firstMouse = true;
 bool mousePressed = false;
 
 // Key input
-void processInput(GLFWwindow* window) {
+static void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
@@ -44,7 +44,7 @@ void processInput(GLFWwindow* window) {
 }
 
 // Mouse callback
-void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+static void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     if (firstMouse) {
         lastX = xpos;
         lastY = ypos;
@@ -74,7 +74,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 }
 
 // Mouse button callback
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (action == GLFW_PRESS) {
             mousePressed = true;
