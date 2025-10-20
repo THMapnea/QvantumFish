@@ -222,7 +222,7 @@ BlochSphereCoordinates Qubit::getBlochSphereCoordinates() const {
 
 
 */
-//compute the density matric trough the bloch state
+//compute the density matrix trough the bloch state
 Eigen::Matrix2cd Qubit::computeBlochStateDensityMatrix() const {
     //create the matrix
     Eigen::Matrix2cd densityMatrix;
@@ -247,4 +247,44 @@ Eigen::Matrix2cd Qubit::computeBlochStateDensityMatrix() const {
     //return the density matrix
     return densityMatrix;
 
+}
+
+//compute the density matrix through the Pauli matrices
+Eigen::Matrix2cd Qubit::computeBlochStateDensityPauliMatrix() const {
+    //create the matrix
+    Eigen::Matrix2cd densityMatrix;
+
+    //define the various Pauli matrix we are going to use
+    Eigen::Matrix2cd I;
+    Eigen::Matrix2cd sigmax;
+    Eigen::Matrix2cd sigmay;
+    Eigen::Matrix2cd sigmaz;
+
+    I << 1, 0,
+        0, 1;
+    sigmax << 0, 1,
+        1, 0;
+    sigmay << 0, -std::complex<double>(0, 1),
+        std::complex<double>(0, 1), 0;
+    sigmaz << 1, 0,
+        0, -1;
+
+    //find the necessary angles
+    double theta = findPolarAngle();
+    double phi = findRelativePhase();
+
+    //create some helpers
+    double sin_theta = std::sin(theta);
+    double cos_theta = std::cos(theta);
+    double cos_phi = std::cos(phi);
+    double sin_phi = std::sin(phi);
+
+    //compute the density matrix
+    densityMatrix = (I +
+        sin_theta * cos_phi * sigmax +
+        sin_theta * sin_phi * sigmay +
+        cos_theta * sigmaz) / 2.0;
+
+    //return the density matrix
+    return densityMatrix;
 }

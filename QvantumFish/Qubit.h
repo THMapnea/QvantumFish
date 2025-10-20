@@ -65,6 +65,7 @@ public:
 
     //density matrix functions
     Eigen::Matrix2cd computeBlochStateDensityMatrix() const;
+    Eigen::Matrix2cd computeBlochStateDensityPauliMatrix() const;
 
 };
 
