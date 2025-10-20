@@ -288,3 +288,15 @@ Eigen::Matrix2cd Qubit::computeBlochStateDensityPauliMatrix() const {
     //return the density matrix
     return densityMatrix;
 }
+
+//compute the density matrix with the external product
+Eigen::Matrix2cd Qubit::computeExternalProductStateDensityMatrix() const {
+    //create the density matrix
+    Eigen::Matrix2cd densityMatrix;
+
+    //compute the density matrix
+    densityMatrix = states * states.adjoint();
+
+    //return the density matrix
+    return densityMatrix;
+}
