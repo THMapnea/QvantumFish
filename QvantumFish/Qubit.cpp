@@ -1,9 +1,11 @@
 #define _USE_MATH_DEFINES
+
 #include "Qubit.h"
 #include <cmath>
 #include <Eigen/Dense>
 #include <stdexcept>
 #include <iostream>
+#include <complex>
 #include "BlochSphereCoordinates.h"
 
 /*
@@ -214,7 +216,35 @@ BlochSphereCoordinates Qubit::getBlochSphereCoordinates() const {
 
 /*
 
-    FUNCTION: computeBlochStateDensityMatrix()/computeExternalProductStateDensityMatrix():
+    FUNCTION: computeBlochStateDensityMatrix()/computeBlochStateDensityPauliMatrix()/computeExternalProductStateDensityMatrix():
+        these functions implements three ways to compute the density matrix they are just to be sure to have them for particular cases,
+        since most of the time it will be enough to only use the external product for simplicity of computation
 
 
 */
+//compute the density matric trough the bloch state
+Eigen::Matrix2cd Qubit::computeBlochStateDensityMatrix() const {
+    //create the matrix
+    Eigen::Matrix2cd densityMatrix;
+
+    //find the necessary angles
+    double theta = findPolarAngle();
+    double phi = findRelativePhase();
+
+    //create the factor of i to simplify function writing
+    std::complex<double> iFactor = std::complex<double>(0, 1);
+
+    // Precompute common terms for better readability
+    double cos_half = std::cos(theta / 2);
+    double sin_half = std::sin(theta / 2);
+    std::complex<double> exp_neg = std::exp(-iFactor * phi);
+    std::complex<double> exp_pos = std::exp(iFactor * phi);
+
+    //compute the density matrix
+    densityMatrix << (cos_half * cos_half), (exp_neg * cos_half * sin_half),
+        (exp_pos * cos_half * sin_half), (sin_half * sin_half);
+
+    //return the density matrix
+    return densityMatrix;
+
+}

@@ -63,6 +63,9 @@ public:
     //convert to bloch sphere coordinates
     BlochSphereCoordinates getBlochSphereCoordinates() const;
 
+    //density matrix functions
+    Eigen::Matrix2cd computeBlochStateDensityMatrix() const;
+
 };
 
 #endif // QUBIT_H
