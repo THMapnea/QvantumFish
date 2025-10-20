@@ -10,6 +10,7 @@
 #include <cmath>
 #include <array>
 #include <complex>
+#include <Eigen/Dense>
 #include "BlochSphere.h"
 #include "VectorSphere.h"
 #include "Qubit.h"

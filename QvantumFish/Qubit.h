@@ -2,10 +2,9 @@
 #define QUBIT_H
 
 #include <complex>
-#include <array>
 #include <iostream>
+#include <Eigen/Dense>
 #include "BlochSphereCoordinates.h"
-
 
 
 /*
@@ -16,15 +15,15 @@
 class Qubit {
 private:
     //states of the qubit for the alpha|0> + beta|1> representation
-    std::array<std::complex<double>, 2> states;
-
+    Eigen::Vector2cd states;
 
     // Private helper method
     bool checkCorrectInitialization() const;
 
 public:
     // Constructors
-    Qubit(const std::array<std::complex<double>, 2> input_states);
+    Qubit(const Eigen::Vector2cd& input_states);
+    Qubit(const std::complex<double>& alpha, const std::complex<double>& beta);
 
     // Copy constructor
     Qubit(const Qubit& other);
@@ -38,6 +37,7 @@ public:
     // Getters
     std::complex<double> getAlpha() const;
     std::complex<double> getBeta() const;
+    Eigen::Vector2cd getStateVector() const;
 
     // Public member functions
     void look() const;
@@ -57,7 +57,7 @@ public:
     //find polar angle
     double findPolarAngle() const;
 
-    //find relative phse
+    //find relative phase
     double findRelativePhase() const;
 
     //convert to bloch sphere coordinates
