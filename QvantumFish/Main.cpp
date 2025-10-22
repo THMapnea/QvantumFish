@@ -135,7 +135,7 @@ int main() {
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
     // 3. THIRD: Create qubit and quantum vector
-    Qubit q = Qubit(std::cos(M_PI / 9),std::exp(std::complex<double>(0, 1) * (M_PI / 6)) *  std::sin(M_PI / 9));
+    Qubit q = Qubit(std::cos(M_PI / 9),std::exp(std::complex<double>(0, 1) * (M_PI / 2)) *  std::sin(M_PI / 9));
 
     // Create Quantum Vector with VectorArrow
     quantumVector = new VectorArrow(
