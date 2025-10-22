@@ -119,12 +119,12 @@ int main() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Color scheme matching the sphere style
-    glm::vec3 axesColor = glm::vec3(0.6f, 0.6f, 0.8f); // Light blue-gray similar to sphere grid
+    glm::vec3 axesColor = glm::vec3(0.4f, 0.6f, 0.8f); // Light blue-gray similar to sphere grid
     glm::vec3 vectorColor = glm::vec3(1.0f, 0.3f, 0.3f); // Bright red for contrast
 
     // 1. FIRST: Create Coordinate Axes with uniform color
     coordinateAxes = new CoordinateAxes(
-        1.3f,    // axis length (slightly larger than sphere)
+        1.2f,    // axis length (slightly larger than sphere)
         0.02f,   // axis thickness
         axesColor,  // X-axis color (same for all)
         axesColor,  // Y-axis color (same for all)
@@ -135,7 +135,7 @@ int main() {
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
     // 3. THIRD: Create qubit and quantum vector
-    Qubit q = Qubit::ketZero();
+    Qubit q = Qubit(sqrt(15.0) / 4, 1.0 / 4.0);
 
     // Create Quantum Vector with VectorArrow
     quantumVector = new VectorArrow(
