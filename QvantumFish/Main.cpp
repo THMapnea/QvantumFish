@@ -13,6 +13,7 @@
 #include "BlochSphere.h"
 #include "VectorSphere.h"
 #include "VectorArrow.h"
+#include "CoordinatesAxes.h"  // Aggiungi questo include
 #include "Qubit.h"
 
 const unsigned int WIDTH = 800;
@@ -20,7 +21,8 @@ const unsigned int HEIGHT = 600;
 
 // Global variables
 BlochSphere* blochSphere = nullptr;
-VectorArrow* quantumVector = nullptr;  // Changed from VectorSphere to VectorArrow
+VectorArrow* quantumVector = nullptr;
+CoordinateAxes* coordinateAxes = nullptr;  // Aggiungi questa variabile
 
 // Mouse input variables
 double lastX = WIDTH / 2.0f;
@@ -93,7 +95,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "QvantumFish - Bloch Sphere with Vector Arrow", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "QvantumFish - Bloch Sphere with Coordinate Axes", NULL, NULL);
     if (!window) {
         std::cerr << "Failed to create window\n";
         glfwTerminate();
@@ -116,13 +118,22 @@ int main() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Create Bloch Sphere
+    // 1. FIRST: Create Coordinate Axes
+    coordinateAxes = new CoordinateAxes(
+        1.3f,    // axis length (slightly larger than sphere)
+        0.02f,   // axis thickness
+        glm::vec3(1.0f, 0.3f, 0.3f),  // X-axis color (red)
+        glm::vec3(0.3f, 1.0f, 0.3f),  // Y-axis color (green) 
+        glm::vec3(0.3f, 0.3f, 1.0f)   // Z-axis color (blue)
+    );
+
+    // 2. SECOND: Create Bloch Sphere (centered at origin)
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
-    // Create qubit from custom class
+    // 3. THIRD: Create qubit and quantum vector
     Qubit q = Qubit::ketZero();
 
-    // Create Quantum Vector with VectorArrow instead of VectorSphere
+    // Create Quantum Vector with VectorArrow
     quantumVector = new VectorArrow(
         q.getBlochSphereCoordinates().convertToVec3(),  // position
         1.0f,                                           // vector length (radius)
@@ -132,8 +143,8 @@ int main() {
         16                                              // cone slices
     );
 
-    // Optional: Set a different color for the arrow to distinguish it
-    quantumVector->setColor(glm::vec3(1.0f, 0.2f, 0.2f)); // Red color
+    // Set color to red for the vector
+    quantumVector->setColor(glm::vec3(1.0f, 0.2f, 0.2f));
 
     // Set line width for better visibility
     glLineWidth(2.0f);
@@ -142,7 +153,11 @@ int main() {
     glm::mat4 view = glm::lookAt(glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
     glm::mat4 model = glm::mat4(1.0f);
 
-    std::cout << "Bloch Sphere with Quantum Vector Arrow initialized." << std::endl;
+    std::cout << "3D Coordinate System with Bloch Sphere initialized." << std::endl;
+    std::cout << "Visualization order:" << std::endl;
+    std::cout << "1. Coordinate Axes (X=Red, Y=Green, Z=Blue)" << std::endl;
+    std::cout << "2. Bloch Sphere (centered at origin)" << std::endl;
+    std::cout << "3. Quantum State Vector (Red arrow)" << std::endl;
     std::cout << "Controls: Mouse drag to rotate, R to reset view, ESC to exit" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
@@ -152,20 +167,26 @@ int main() {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Render the Bloch Sphere
         float time = glfwGetTime();
+
+        // RENDER ORDER:
+        // 1. FIRST: Render Coordinate Axes (background reference)
+        coordinateAxes->render(time, view, projection, model, yaw, pitch);
+
+        // 2. SECOND: Render the Bloch Sphere (centered at origin)
         blochSphere->render(time, view, projection, model, yaw, pitch);
 
-        // Render the Quantum Vector Arrow
+        // 3. THIRD: Render the Quantum Vector Arrow (on top)
         quantumVector->render(time, view, projection, model, yaw, pitch);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    // Cleanup
-    delete blochSphere;
+    // Cleanup - nell'ordine inverso di creazione
     delete quantumVector;
+    delete blochSphere;
+    delete coordinateAxes;
     glfwTerminate();
 
     return 0;
