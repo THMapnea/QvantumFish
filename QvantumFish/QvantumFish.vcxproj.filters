@@ -34,6 +34,9 @@
     <Filter Include="File di origine\Graphic\CoordinatesAxes">
       <UniqueIdentifier>{0447c210-1807-4248-ba6e-e242fea41d93}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Graphic\ProjectionLines">
+      <UniqueIdentifier>{ae13c7e0-211b-4906-bb78-85b17bdcba6d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -60,6 +63,9 @@
     <ClCompile Include="CoordinatesAxes.cpp">
       <Filter>File di origine\Graphic\CoordinatesAxes</Filter>
     </ClCompile>
+    <ClCompile Include="ProjectionLines.cpp">
+      <Filter>File di origine\Graphic\ProjectionLines</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h">
@@ -81,6 +87,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="CoordinatesAxes.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectionLines.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

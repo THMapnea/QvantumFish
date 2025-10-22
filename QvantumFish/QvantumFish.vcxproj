@@ -134,6 +134,7 @@
     <ClCompile Include="CoordinatesAxes.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ProjectionLines.cpp" />
     <ClCompile Include="Qubit.cpp" />
     <ClCompile Include="VectorArrow.cpp" />
     <ClCompile Include="VectorSphere.cpp" />
@@ -143,6 +144,7 @@
     <ClInclude Include="BlochSphereCoordinates.h" />
     <ClInclude Include="CoordinatesAxes.h" />
     <ClInclude Include="Libraries\include\glad\glad.h" />
+    <ClInclude Include="ProjectionLines.h" />
     <ClInclude Include="Qubit.h" />
     <ClInclude Include="VectorArrow.h" />
     <ClInclude Include="VectorSphere.h" />
