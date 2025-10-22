@@ -172,7 +172,7 @@ int main() {
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
     // 3. THIRD: Create qubit and quantum vector
-    Qubit q = Qubit(std::cos(M_PI / 9), std::exp(std::complex<double>(0, 1) * (M_PI / 6)) * std::sin(M_PI / 9));
+    Qubit q = Qubit(std::cos(M_PI / 1.7), std::exp(std::complex<double>(0, 1) * (M_PI / 6)) * std::sin(M_PI / 1.7));
 
     // Get the Bloch sphere coordinates for the vector
     glm::vec3 vectorPos = q.getBlochSphereCoordinates().convertToVec3();
