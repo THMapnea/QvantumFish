@@ -208,17 +208,23 @@ void VectorArrow::render(float time, const glm::mat4& view, const glm::mat4& pro
 
     // Draw the cone at the end of the vector
     glm::mat4 coneModel = finalModel;
+
+    // Translate to the end position
     coneModel = glm::translate(coneModel, position);
 
+    // Calculate rotation to align cone with vector direction
     glm::vec3 direction = glm::normalize(position);
-    glm::vec3 up(0.0f, 0.0f, 1.0f);
+    glm::vec3 up(0.0f, 1.0f, 0.0f); // Changed from (0,0,1) to (0,1,0)
 
+    // Avoid issues when direction is parallel to up vector
     if (glm::length(glm::cross(direction, up)) < 0.001f) {
-        up = glm::vec3(0.0f, 1.0f, 0.0f);
+        up = glm::vec3(0.0f, 0.0f, 1.0f);
     }
 
+    // CORREZIONE: Ruota il cono di 180 gradi per orientarlo correttamente
     glm::mat4 rotation = glm::inverse(glm::lookAt(glm::vec3(0.0f), direction, up));
-    coneModel = coneModel * rotation;
+    glm::mat4 fixOrientation = glm::rotate(glm::mat4(1.0f), glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    coneModel = coneModel * rotation * fixOrientation;
 
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(coneModel));
     glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 1.0f);

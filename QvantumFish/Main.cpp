@@ -1,6 +1,5 @@
 #define _USE_MATH_DEFINES
 
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -16,13 +15,12 @@
 #include "VectorArrow.h"
 #include "Qubit.h"
 
-
 const unsigned int WIDTH = 800;
 const unsigned int HEIGHT = 600;
 
 // Global variables
 BlochSphere* blochSphere = nullptr;
-VectorSphere* quantumVector = nullptr;
+VectorArrow* quantumVector = nullptr;  // Changed from VectorSphere to VectorArrow
 
 // Mouse input variables
 double lastX = WIDTH / 2.0f;
@@ -95,7 +93,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "QvantumFish - Bloch Sphere", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "QvantumFish - Bloch Sphere with Vector Arrow", NULL, NULL);
     if (!window) {
         std::cerr << "Failed to create window\n";
         glfwTerminate();
@@ -121,11 +119,21 @@ int main() {
     // Create Bloch Sphere
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
-    //create qubit from custom class
+    // Create qubit from custom class
     Qubit q = Qubit::ketZero();
 
-    // Create Quantum Vector
-    quantumVector = new VectorSphere(q.getBlochSphereCoordinates().convertToVec3());
+    // Create Quantum Vector with VectorArrow instead of VectorSphere
+    quantumVector = new VectorArrow(
+        q.getBlochSphereCoordinates().convertToVec3(),  // position
+        1.0f,                                           // vector length (radius)
+        0.15f,                                          // arrowhead height
+        0.06f,                                          // arrowhead base radius
+        8,                                              // line segments
+        16                                              // cone slices
+    );
+
+    // Optional: Set a different color for the arrow to distinguish it
+    quantumVector->setColor(glm::vec3(1.0f, 0.2f, 0.2f)); // Red color
 
     // Set line width for better visibility
     glLineWidth(2.0f);
@@ -134,7 +142,7 @@ int main() {
     glm::mat4 view = glm::lookAt(glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
     glm::mat4 model = glm::mat4(1.0f);
 
-    std::cout << "Bloch Sphere with Quantum Vector initialized." << std::endl;
+    std::cout << "Bloch Sphere with Quantum Vector Arrow initialized." << std::endl;
     std::cout << "Controls: Mouse drag to rotate, R to reset view, ESC to exit" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
@@ -148,7 +156,7 @@ int main() {
         float time = glfwGetTime();
         blochSphere->render(time, view, projection, model, yaw, pitch);
 
-        // Render the Quantum Vector
+        // Render the Quantum Vector Arrow
         quantumVector->render(time, view, projection, model, yaw, pitch);
 
         glfwSwapBuffers(window);
