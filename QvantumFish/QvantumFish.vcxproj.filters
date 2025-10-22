@@ -31,6 +31,9 @@
     <Filter Include="File di origine\Graphic\VectorArrow">
       <UniqueIdentifier>{70ed7705-9bba-4d80-9f49-f49188fc64d1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Graphic\CoordinatesAxes">
+      <UniqueIdentifier>{0447c210-1807-4248-ba6e-e242fea41d93}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -54,6 +57,9 @@
     <ClCompile Include="VectorArrow.cpp">
       <Filter>File di origine\Graphic\VectorArrow</Filter>
     </ClCompile>
+    <ClCompile Include="CoordinatesAxes.cpp">
+      <Filter>File di origine\Graphic\CoordinatesAxes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h">
@@ -72,6 +78,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="VectorArrow.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="CoordinatesAxes.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
