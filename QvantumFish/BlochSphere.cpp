@@ -244,7 +244,7 @@ void BlochSphere::render(float time, const glm::mat4& view, const glm::mat4& pro
 
     // Draw the single middle disc as VERY transparent (almost see-through)
     glUniform3f(glGetUniformLocation(shaderProgram, "color"), 0.0f, 0.5f, 0.7f); // Slightly darker cyan for disc
-    glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 0.08f); // Very transparent (8% opacity - almost invisible)
+    glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 0.06f); // Very transparent (6% opacity - almost invisible)
 
     // Temporarily disable wireframe mode for disc
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
