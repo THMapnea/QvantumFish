@@ -13,6 +13,7 @@
 #include <Eigen/Dense>
 #include "BlochSphere.h"
 #include "VectorSphere.h"
+#include "VectorArrow.h"
 #include "Qubit.h"
 
 

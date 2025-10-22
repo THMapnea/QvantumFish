@@ -28,6 +28,9 @@
     <Filter Include="File di origine\Graphic\VectorsSphere">
       <UniqueIdentifier>{58439aef-530f-4642-8673-5da1b2bf2d84}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Graphic\VectorArrow">
+      <UniqueIdentifier>{70ed7705-9bba-4d80-9f49-f49188fc64d1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -48,6 +51,9 @@
     <ClCompile Include="BlochSphereCoordinates.cpp">
       <Filter>File di origine\Qubit</Filter>
     </ClCompile>
+    <ClCompile Include="VectorArrow.cpp">
+      <Filter>File di origine\Graphic\VectorArrow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h">
@@ -63,6 +69,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="BlochSphereCoordinates.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="VectorArrow.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
