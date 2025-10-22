@@ -21,7 +21,7 @@ void main(){
 }
 )";
 
-// Fragment shader with glow effect and opacity
+// Fragment shader with oscilloscope-like cyan glow
 const char* fragment_shader_source = R"(
 #version 330 core
 out vec4 FragColor;
@@ -31,12 +31,14 @@ uniform float time;
 uniform float opacity;
 
 void main(){
-    // Cyan color with subtle pulsing effect
-    vec3 glowColor = color;
+    // Oscilloscope cyan color with glow effect
+    vec3 baseColor = vec3(0.0, 0.7, 0.9); // Pure cyan-blue oscilloscope color
     
-    // Add a very subtle pulse to simulate CRT phosphor
-    float pulse = sin(time * 2.0) * 0.05 + 0.95;
-    glowColor *= pulse;
+    // Stronger pulse effect for CRT-like glow
+    float pulse = sin(time * 3.0) * 0.1 + 0.9;
+    
+    // Add subtle color variation for more authentic oscilloscope look
+    vec3 glowColor = baseColor * pulse;
     
     // Apply opacity for depth effect
     FragColor = vec4(glowColor, opacity);
@@ -162,7 +164,7 @@ void BlochSphere::createDiscGeometry() {
 }
 
 BlochSphere::BlochSphere(float sphereRadius, int sphereSlices, int sphereStacks)
-    : radius(sphereRadius), slices(sphereSlices), stacks(sphereStacks), color(0.2f, 0.8f, 1.0f) {
+    : radius(sphereRadius), slices(sphereSlices), stacks(sphereStacks), color(0.0f, 0.7f, 0.9f) { // Oscilloscope cyan
 
     // Calculate vertex counts
     verticesPerLongitude = stacks + 1;
@@ -224,7 +226,7 @@ void BlochSphere::render(float time, const glm::mat4& view, const glm::mat4& pro
     finalModel = glm::rotate(finalModel, glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(finalModel));
 
-    // Draw sphere lines with cyan color
+    // Draw sphere lines with oscilloscope cyan color
     glUniform3f(glGetUniformLocation(shaderProgram, "color"), color.r, color.g, color.b);
     glBindVertexArray(sphereVAO);
 
@@ -240,9 +242,9 @@ void BlochSphere::render(float time, const glm::mat4& view, const glm::mat4& pro
         glDrawArrays(GL_LINE_STRIP, totalLongitudeVertices + j * verticesPerLatitude, verticesPerLatitude);
     }
 
-    // Draw the single middle disc as very transparent filled triangles
-    glUniform3f(glGetUniformLocation(shaderProgram, "color"), 0.15f, 0.6f, 0.8f); // Slightly different cyan
-    glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 0.20f); // Very transparent (20% opacity)
+    // Draw the single middle disc as VERY transparent (almost see-through)
+    glUniform3f(glGetUniformLocation(shaderProgram, "color"), 0.0f, 0.5f, 0.7f); // Slightly darker cyan for disc
+    glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 0.08f); // Very transparent (8% opacity - almost invisible)
 
     // Temporarily disable wireframe mode for disc
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
