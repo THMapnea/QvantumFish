@@ -176,44 +176,34 @@ void CoordinateAxes::render(float time, const glm::mat4& view, const glm::mat4& 
     finalModel = glm::rotate(finalModel, glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(finalModel));
 
-    // Set thicker line width for axes
-    glLineWidth(3.0f);
-    glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 0.9f);
+    // Use medium line width for axes (thinner than vector)
+    glLineWidth(2.0f);
 
-    // Draw X-axis (Red)
+    // Lower opacity for axes to make them subtle background elements
+    glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 0.7f);
+
+    // Draw all axes with the same color
     glUniform3f(glGetUniformLocation(shaderProgram, "color"), xColor.r, xColor.g, xColor.b);
     glBindVertexArray(axesVAO);
-    glDrawArrays(GL_LINES, 0, 2);
 
-    // Draw Y-axis (Green)
-    glUniform3f(glGetUniformLocation(shaderProgram, "color"), yColor.r, yColor.g, yColor.b);
-    glDrawArrays(GL_LINES, 2, 2);
-
-    // Draw Z-axis (Blue)
-    glUniform3f(glGetUniformLocation(shaderProgram, "color"), zColor.r, zColor.g, zColor.b);
-    glDrawArrays(GL_LINES, 4, 2);
+    // Draw X, Y, Z axes
+    glDrawArrays(GL_LINES, 0, 2);  // X-axis
+    glDrawArrays(GL_LINES, 2, 2);  // Y-axis  
+    glDrawArrays(GL_LINES, 4, 2);  // Z-axis
 
     // Draw arrow labels with thinner lines
     glLineWidth(1.5f);
-    glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 1.0f);
+    glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 0.8f);
 
-    // X-axis arrow
-    glUniform3f(glGetUniformLocation(shaderProgram, "color"), xColor.r, xColor.g, xColor.b);
     glBindVertexArray(labelsVAO);
-    glDrawArrays(GL_LINES, 0, 4);
 
-    // Y-axis arrow
-    glUniform3f(glGetUniformLocation(shaderProgram, "color"), yColor.r, yColor.g, yColor.b);
-    glDrawArrays(GL_LINES, 4, 4);
-
-    // Z-axis arrow
-    glUniform3f(glGetUniformLocation(shaderProgram, "color"), zColor.r, zColor.g, zColor.b);
-    glDrawArrays(GL_LINES, 8, 4);
+    // Draw all arrowheads with same color
+    glUniform3f(glGetUniformLocation(shaderProgram, "color"), xColor.r, xColor.g, xColor.b);
+    glDrawArrays(GL_LINES, 0, 12); // Draw all arrowheads at once
 
     // Reset line width to default
     glLineWidth(1.0f);
 }
-
 void CoordinateAxes::setAxisLength(float length) {
     axisLength = length;
     cleanup();

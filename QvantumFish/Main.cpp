@@ -13,7 +13,7 @@
 #include "BlochSphere.h"
 #include "VectorSphere.h"
 #include "VectorArrow.h"
-#include "CoordinatesAxes.h"  // Aggiungi questo include
+#include "CoordinatesAxes.h"
 #include "Qubit.h"
 
 const unsigned int WIDTH = 800;
@@ -22,7 +22,7 @@ const unsigned int HEIGHT = 600;
 // Global variables
 BlochSphere* blochSphere = nullptr;
 VectorArrow* quantumVector = nullptr;
-CoordinateAxes* coordinateAxes = nullptr;  // Aggiungi questa variabile
+CoordinateAxes* coordinateAxes = nullptr;
 
 // Mouse input variables
 double lastX = WIDTH / 2.0f;
@@ -95,7 +95,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "QvantumFish - Bloch Sphere with Coordinate Axes", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "QvantumFish - Bloch Sphere Visualization", NULL, NULL);
     if (!window) {
         std::cerr << "Failed to create window\n";
         glfwTerminate();
@@ -118,13 +118,17 @@ int main() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // 1. FIRST: Create Coordinate Axes
+    // Color scheme matching the sphere style
+    glm::vec3 axesColor = glm::vec3(0.6f, 0.6f, 0.8f); // Light blue-gray similar to sphere grid
+    glm::vec3 vectorColor = glm::vec3(1.0f, 0.3f, 0.3f); // Bright red for contrast
+
+    // 1. FIRST: Create Coordinate Axes with uniform color
     coordinateAxes = new CoordinateAxes(
         1.3f,    // axis length (slightly larger than sphere)
         0.02f,   // axis thickness
-        glm::vec3(1.0f, 0.3f, 0.3f),  // X-axis color (red)
-        glm::vec3(0.3f, 1.0f, 0.3f),  // Y-axis color (green) 
-        glm::vec3(0.3f, 0.3f, 1.0f)   // Z-axis color (blue)
+        axesColor,  // X-axis color (same for all)
+        axesColor,  // Y-axis color (same for all)
+        axesColor   // Z-axis color (same for all)
     );
 
     // 2. SECOND: Create Bloch Sphere (centered at origin)
@@ -143,21 +147,21 @@ int main() {
         16                                              // cone slices
     );
 
-    // Set color to red for the vector
-    quantumVector->setColor(glm::vec3(1.0f, 0.2f, 0.2f));
+    // Set color to bright red for the vector (good contrast)
+    quantumVector->setColor(vectorColor);
 
-    // Set line width for better visibility
+    // Set line widths for proper visibility
     glLineWidth(2.0f);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
     glm::mat4 view = glm::lookAt(glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
     glm::mat4 model = glm::mat4(1.0f);
 
-    std::cout << "3D Coordinate System with Bloch Sphere initialized." << std::endl;
+    std::cout << "Bloch Sphere Visualization initialized." << std::endl;
     std::cout << "Visualization order:" << std::endl;
-    std::cout << "1. Coordinate Axes (X=Red, Y=Green, Z=Blue)" << std::endl;
-    std::cout << "2. Bloch Sphere (centered at origin)" << std::endl;
-    std::cout << "3. Quantum State Vector (Red arrow)" << std::endl;
+    std::cout << "1. Coordinate Axes (light blue-gray)" << std::endl;
+    std::cout << "2. Bloch Sphere (white grid)" << std::endl;
+    std::cout << "3. Quantum State Vector (red arrow - always on top)" << std::endl;
     std::cout << "Controls: Mouse drag to rotate, R to reset view, ESC to exit" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
@@ -169,21 +173,26 @@ int main() {
 
         float time = glfwGetTime();
 
-        // RENDER ORDER:
+        // RENDER ORDER for proper depth management:
+
         // 1. FIRST: Render Coordinate Axes (background reference)
+        // Use slightly thicker lines but lower opacity for subtle background
         coordinateAxes->render(time, view, projection, model, yaw, pitch);
 
         // 2. SECOND: Render the Bloch Sphere (centered at origin)
         blochSphere->render(time, view, projection, model, yaw, pitch);
 
-        // 3. THIRD: Render the Quantum Vector Arrow (on top)
+        // 3. THIRD: Render the Quantum Vector Arrow (ON TOP of everything)
+        // Ensure the vector is always visible even when overlapping with axes
+        glLineWidth(2.5f); // Slightly thicker for the vector
         quantumVector->render(time, view, projection, model, yaw, pitch);
+        glLineWidth(2.0f); // Reset to default
 
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    // Cleanup - nell'ordine inverso di creazione
+    // Cleanup
     delete quantumVector;
     delete blochSphere;
     delete coordinateAxes;
