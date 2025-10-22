@@ -211,7 +211,7 @@ void ProjectionLines::render(float time, const glm::mat4& view, const glm::mat4&
     glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 0.6f);
 
     // Use thinner lines for dashed effect
-    glLineWidth(1.2f);
+    glLineWidth(1.6f);
 
     // Draw vertical dashed line (from vector tip to disk)
     // Each dash is drawn as a separate line segment

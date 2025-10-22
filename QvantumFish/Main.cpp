@@ -172,7 +172,7 @@ int main() {
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
     // 3. THIRD: Create qubit and quantum vector
-    Qubit q = Qubit(std::cos(M_PI / 1.7), std::exp(std::complex<double>(0, 1) * (M_PI / 6)) * std::sin(M_PI / 1.7));
+    Qubit q = Qubit(std::cos(M_PI / 9), std::exp(std::complex<double>(0, 1) * (M_PI / 2)) * std::sin(M_PI / 9));
 
     // Get the Bloch sphere coordinates for the vector
     glm::vec3 vectorPos = q.getBlochSphereCoordinates().convertToVec3();
@@ -194,7 +194,7 @@ int main() {
     projectionLines = new ProjectionLines(
         vectorPos,      // same position as the vector
         projectionColor, // yellow color for projection lines
-        0.04f,          // dash size
+        0.03f,          // dash size
         25              // number of segments
     );
 
@@ -222,15 +222,15 @@ int main() {
     std::cout << "2. Bloch Sphere (white grid)" << std::endl;
     std::cout << "3. Projection Lines (yellow dashed lines)" << std::endl;
     std::cout << "4. Angle Arcs (green arcs)" << std::endl;
-    std::cout << "5. Quantum State Vector (red arrow - always on top)" << std::endl;
+    std::cout << "5. Quantum State Vector (red arrow)" << std::endl;
     std::cout << "Controls:" << std::endl;
     std::cout << "  - Mouse drag: Rotate view" << std::endl;
     std::cout << "  - Mouse wheel: Zoom in/out" << std::endl;
     std::cout << "  - R key: Reset view" << std::endl;
     std::cout << "  - ESC key: Exit" << std::endl;
     std::cout << "Current qubit state:" << std::endl;
-    std::cout << "  Theta (polar angle): " << theta << " rad (" << theta * 180.0f / M_PI << "°)" << std::endl;
-    std::cout << "  Phi (azimuthal angle): " << phi << " rad (" << phi * 180.0f / M_PI << "°)" << std::endl;
+    std::cout << "  Theta (polar angle): " << theta << " rad (" << theta * 180.0f / M_PI << ")" << std::endl;
+    std::cout << "  Phi (azimuthal angle): " << phi << " rad (" << phi * 180.0f / M_PI << ")" << std::endl;
     std::cout << "  Vector position: (" << vectorPos.x << ", " << vectorPos.y << ", " << vectorPos.z << ")" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
