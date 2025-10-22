@@ -28,6 +28,13 @@ CoordinateAxes* coordinateAxes = nullptr;
 ProjectionLines* projectionLines = nullptr;
 AngleArcs* angleArcs = nullptr;
 
+// Camera variables
+glm::vec3 cameraPos = glm::vec3(2.5f, 2.5f, 2.5f);
+float zoomLevel = 1.0f;
+const float MIN_ZOOM = 0.3f;
+const float MAX_ZOOM = 3.0f;
+const float ZOOM_SPEED = 0.1f;
+
 // Mouse input variables
 double lastX = WIDTH / 2.0f;
 double lastY = HEIGHT / 2.0f;
@@ -45,7 +52,22 @@ static void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
         yaw = 0.0f;
         pitch = 0.0f;
+        zoomLevel = 1.0f;
         std::cout << "Scene reset to default view!" << std::endl;
+    }
+
+    // Zoom in with + key
+    if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
+        zoomLevel -= ZOOM_SPEED;
+        if (zoomLevel < MIN_ZOOM) zoomLevel = MIN_ZOOM;
+        std::cout << "Zoom level: " << zoomLevel << std::endl;
+    }
+
+    // Zoom out with - key
+    if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
+        zoomLevel += ZOOM_SPEED;
+        if (zoomLevel > MAX_ZOOM) zoomLevel = MAX_ZOOM;
+        std::cout << "Zoom level: " << zoomLevel << std::endl;
     }
 }
 
@@ -92,6 +114,14 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
     }
 }
 
+// Scroll callback for mouse wheel zoom
+static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    zoomLevel -= yoffset * ZOOM_SPEED * 0.5f;
+    if (zoomLevel < MIN_ZOOM) zoomLevel = MIN_ZOOM;
+    if (zoomLevel > MAX_ZOOM) zoomLevel = MAX_ZOOM;
+    std::cout << "Zoom level: " << zoomLevel << std::endl;
+}
+
 int main() {
     // Initialize GLFW
     glfwInit();
@@ -110,6 +140,7 @@ int main() {
     // Set mouse callbacks
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetScrollCallback(window, scroll_callback); // Add scroll callback
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD\n";
@@ -142,7 +173,6 @@ int main() {
 
     // 3. THIRD: Create qubit and quantum vector
     Qubit q = Qubit(std::cos(M_PI / 9), std::exp(std::complex<double>(0, 1) * (M_PI / 6)) * std::sin(M_PI / 9));
-
 
     // Get the Bloch sphere coordinates for the vector
     glm::vec3 vectorPos = q.getBlochSphereCoordinates().convertToVec3();
@@ -180,7 +210,6 @@ int main() {
     glLineWidth(2.0f);
 
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-    glm::mat4 view = glm::lookAt(glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
     glm::mat4 model = glm::mat4(1.0f);
 
     // Calculate actual angles for display
@@ -194,7 +223,11 @@ int main() {
     std::cout << "3. Projection Lines (yellow dashed lines)" << std::endl;
     std::cout << "4. Angle Arcs (green arcs)" << std::endl;
     std::cout << "5. Quantum State Vector (red arrow - always on top)" << std::endl;
-    std::cout << "Controls: Mouse drag to rotate, R to reset view, ESC to exit" << std::endl;
+    std::cout << "Controls:" << std::endl;
+    std::cout << "  - Mouse drag: Rotate view" << std::endl;
+    std::cout << "  - Mouse wheel: Zoom in/out" << std::endl;
+    std::cout << "  - R key: Reset view" << std::endl;
+    std::cout << "  - ESC key: Exit" << std::endl;
     std::cout << "Current qubit state:" << std::endl;
     std::cout << "  Theta (polar angle): " << theta << " rad (" << theta * 180.0f / M_PI << "°)" << std::endl;
     std::cout << "  Phi (azimuthal angle): " << phi << " rad (" << phi * 180.0f / M_PI << "°)" << std::endl;
@@ -208,6 +241,10 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float time = glfwGetTime();
+
+        // Calculate camera position based on zoom level
+        glm::vec3 currentCameraPos = cameraPos * zoomLevel;
+        glm::mat4 view = glm::lookAt(currentCameraPos, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
 
         // RENDER ORDER for proper depth management:
 
