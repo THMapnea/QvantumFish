@@ -14,6 +14,7 @@
 #include "VectorSphere.h"
 #include "VectorArrow.h"
 #include "CoordinatesAxes.h"
+#include "ProjectionLines.h"
 #include "Qubit.h"
 
 const unsigned int WIDTH = 800;
@@ -23,6 +24,7 @@ const unsigned int HEIGHT = 600;
 BlochSphere* blochSphere = nullptr;
 VectorArrow* quantumVector = nullptr;
 CoordinateAxes* coordinateAxes = nullptr;
+ProjectionLines* projectionLines = nullptr;
 
 // Mouse input variables
 double lastX = WIDTH / 2.0f;
@@ -121,6 +123,7 @@ int main() {
     // Color scheme matching the sphere style
     glm::vec3 axesColor = glm::vec3(0.4f, 0.6f, 0.8f); // Light blue-gray similar to sphere grid
     glm::vec3 vectorColor = glm::vec3(1.0f, 0.3f, 0.3f); // Bright red for contrast
+    glm::vec3 projectionColor = glm::vec3(0.8f, 0.8f, 0.2f); // Yellow for projection lines
 
     // 1. FIRST: Create Coordinate Axes with uniform color
     coordinateAxes = new CoordinateAxes(
@@ -135,20 +138,31 @@ int main() {
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
     // 3. THIRD: Create qubit and quantum vector
-    Qubit q = Qubit(std::cos(M_PI / 9),std::exp(std::complex<double>(0, 1) * (M_PI / 2)) *  std::sin(M_PI / 9));
+    Qubit q = Qubit(std::cos(M_PI / 9), std::exp(std::complex<double>(0, 1) * (M_PI / 6)) * std::sin(M_PI / 9));
+
+    // Get the Bloch sphere coordinates for the vector
+    glm::vec3 vectorPos = q.getBlochSphereCoordinates().convertToVec3();
 
     // Create Quantum Vector with VectorArrow
     quantumVector = new VectorArrow(
-        q.getBlochSphereCoordinates().convertToVec3(),  // position
-        1.0f,                                           // vector length (radius)
-        0.15f,                                          // arrowhead height
-        0.06f,                                          // arrowhead base radius
-        8,                                              // line segments
-        16                                              // cone slices
+        vectorPos,  // position
+        1.0f,       // vector length (radius)
+        0.15f,      // arrowhead height
+        0.06f,      // arrowhead base radius
+        8,          // line segments
+        16          // cone slices
     );
 
     // Set color to bright red for the vector (good contrast)
     quantumVector->setColor(vectorColor);
+
+    // 4. FOURTH: Create projection lines
+    projectionLines = new ProjectionLines(
+        vectorPos,      // same position as the vector
+        projectionColor, // yellow color for projection lines
+        0.04f,          // dash size
+        25              // number of segments
+    );
 
     // Set line widths for proper visibility
     glLineWidth(2.0f);
@@ -161,8 +175,10 @@ int main() {
     std::cout << "Visualization order:" << std::endl;
     std::cout << "1. Coordinate Axes (light blue-gray)" << std::endl;
     std::cout << "2. Bloch Sphere (white grid)" << std::endl;
-    std::cout << "3. Quantum State Vector (red arrow - always on top)" << std::endl;
+    std::cout << "3. Projection Lines (yellow dashed lines)" << std::endl;
+    std::cout << "4. Quantum State Vector (red arrow" << std::endl;
     std::cout << "Controls: Mouse drag to rotate, R to reset view, ESC to exit" << std::endl;
+    std::cout << "Current qubit state: theta=" << M_PI / 9 << " rad, phi=" << M_PI / 2 << " rad" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
@@ -176,14 +192,15 @@ int main() {
         // RENDER ORDER for proper depth management:
 
         // 1. FIRST: Render Coordinate Axes (background reference)
-        // Use slightly thicker lines but lower opacity for subtle background
         coordinateAxes->render(time, view, projection, model, yaw, pitch);
 
         // 2. SECOND: Render the Bloch Sphere (centered at origin)
         blochSphere->render(time, view, projection, model, yaw, pitch);
 
-        // 3. THIRD: Render the Quantum Vector Arrow (ON TOP of everything)
-        // Ensure the vector is always visible even when overlapping with axes
+        // 3. THIRD: Render Projection Lines (dashed yellow lines)
+        projectionLines->render(time, view, projection, model, yaw, pitch);
+
+        // 4. FOURTH: Render the Quantum Vector Arrow (ON TOP of everything)
         glLineWidth(2.5f); // Slightly thicker for the vector
         quantumVector->render(time, view, projection, model, yaw, pitch);
         glLineWidth(2.0f); // Reset to default
@@ -193,6 +210,7 @@ int main() {
     }
 
     // Cleanup
+    delete projectionLines;
     delete quantumVector;
     delete blochSphere;
     delete coordinateAxes;
