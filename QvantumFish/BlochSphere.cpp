@@ -226,7 +226,23 @@ void BlochSphere::render(float time, const glm::mat4& view, const glm::mat4& pro
     finalModel = glm::rotate(finalModel, glm::radians(pitch), glm::vec3(1.0f, 0.0f, 0.0f));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(finalModel));
 
-    // Draw sphere lines with oscilloscope cyan color
+    // FIRST: Render the disc with depth mask disabled (so it doesn't block the sphere)
+    glUniform3f(glGetUniformLocation(shaderProgram, "color"), 0.0f, 0.5f, 0.7f); // Slightly darker cyan for disc
+    glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 0.15f); // Very low opacity
+
+    // Disable depth writing for the disc - this makes it "see-through"
+    glDepthMask(GL_FALSE);
+
+    // Temporarily disable wireframe mode for disc
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glBindVertexArray(discVAO);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, verticesPerDisc);
+
+    // Re-enable depth writing and wireframe mode
+    glDepthMask(GL_TRUE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    // SECOND: Render sphere lines with oscilloscope cyan color
     glUniform3f(glGetUniformLocation(shaderProgram, "color"), color.r, color.g, color.b);
     glBindVertexArray(sphereVAO);
 
@@ -241,17 +257,6 @@ void BlochSphere::render(float time, const glm::mat4& view, const glm::mat4& pro
     for (int j = 0; j <= stacks; ++j) {
         glDrawArrays(GL_LINE_STRIP, totalLongitudeVertices + j * verticesPerLatitude, verticesPerLatitude);
     }
-
-    // Draw the single middle disc as VERY transparent (almost see-through)
-    glUniform3f(glGetUniformLocation(shaderProgram, "color"), 0.0f, 0.5f, 0.7f); // Slightly darker cyan for disc
-    glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 0.06f); // Very transparent (6% opacity - almost invisible)
-
-    // Temporarily disable wireframe mode for disc
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glBindVertexArray(discVAO);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, verticesPerDisc);
-    // Re-enable wireframe mode for sphere
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void BlochSphere::setColor(const glm::vec3& newColor) {
