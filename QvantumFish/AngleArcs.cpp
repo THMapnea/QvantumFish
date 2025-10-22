@@ -57,22 +57,43 @@ std::vector<float> AngleArcs::generateThetaArc() {
     std::vector<float> vertices;
 
     // Calculate theta angle (angle between vector and Z-axis)
-    float theta = acos(vectorPosition.z / glm::length(vectorPosition));
+    float vectorLength = glm::length(vectorPosition);
+    if (vectorLength < 0.001f) return vertices; // Avoid division by zero
+
+    float theta = acos(vectorPosition.z / vectorLength);
 
     // Only draw arc if theta is meaningful (not 0 or PI)
     if (theta < 0.01f || theta > M_PI - 0.01f) {
         return vertices;
     }
 
-    // Arc in the plane containing the vector and Z-axis
-    // We'll draw this in the XZ plane for simplicity, then rotate it
+    // Calculate the plane normal (perpendicular to both vector and Z-axis)
+    glm::vec3 zAxis(0.0f, 0.0f, 1.0f);
+    glm::vec3 planeNormal = glm::cross(zAxis, vectorPosition);
+
+    // If vector is aligned with Z-axis, use a default plane
+    if (glm::length(planeNormal) < 0.001f) {
+        planeNormal = glm::vec3(0.0f, 1.0f, 0.0f); // Use Y-axis as normal
+    }
+    else {
+        planeNormal = glm::normalize(planeNormal);
+    }
+
+    // Create basis vectors for the arc plane
+    glm::vec3 u = glm::normalize(glm::cross(planeNormal, zAxis));
+    glm::vec3 v = zAxis;
+
+    // Generate arc points in the correct plane
     for (int i = 0; i <= arcSegments; ++i) {
         float angle = static_cast<float>(i) / arcSegments * theta;
         float x = arcRadius * sin(angle);
         float z = arcRadius * cos(angle);
-        vertices.push_back(x);
-        vertices.push_back(0.0f);
-        vertices.push_back(z);
+
+        // Transform from local arc coordinates to world coordinates
+        glm::vec3 point = u * x + v * z;
+        vertices.push_back(point.x);
+        vertices.push_back(point.y);
+        vertices.push_back(point.z);
     }
 
     return vertices;
@@ -82,6 +103,14 @@ std::vector<float> AngleArcs::generatePhiArc() {
     std::vector<float> vertices;
 
     // Calculate phi angle (angle between projection and positive X-axis)
+    // Project vector onto XY plane
+    glm::vec3 projection = glm::vec3(vectorPosition.x, vectorPosition.y, 0.0f);
+    float projLength = glm::length(projection);
+
+    if (projLength < 0.001f) {
+        return vertices; // No meaningful phi angle if projection is near zero
+    }
+
     float phi = atan2(vectorPosition.y, vectorPosition.x);
 
     // Only draw arc if phi is meaningful
@@ -103,6 +132,7 @@ std::vector<float> AngleArcs::generatePhiArc() {
         }
     }
 
+    // Generate arc points
     for (int i = 0; i <= arcSegments; ++i) {
         float angle = startAngle + static_cast<float>(i) / arcSegments * (endAngle - startAngle);
         float x = arcRadius * cos(angle);
@@ -210,18 +240,18 @@ void AngleArcs::render(float time, const glm::mat4& view, const glm::mat4& proje
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "model"), 1, GL_FALSE, glm::value_ptr(finalModel));
 
     // Render theta arc (angle with Z-axis)
-    // This arc is already in the correct plane (XZ) for the default orientation
     glBindVertexArray(thetaArcVAO);
-    int thetaVertexCount = static_cast<int>(acos(vectorPosition.z / glm::length(vectorPosition)) * arcSegments / M_PI) + 1;
+    int thetaVertexCount = generateThetaArc().size() / 3;
     if (thetaVertexCount > 1) {
         glDrawArrays(GL_LINE_STRIP, 0, thetaVertexCount);
     }
 
     // Render phi arc (angle with X-axis in XY plane)
-    // This arc is in the XY plane, which is correct for the disk
     glBindVertexArray(phiArcVAO);
-    int phiVertexCount = arcSegments + 1;
-    glDrawArrays(GL_LINE_STRIP, 0, phiVertexCount);
+    int phiVertexCount = generatePhiArc().size() / 3;
+    if (phiVertexCount > 1) {
+        glDrawArrays(GL_LINE_STRIP, 0, phiVertexCount);
+    }
 
     // Reset line width
     glLineWidth(1.0f);

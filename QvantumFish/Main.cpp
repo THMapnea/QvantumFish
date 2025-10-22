@@ -15,6 +15,7 @@
 #include "VectorArrow.h"
 #include "CoordinatesAxes.h"
 #include "ProjectionLines.h"
+#include "AngleArcs.h"
 #include "Qubit.h"
 
 const unsigned int WIDTH = 800;
@@ -25,6 +26,7 @@ BlochSphere* blochSphere = nullptr;
 VectorArrow* quantumVector = nullptr;
 CoordinateAxes* coordinateAxes = nullptr;
 ProjectionLines* projectionLines = nullptr;
+AngleArcs* angleArcs = nullptr;
 
 // Mouse input variables
 double lastX = WIDTH / 2.0f;
@@ -124,6 +126,7 @@ int main() {
     glm::vec3 axesColor = glm::vec3(0.4f, 0.6f, 0.8f); // Light blue-gray similar to sphere grid
     glm::vec3 vectorColor = glm::vec3(1.0f, 0.3f, 0.3f); // Bright red for contrast
     glm::vec3 projectionColor = glm::vec3(0.8f, 0.8f, 0.2f); // Yellow for projection lines
+    glm::vec3 arcColor = glm::vec3(0.2f, 0.8f, 0.2f); // Green for angle arcs
 
     // 1. FIRST: Create Coordinate Axes with uniform color
     coordinateAxes = new CoordinateAxes(
@@ -139,6 +142,7 @@ int main() {
 
     // 3. THIRD: Create qubit and quantum vector
     Qubit q = Qubit(std::cos(M_PI / 9), std::exp(std::complex<double>(0, 1) * (M_PI / 6)) * std::sin(M_PI / 9));
+
 
     // Get the Bloch sphere coordinates for the vector
     glm::vec3 vectorPos = q.getBlochSphereCoordinates().convertToVec3();
@@ -164,6 +168,14 @@ int main() {
         25              // number of segments
     );
 
+    // 5. FIFTH: Create angle arcs
+    angleArcs = new AngleArcs(
+        vectorPos,      // same position as the vector
+        arcColor,       // green color for angle arcs
+        0.25f,          // arc radius
+        32              // number of segments per arc
+    );
+
     // Set line widths for proper visibility
     glLineWidth(2.0f);
 
@@ -171,14 +183,22 @@ int main() {
     glm::mat4 view = glm::lookAt(glm::vec3(2.5f, 2.5f, 2.5f), glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
     glm::mat4 model = glm::mat4(1.0f);
 
+    // Calculate actual angles for display
+    float theta = acos(vectorPos.z / glm::length(vectorPos));
+    float phi = atan2(vectorPos.y, vectorPos.x);
+
     std::cout << "Bloch Sphere Visualization initialized." << std::endl;
     std::cout << "Visualization order:" << std::endl;
     std::cout << "1. Coordinate Axes (light blue-gray)" << std::endl;
     std::cout << "2. Bloch Sphere (white grid)" << std::endl;
     std::cout << "3. Projection Lines (yellow dashed lines)" << std::endl;
-    std::cout << "4. Quantum State Vector (red arrow" << std::endl;
+    std::cout << "4. Angle Arcs (green arcs)" << std::endl;
+    std::cout << "5. Quantum State Vector (red arrow - always on top)" << std::endl;
     std::cout << "Controls: Mouse drag to rotate, R to reset view, ESC to exit" << std::endl;
-    std::cout << "Current qubit state: theta=" << M_PI / 9 << " rad, phi=" << M_PI / 2 << " rad" << std::endl;
+    std::cout << "Current qubit state:" << std::endl;
+    std::cout << "  Theta (polar angle): " << theta << " rad (" << theta * 180.0f / M_PI << "°)" << std::endl;
+    std::cout << "  Phi (azimuthal angle): " << phi << " rad (" << phi * 180.0f / M_PI << "°)" << std::endl;
+    std::cout << "  Vector position: (" << vectorPos.x << ", " << vectorPos.y << ", " << vectorPos.z << ")" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
@@ -200,7 +220,10 @@ int main() {
         // 3. THIRD: Render Projection Lines (dashed yellow lines)
         projectionLines->render(time, view, projection, model, yaw, pitch);
 
-        // 4. FOURTH: Render the Quantum Vector Arrow (ON TOP of everything)
+        // 4. FOURTH: Render Angle Arcs (green arcs showing angles)
+        angleArcs->render(time, view, projection, model, yaw, pitch);
+
+        // 5. FIFTH: Render the Quantum Vector Arrow (ON TOP of everything)
         glLineWidth(2.5f); // Slightly thicker for the vector
         quantumVector->render(time, view, projection, model, yaw, pitch);
         glLineWidth(2.0f); // Reset to default
@@ -210,6 +233,7 @@ int main() {
     }
 
     // Cleanup
+    delete angleArcs;
     delete projectionLines;
     delete quantumVector;
     delete blochSphere;
