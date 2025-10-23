@@ -40,7 +40,8 @@ public:
     Eigen::Vector2cd getStateVector() const;
 
     // Public member functions
-    void look() const;
+    void simpleLook() const;
+    void advancedLook() const;
 
     // Calculate probability of measuring |0> and |1>
     double probabilityZero() const;

@@ -173,6 +173,8 @@ int main() {
 
     // 3. THIRD: Create qubit and quantum vector
     Qubit q = Qubit(std::cos(M_PI / 9), std::exp(std::complex<double>(0, 1) * (M_PI / 2)) * std::sin(M_PI / 9));
+    //print the qubit inbformation
+    q.advancedLook();
 
     // Get the Bloch sphere coordinates for the vector
     glm::vec3 vectorPos = q.getBlochSphereCoordinates().convertToVec3();

@@ -86,15 +86,30 @@ Eigen::Vector2cd Qubit::getStateVector() const {
 
 /*
 
-    FUNCTION: look()
+    FUNCTION: simpleLook()
                 Basic output function to show the qubit's states
 
 
 */
-void Qubit::look() const {
+void Qubit::simpleLook() const {
     std::cout << "the qubit's states are the following: "
         << states(0).real() << "+" << states(0).imag() << "i |0> + "
         << states(1).real() << "+" << states(1).imag() << "i |1>" << std::endl;
+}
+
+/*
+
+    FUNCTION: advancedLook()
+                Output function to show the qubit's info
+
+
+*/
+void Qubit::advancedLook() const {
+    std::cout << "the qubit's states are the following: "
+        << states(0).real() << "+" << states(0).imag() << "i |0> + "
+        << states(1).real() << "+" << states(1).imag() << "i |1>" 
+        << "\nthe qubit's polar angle is: "<< findPolarAngle() 
+        << "\nthe qubit's relative phase is: " << findRelativePhase() << std::endl<<std::endl;
 }
 
 /*
