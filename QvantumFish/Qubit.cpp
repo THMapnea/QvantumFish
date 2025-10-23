@@ -109,7 +109,9 @@ void Qubit::advancedLook() const {
         << states(0).real() << "+" << states(0).imag() << "i |0> + "
         << states(1).real() << "+" << states(1).imag() << "i |1>" 
         << "\nthe qubit's polar angle is: "<< findPolarAngle() 
-        << "\nthe qubit's relative phase is: " << findRelativePhase() << std::endl<<std::endl;
+        << "\nthe qubit's relative phase is: " << findRelativePhase()
+        << "\nthe probability of collapsing on |0> is: " << probabilityZero() 
+        << "\nthe probability of collapsing to |1> is: " << probabilityOne() << std::endl << std::endl;
 }
 
 /*
