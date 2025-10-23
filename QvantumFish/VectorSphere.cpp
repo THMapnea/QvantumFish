@@ -202,7 +202,7 @@ void VectorSphere::rebuild(const glm::vec3& newPosition) {
 }
 
 void VectorSphere::render(float time, const glm::mat4& view, const glm::mat4& projection,
-    const glm::mat4& model, float yaw, float pitch) {
+    const glm::mat4& model, float yaw, float pitch) const {
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));

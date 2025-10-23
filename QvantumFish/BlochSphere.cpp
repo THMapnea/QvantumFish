@@ -182,7 +182,7 @@ BlochSphere::~BlochSphere() {
     cleanup();
 }
 
-void BlochSphere::cleanup() {
+void BlochSphere::cleanup() const {
     glDeleteVertexArrays(1, &sphereVAO);
     glDeleteBuffers(1, &sphereVBO);
     glDeleteVertexArrays(1, &discVAO);
@@ -212,7 +212,7 @@ void BlochSphere::rebuild(float newRadius, int newSlices, int newStacks) {
 }
 
 void BlochSphere::render(float time, const glm::mat4& view, const glm::mat4& projection,
-    const glm::mat4& model, float yaw, float pitch) {
+    const glm::mat4& model, float yaw, float pitch) const {
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));

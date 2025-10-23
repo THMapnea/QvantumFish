@@ -176,7 +176,7 @@ ProjectionLines::~ProjectionLines() {
     cleanup();
 }
 
-void ProjectionLines::cleanup() {
+void ProjectionLines::cleanup() const {
     glDeleteVertexArrays(1, &verticalLineVAO);
     glDeleteBuffers(1, &verticalLineVBO);
     glDeleteVertexArrays(1, &horizontalLineVAO);
@@ -194,7 +194,7 @@ void ProjectionLines::updatePosition(const glm::vec3& newPosition) {
 }
 
 void ProjectionLines::render(float time, const glm::mat4& view, const glm::mat4& projection,
-    const glm::mat4& model, float yaw, float pitch) {
+    const glm::mat4& model, float yaw, float pitch) const {
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "view"), 1, GL_FALSE, glm::value_ptr(view));

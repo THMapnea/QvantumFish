@@ -39,7 +39,7 @@ public:
     void cleanup();
     void rebuild(const glm::vec3& newPosition = glm::vec3(0.0f));
     void render(float time, const glm::mat4& view, const glm::mat4& projection,
-        const glm::mat4& model, float yaw = 0.0f, float pitch = 0.0f);
+        const glm::mat4& model, float yaw = 0.0f, float pitch = 0.0f) const;
     void setColor(const glm::vec3& newColor);
     void setPosition(const glm::vec3& newPosition);
     glm::vec3 getColor() const;

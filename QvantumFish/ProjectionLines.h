@@ -31,10 +31,10 @@ public:
         int lineSegments = 20);
     ~ProjectionLines();
 
-    void cleanup();
+    void cleanup() const;
     void updatePosition(const glm::vec3& newPosition);
     void render(float time, const glm::mat4& view, const glm::mat4& projection,
-        const glm::mat4& model, float yaw = 0.0f, float pitch = 0.0f);
+        const glm::mat4& model, float yaw = 0.0f, float pitch = 0.0f) const;
     void setColor(const glm::vec3& newColor);
     glm::vec3 getColor() const;
 };

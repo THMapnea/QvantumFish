@@ -31,7 +31,7 @@ public:
         int segments = 32);
     ~AngleArcs();
 
-    void cleanup();
+    void cleanup() const;
     void updatePosition(const glm::vec3& newPosition);
     void render(float time, const glm::mat4& view, const glm::mat4& projection,
         const glm::mat4& model, float yaw = 0.0f, float pitch = 0.0f);

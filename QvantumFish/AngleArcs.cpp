@@ -202,7 +202,7 @@ AngleArcs::~AngleArcs() {
     cleanup();
 }
 
-void AngleArcs::cleanup() {
+void AngleArcs::cleanup() const {
     glDeleteVertexArrays(1, &thetaArcVAO);
     glDeleteBuffers(1, &thetaArcVBO);
     glDeleteVertexArrays(1, &phiArcVAO);
