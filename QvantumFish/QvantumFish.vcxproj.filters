@@ -43,12 +43,18 @@
     <Filter Include="File di origine\Utility">
       <UniqueIdentifier>{6b29ca0a-9e20-427e-839c-637160c207b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\ImGui">
+      <UniqueIdentifier>{ab774aee-4bc2-4732-a01a-7e303d6b89f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\ImGui">
+      <UniqueIdentifier>{84f6df76-583f-4f3b-935e-517631207bcc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\glad">
+      <UniqueIdentifier>{5b4a628f-047c-41af-86c1-dca12f69abe0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
-      <Filter>File di origine</Filter>
-    </ClCompile>
-    <ClCompile Include="glad.c">
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="Qubit.cpp">
@@ -77,6 +83,78 @@
     </ClCompile>
     <ClCompile Include="SceneController.cpp">
       <Filter>File di origine\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="glad.c">
+      <Filter>File di origine\glad</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_demo.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_draw.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_allegro5.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_android.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_dx9.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_dx10.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_dx11.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_dx12.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_glfw.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_glut.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_opengl2.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_opengl3.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_sdl2.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_sdl3.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_sdlgpu3.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_sdlrenderer2.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_sdlrenderer3.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_vulkan.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_wgpu.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_impl_win32.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_tables.cpp">
+      <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Libraries\include\ImGui\imgui_widgets.cpp">
+      <Filter>File di origine\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -109,6 +187,90 @@
     </ClInclude>
     <ClInclude Include="SceneController.h">
       <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imconfig.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_allegro5.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_android.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_dx9.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_dx10.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_dx11.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_dx12.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_glfw.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_glut.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_metal.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_opengl2.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_opengl3.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_opengl3_loader.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_osx.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_sdl2.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_sdl3.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_sdlgpu3.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_sdlgpu3_shaders.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_sdlrenderer2.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_sdlrenderer3.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_vulkan.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_wgpu.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_impl_win32.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imgui_internal.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imstb_rectpack.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imstb_textedit.h">
+      <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Libraries\include\ImGui\imstb_truetype.h">
+      <Filter>File di intestazione\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
