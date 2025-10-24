@@ -10,6 +10,7 @@
 #include <array>
 #include <complex>
 #include <Eigen/Dense>
+#include <ImGui/imgui.h>
 #include "BlochSphere.h"
 #include "VectorSphere.h"
 #include "VectorArrow.h"
