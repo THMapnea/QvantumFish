@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="File di intestazione\glad">
-      <UniqueIdentifier>{e1ab79d4-2c0f-4bb5-b30a-ceac4aa3db07}</UniqueIdentifier>
-    </Filter>
     <Filter Include="File di origine\Graphic">
       <UniqueIdentifier>{fb54a953-5eac-4ff5-b0d7-082996b788fd}</UniqueIdentifier>
     </Filter>
@@ -49,8 +46,11 @@
     <Filter Include="File di intestazione\ImGui">
       <UniqueIdentifier>{84f6df76-583f-4f3b-935e-517631207bcc}</UniqueIdentifier>
     </Filter>
-    <Filter Include="File di origine\glad">
+    <Filter Include="File di origine\Glad">
       <UniqueIdentifier>{5b4a628f-047c-41af-86c1-dca12f69abe0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di intestazione\Glad">
+      <UniqueIdentifier>{e1ab79d4-2c0f-4bb5-b30a-ceac4aa3db07}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -85,7 +85,7 @@
       <Filter>File di origine\Utility</Filter>
     </ClCompile>
     <ClCompile Include="glad.c">
-      <Filter>File di origine\glad</Filter>
+      <Filter>File di origine\Glad</Filter>
     </ClCompile>
     <ClCompile Include="Libraries\include\ImGui\imgui.cpp">
       <Filter>File di origine\ImGui</Filter>
@@ -114,7 +114,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h">
-      <Filter>File di intestazione\glad</Filter>
+      <Filter>File di intestazione\Glad</Filter>
     </ClInclude>
     <ClInclude Include="Qubit.h">
       <Filter>File di intestazione</Filter>
