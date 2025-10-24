@@ -28,13 +28,6 @@ CoordinateAxes* coordinateAxes = nullptr;
 ProjectionLines* projectionLines = nullptr;
 AngleArcs* angleArcs = nullptr;
 
-// Animation control
-bool enableAnimations = true; // Set to false to disable all animations
-float animationStartTime = 0.0f;
-const float VECTOR_ANIMATION_DURATION = 1.5f;
-const float LINES_ANIMATION_DURATION = 1.0f;
-const float ARCS_ANIMATION_DURATION = 1.2f;
-
 // Camera variables
 glm::vec3 cameraPos = glm::vec3(2.5f, 2.5f, 2.5f);
 float zoomLevel = 1.0f;
@@ -50,21 +43,6 @@ double pitch = 0.0f;
 bool firstMouse = true;
 bool mousePressed = false;
 
-// Animation easing functions
-float easeOutCubic(float t) {
-    return 1.0f - pow(1.0f - t, 3.0f);
-}
-
-float easeInOutCubic(float t) {
-    return t < 0.5f ? 4.0f * t * t * t : 1.0f - pow(-2.0f * t + 2.0f, 3.0f) / 2.0f;
-}
-
-float easeOutBack(float t) {
-    const float c1 = 1.70158f;
-    const float c3 = c1 + 1.0f;
-    return 1.0f + c3 * pow(t - 1.0f, 3.0f) + c1 * pow(t - 1.0f, 2.0f);
-}
-
 // Key input
 static void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -75,22 +53,7 @@ static void processInput(GLFWwindow* window) {
         yaw = 0.0f;
         pitch = 0.0f;
         zoomLevel = 1.0f;
-        animationStartTime = static_cast<float>(glfwGetTime());
         std::cout << "Scene reset to default view!" << std::endl;
-    }
-
-    // Toggle animations with A key
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        static bool keyProcessed = false;
-        if (!keyProcessed) {
-            enableAnimations = !enableAnimations;
-            std::cout << "Animations " << (enableAnimations ? "ENABLED" : "DISABLED") << std::endl;
-            keyProcessed = true;
-        }
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_RELEASE) {
-        static bool keyProcessed = false;
-        keyProcessed = false;
     }
 
     // Zoom in with + key
@@ -177,7 +140,7 @@ int main() {
     // Set mouse callbacks
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetScrollCallback(window, scroll_callback); // Add scroll callback
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD\n";
@@ -196,9 +159,6 @@ int main() {
     glm::vec3 projectionColor = glm::vec3(0.8f, 0.8f, 0.2f); // Yellow for projection lines
     glm::vec3 arcColor = glm::vec3(0.2f, 0.8f, 0.2f); // Green for angle arcs
 
-    // Initialize animation start time
-    animationStartTime = static_cast<float>(glfwGetTime());
-
     // 1. FIRST: Create Coordinate Axes with uniform color
     coordinateAxes = new CoordinateAxes(
         1.2f,    // axis length (slightly larger than sphere)
@@ -213,7 +173,7 @@ int main() {
 
     // 3. THIRD: Create qubit and quantum vector
     Qubit q = Qubit(std::cos(M_PI / 9), std::exp(std::complex<double>(0, 1) * (M_PI / 2)) * std::sin(M_PI / 9));
-    // Print the qubit information
+    //print the qubit inbformation
     q.advancedLook();
 
     // Get the Bloch sphere coordinates for the vector
@@ -268,14 +228,12 @@ int main() {
     std::cout << "Controls:" << std::endl;
     std::cout << "  - Mouse drag: Rotate view" << std::endl;
     std::cout << "  - Mouse wheel: Zoom in/out" << std::endl;
-    std::cout << "  - R key: Reset view and restart animations" << std::endl;
-    std::cout << "  - A key: Toggle animations ON/OFF" << std::endl;
+    std::cout << "  - R key: Reset view" << std::endl;
     std::cout << "  - ESC key: Exit" << std::endl;
     std::cout << "Current qubit state:" << std::endl;
-    std::cout << "  Theta (polar angle): " << theta << " rad (" << theta * 180.0f / M_PI << "°)" << std::endl;
-    std::cout << "  Phi (azimuthal angle): " << phi << " rad (" << phi * 180.0f / M_PI << "°)" << std::endl;
+    std::cout << "  Theta (polar angle): " << theta << " rad (" << theta * 180.0f / M_PI << ")" << std::endl;
+    std::cout << "  Phi (azimuthal angle): " << phi << " rad (" << phi * 180.0f / M_PI << ")" << std::endl;
     std::cout << "  Vector position: (" << vectorPos.x << ", " << vectorPos.y << ", " << vectorPos.z << ")" << std::endl;
-    std::cout << "Animations: " << (enableAnimations ? "ENABLED" : "DISABLED") << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
         processInput(window);
@@ -284,65 +242,30 @@ int main() {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        float currentTime = glfwGetTime();
-        float animationTime = currentTime - animationStartTime;
+        float time = glfwGetTime();
 
         // Calculate camera position based on zoom level
         glm::vec3 currentCameraPos = cameraPos * zoomLevel;
         glm::mat4 view = glm::lookAt(currentCameraPos, glm::vec3(0, 0, 0), glm::vec3(0, 0, 1));
 
-        // Animation progress calculations
-        float vectorProgress = enableAnimations ?
-            glm::clamp(animationTime / VECTOR_ANIMATION_DURATION, 0.0f, 1.0f) : 1.0f;
-        float linesProgress = enableAnimations ?
-            glm::clamp((animationTime - VECTOR_ANIMATION_DURATION * 0.3f) / LINES_ANIMATION_DURATION, 0.0f, 1.0f) : 1.0f;
-        float arcsProgress = enableAnimations ?
-            glm::clamp((animationTime - VECTOR_ANIMATION_DURATION * 0.6f) / ARCS_ANIMATION_DURATION, 0.0f, 1.0f) : 1.0f;
-
-        // Apply easing to animation progress
-        vectorProgress = easeOutBack(vectorProgress);
-        linesProgress = easeOutCubic(linesProgress);
-        arcsProgress = easeInOutCubic(arcsProgress);
-
         // RENDER ORDER for proper depth management:
 
-        // 1. FIRST: Render Coordinate Axes (background reference) - always visible
-        coordinateAxes->render(currentTime, view, projection, model, yaw, pitch);
+        // 1. FIRST: Render Coordinate Axes (background reference)
+        coordinateAxes->render(time, view, projection, model, yaw, pitch);
 
-        // 2. SECOND: Render the Bloch Sphere (centered at origin) - always visible
-        blochSphere->render(currentTime, view, projection, model, yaw, pitch);
+        // 2. SECOND: Render the Bloch Sphere (centered at origin)
+        blochSphere->render(time, view, projection, model, yaw, pitch);
 
-        // 3. THIRD: Render Projection Lines (dashed yellow lines) - animated
-        if (linesProgress > 0.0f) {
-            // Modify projection lines opacity based on animation progress
-            glm::vec3 animatedProjectionColor = projectionColor * linesProgress;
-            projectionLines->setColor(animatedProjectionColor);
-            projectionLines->render(currentTime, view, projection, model, yaw, pitch);
-            // Restore original color
-            projectionLines->setColor(projectionColor);
-        }
+        // 3. THIRD: Render Projection Lines (dashed yellow lines)
+        projectionLines->render(time, view, projection, model, yaw, pitch);
 
-        // 4. FOURTH: Render Angle Arcs (green arcs showing angles) - animated
-        if (arcsProgress > 0.0f) {
-            // Modify arcs opacity based on animation progress
-            glm::vec3 animatedArcColor = arcColor * arcsProgress;
-            angleArcs->setColor(animatedArcColor);
-            angleArcs->render(currentTime, view, projection, model, yaw, pitch);
-            // Restore original color
-            angleArcs->setColor(arcColor);
-        }
+        // 4. FOURTH: Render Angle Arcs (green arcs showing angles)
+        angleArcs->render(time, view, projection, model, yaw, pitch);
 
-        // 5. FIFTH: Render the Quantum Vector Arrow - animated growth
-        if (vectorProgress > 0.0f) {
-            glLineWidth(2.5f * vectorProgress); // Animated line width
-            // Modify vector color opacity based on animation progress
-            glm::vec3 animatedVectorColor = vectorColor * vectorProgress;
-            quantumVector->setColor(animatedVectorColor);
-            quantumVector->render(currentTime, view, projection, model, yaw, pitch);
-            // Restore original color and line width
-            quantumVector->setColor(vectorColor);
-            glLineWidth(2.0f);
-        }
+        // 5. FIFTH: Render the Quantum Vector Arrow (ON TOP of everything)
+        glLineWidth(2.5f); // Slightly thicker for the vector
+        quantumVector->render(time, view, projection, model, yaw, pitch);
+        glLineWidth(2.0f); // Reset to default
 
         glfwSwapBuffers(window);
         glfwPollEvents();
