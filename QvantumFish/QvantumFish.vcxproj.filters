@@ -40,6 +40,9 @@
     <Filter Include="File di origine\Graphic\AngleArcs">
       <UniqueIdentifier>{a46c68d0-f865-4312-bf3a-4a6a0b9d7a7a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Utility">
+      <UniqueIdentifier>{6b29ca0a-9e20-427e-839c-637160c207b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -72,6 +75,9 @@
     <ClCompile Include="AngleArcs.cpp">
       <Filter>File di origine\Graphic\AngleArcs</Filter>
     </ClCompile>
+    <ClCompile Include="SceneController.cpp">
+      <Filter>File di origine\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Libraries\include\glad\glad.h">
@@ -99,6 +105,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="AngleArcs.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneController.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
