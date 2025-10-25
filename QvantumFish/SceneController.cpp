@@ -81,7 +81,7 @@ void SceneController::handleMouseMovement(double xpos, double ypos) {
 }
 
 void SceneController::handleMouseButton(int button, int action, int mods) {
-    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         if (action == GLFW_PRESS) {
             mousePressed = true;
             firstMouse = true; // Reset first mouse to get smooth movement
@@ -114,27 +114,6 @@ void SceneController::processInput(GLFWwindow* window) {
         reset();
     }
 
-    // Zoom in with + key
-    if (glfwGetKey(window, GLFW_KEY_EQUAL) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {
-        zoomLevel -= zoomSpeed;
-        if (zoomLevel < minZoom) zoomLevel = minZoom;
-        std::cout << "Zoom level: " << zoomLevel << std::endl;
-
-        if (onZoomCallback) {
-            onZoomCallback(zoomLevel);
-        }
-    }
-
-    // Zoom out with - key
-    if (glfwGetKey(window, GLFW_KEY_MINUS) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {
-        zoomLevel += zoomSpeed;
-        if (zoomLevel > maxZoom) zoomLevel = maxZoom;
-        std::cout << "Zoom level: " << zoomLevel << std::endl;
-
-        if (onZoomCallback) {
-            onZoomCallback(zoomLevel);
-        }
-    }
 }
 
 glm::mat4 SceneController::getViewMatrix() const {

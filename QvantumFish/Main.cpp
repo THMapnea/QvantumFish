@@ -91,8 +91,8 @@ void initializeScene() {
 
     std::cout << "Bloch Sphere Visualization initialized." << std::endl;
     std::cout << "Current qubit state:" << std::endl;
-    std::cout << "  Theta (polar angle): " << theta << " rad (" << theta * 180.0f / M_PI << "°)" << std::endl;
-    std::cout << "  Phi (azimuthal angle): " << phi << " rad (" << phi * 180.0f / M_PI << "°)" << std::endl;
+    std::cout << "  Theta (polar angle): " << theta << " rad (" << theta * 180.0f / M_PI << ")" << std::endl;
+    std::cout << "  Phi (azimuthal angle): " << phi << " rad (" << phi * 180.0f / M_PI << ")" << std::endl;
     std::cout << "  Vector position: (" << vectorPos.x << ", " << vectorPos.y << ", " << vectorPos.z << ")" << std::endl;
 }
 
