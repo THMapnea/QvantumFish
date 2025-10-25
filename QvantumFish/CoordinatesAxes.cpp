@@ -96,81 +96,52 @@ std::vector<float> CoordinateAxes::generateLabelVertices() {
 
     return vertices;
 }
-
 std::vector<float> CoordinateAxes::generateTextVertices() {
     std::vector<float> vertices;
 
-    // Create geometric representations for quantum state labels
-    float labelOffset = axisLength * 1.25f;
-    float markerSize = axisLength * 0.03f;
+    // Only show |0> on the north pole - positioned in XZ plane for front view
+    float labelOffset = axisLength * 1.1f;
+    float markerSize = axisLength * 0.025f;
+    float lineSize = markerSize * 2.0f;
+    float spacing = markerSize * 1.5f;
 
-    // Different geometric patterns for different labels
-    // |+> and |-> on X-axis: Plus signs
-    // |+i> and |-i> on Y-axis: Circles  
-    // |0> and |1> on Z-axis: Squares
+    // |0> at NORTH POLE - positioned in XZ plane (Y=0) so it faces front
+    float centerX = 0.0f;
+    float centerY = 0.0f;  // Keep Y at 0 so it's on the equator plane
+    float centerZ = labelOffset;
 
-    // X-axis: |+> and |-> (Plus signs)
-    // |+> at (labelOffset, 0, 0)
-    vertices.push_back(labelOffset - markerSize); vertices.push_back(0.0f); vertices.push_back(0.0f);
-    vertices.push_back(labelOffset + markerSize); vertices.push_back(0.0f); vertices.push_back(0.0f);
-    vertices.push_back(labelOffset); vertices.push_back(-markerSize); vertices.push_back(0.0f);
-    vertices.push_back(labelOffset); vertices.push_back(markerSize); vertices.push_back(0.0f);
+    // CORRECT ORDER: | 0 > - positioned in XZ plane
+    // Use X for horizontal, Z for vertical positioning
 
-    // |-> at (-labelOffset, 0, 0) - Horizontal line only
-    vertices.push_back(-labelOffset - markerSize); vertices.push_back(0.0f); vertices.push_back(0.0f);
-    vertices.push_back(-labelOffset + markerSize); vertices.push_back(0.0f); vertices.push_back(0.0f);
+    // 1. LEFT VERTICAL BAR | 
+    float barX = centerX - spacing - lineSize;
+    vertices.push_back(barX); vertices.push_back(centerY); vertices.push_back(centerZ - lineSize);
+    vertices.push_back(barX); vertices.push_back(centerY); vertices.push_back(centerZ + lineSize);
 
-    // Y-axis: |+i> and |-i> (Circles - approximated with octagon)
-    int circleSegments = 8;
+    // 2. ZERO 0 - Circle (in XZ plane)
+    int circleSegments = 16;
     float circleRadius = markerSize * 1.2f;
-
-    // |+i> at (0, labelOffset, 0)
     for (int i = 0; i < circleSegments; i++) {
         float angle1 = 2.0f * M_PI * i / circleSegments;
         float angle2 = 2.0f * M_PI * (i + 1) / circleSegments;
 
-        vertices.push_back(cos(angle1) * circleRadius);
-        vertices.push_back(labelOffset + sin(angle1) * circleRadius);
-        vertices.push_back(0.0f);
-        vertices.push_back(cos(angle2) * circleRadius);
-        vertices.push_back(labelOffset + sin(angle2) * circleRadius);
-        vertices.push_back(0.0f);
+        // Circle in XZ plane (Y=0)
+        vertices.push_back(centerX + cos(angle1) * circleRadius);
+        vertices.push_back(centerY);
+        vertices.push_back(centerZ + sin(angle1) * circleRadius);
+        vertices.push_back(centerX + cos(angle2) * circleRadius);
+        vertices.push_back(centerY);
+        vertices.push_back(centerZ + sin(angle2) * circleRadius);
     }
 
-    // |-i> at (0, -labelOffset, 0) - Circle with dot in center
-    for (int i = 0; i < circleSegments; i++) {
-        float angle1 = 2.0f * M_PI * i / circleSegments;
-        float angle2 = 2.0f * M_PI * (i + 1) / circleSegments;
-
-        vertices.push_back(cos(angle1) * circleRadius);
-        vertices.push_back(-labelOffset + sin(angle1) * circleRadius);
-        vertices.push_back(0.0f);
-        vertices.push_back(cos(angle2) * circleRadius);
-        vertices.push_back(-labelOffset + sin(angle2) * circleRadius);
-        vertices.push_back(0.0f);
-    }
-    // Center dot for |-i>
-    float dotSize = markerSize * 0.3f;
-    vertices.push_back(-dotSize); vertices.push_back(-labelOffset - dotSize); vertices.push_back(0.0f);
-    vertices.push_back(dotSize); vertices.push_back(-labelOffset + dotSize); vertices.push_back(0.0f);
-    vertices.push_back(-dotSize); vertices.push_back(-labelOffset + dotSize); vertices.push_back(0.0f);
-    vertices.push_back(dotSize); vertices.push_back(-labelOffset - dotSize); vertices.push_back(0.0f);
-
-    // Z-axis: |0> and |1> (Squares)
-    // |0> at (0, 0, labelOffset) - Square
-    float squareSize = markerSize;
-    vertices.push_back(-squareSize); vertices.push_back(-squareSize); vertices.push_back(labelOffset);
-    vertices.push_back(squareSize); vertices.push_back(-squareSize); vertices.push_back(labelOffset);
-    vertices.push_back(squareSize); vertices.push_back(-squareSize); vertices.push_back(labelOffset);
-    vertices.push_back(squareSize); vertices.push_back(squareSize); vertices.push_back(labelOffset);
-    vertices.push_back(squareSize); vertices.push_back(squareSize); vertices.push_back(labelOffset);
-    vertices.push_back(-squareSize); vertices.push_back(squareSize); vertices.push_back(labelOffset);
-    vertices.push_back(-squareSize); vertices.push_back(squareSize); vertices.push_back(labelOffset);
-    vertices.push_back(-squareSize); vertices.push_back(-squareSize); vertices.push_back(labelOffset);
-
-    // |1> at (0, 0, -labelOffset) - Vertical line
-    vertices.push_back(0.0f); vertices.push_back(-squareSize); vertices.push_back(-labelOffset);
-    vertices.push_back(0.0f); vertices.push_back(squareSize); vertices.push_back(-labelOffset);
+    // 3. RIGHT ANGLE BRACKET >
+    float bracketX = centerX + spacing + lineSize;
+    // Top line of > (in XZ plane)
+    vertices.push_back(bracketX - markerSize); vertices.push_back(centerY); vertices.push_back(centerZ + lineSize);
+    vertices.push_back(bracketX); vertices.push_back(centerY); vertices.push_back(centerZ);
+    // Bottom line of > (in XZ plane)
+    vertices.push_back(bracketX); vertices.push_back(centerY); vertices.push_back(centerZ);
+    vertices.push_back(bracketX - markerSize); vertices.push_back(centerY); vertices.push_back(centerZ - lineSize);
 
     return vertices;
 }
@@ -286,21 +257,20 @@ void CoordinateAxes::render(float time, const glm::mat4& view, const glm::mat4& 
     glBindVertexArray(labelsVAO);
     glDrawArrays(GL_LINES, 0, 12); // Draw all arrowheads
 
-    // Draw quantum state labels with brighter color
-    glLineWidth(2.0f);
+    // Draw only |0> label with brighter color
+    glLineWidth(2.5f); // Slightly thicker for better visibility
     glUniform1f(glGetUniformLocation(shaderProgram, "opacity"), 0.9f);
     glUniform3f(glGetUniformLocation(shaderProgram, "color"), 0.9f, 0.9f, 1.0f); // Bright cyan-white
 
     glBindVertexArray(textVAO);
 
-    // Draw all label geometries
-    // The text vertices contain different geometric patterns for each quantum state
-    glDrawArrays(GL_LINES, 0, 100); // Draw all label geometries
+    // Draw only the |0> label - updated vertex count
+    // 2 vertices for | + 32 vertices for circle (16 segments * 2) + 4 vertices for > = 38 vertices total
+    glDrawArrays(GL_LINES, 0, 38);
 
     // Reset line width
     glLineWidth(1.0f);
 }
-
 void CoordinateAxes::setAxisLength(float length) {
     axisLength = length;
     cleanup();
