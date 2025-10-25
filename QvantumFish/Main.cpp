@@ -332,6 +332,8 @@ int main() {
         ImGui::Separator();
         ImGui::Text("Quadrant Layout");
         ImGui::BulletText("Top-right: Bloch Sphere");
+        ImGui::BulletText("Right mouse key and\n move to rotate the sphere");
+        ImGui::BulletText("Scroll with mouse\nto zoom in and out");
         ImGui::Text("Window Size: %d x %d", windowWidth, windowHeight);
 
         ImGui::End();
