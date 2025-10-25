@@ -102,12 +102,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\ft2;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\ImGui;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\eigen-5.0.0;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\ImGui;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\eigen-5.0.0;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\lib-vc2022;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\linking\lib\freetype;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -119,12 +119,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\ft2;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\ImGui;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\eigen-5.0.0;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\ImGui;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\eigen-5.0.0;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\lib-vc2022;C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\linking\lib\freetype;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Users\ginop\source\repos\QvantumFish\QvantumFish\Libraries\include\lib-vc2022;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>glfw3.lib;opengl32.lib;user32.lib;gdi32.lib;shell32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
