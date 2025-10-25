@@ -292,10 +292,6 @@ int main() {
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
     glm::mat4 model = glm::mat4(1.0f);
 
-    std::cout << "Quantum Visualization Dashboard initialized." << std::endl;
-    std::cout << "Screen divided into 4 quadrants:" << std::endl;
-    std::cout << "  - Top-right: Bloch Sphere Visualization" << std::endl;
-    std::cout << "  - Other quadrants: Reserved for future features" << std::endl;
     std::cout << "Controls:" << std::endl;
     std::cout << "  - Mouse drag: Rotate Bloch Sphere view" << std::endl;
     std::cout << "  - Mouse wheel: Zoom in/out Bloch Sphere" << std::endl;
@@ -324,7 +320,6 @@ int main() {
         ImGui::Separator();
         ImGui::Text("Quadrant Layout");
         ImGui::BulletText("Top-right: Bloch Sphere");
-        ImGui::BulletText("Other quadrants: Coming soon");
 
         ImGui::End();
 
