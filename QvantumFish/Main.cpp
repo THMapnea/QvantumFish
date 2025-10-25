@@ -158,7 +158,7 @@ static void initializeDivisionLines() {
     glBindVertexArray(0);
 }
 
-void cleanupScene() {
+static void cleanupScene() {
     delete angleArcs;
     delete projectionLines;
     delete quantumVector;
@@ -174,7 +174,7 @@ void cleanupScene() {
     }
 }
 
-void renderDivisionLines(float time) {
+static void renderDivisionLines(float time) {
     if (divisionLinesShader == 0) return;
 
     // Save current state
@@ -333,7 +333,7 @@ int main() {
         ImGui::Text("Quadrant Layout");
         ImGui::BulletText("Top-right: Bloch Sphere");
         ImGui::BulletText("Right mouse key and\n move to rotate the sphere");
-        ImGui::BulletText("Scroll with mouse\nto zoom in and out");
+        ImGui::BulletText("Right mouse key and scroll\n with mouse wheel to zoom in and out");
         ImGui::Text("Window Size: %d x %d", windowWidth, windowHeight);
 
         ImGui::End();

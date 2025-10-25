@@ -93,15 +93,16 @@ void SceneController::handleMouseButton(int button, int action, int mods) {
 }
 
 void SceneController::handleScroll(double xoffset, double yoffset) {
-    zoomLevel -= yoffset * zoomSpeed * 0.5f;
-    if (zoomLevel < minZoom) zoomLevel = minZoom;
-    if (zoomLevel > maxZoom) zoomLevel = maxZoom;
+    // Only zoom if right mouse button is currently pressed
+    if (mousePressed) {
+        zoomLevel -= yoffset * zoomSpeed * 0.5f;
+        if (zoomLevel < minZoom) zoomLevel = minZoom;
+        if (zoomLevel > maxZoom) zoomLevel = maxZoom;
 
-    std::cout << "Zoom level: " << zoomLevel << std::endl;
-
-    // Call zoom callback if set
-    if (onZoomCallback) {
-        onZoomCallback(zoomLevel);
+        // Call zoom callback if set
+        if (onZoomCallback) {
+            onZoomCallback(zoomLevel);
+        }
     }
 }
 
