@@ -25,6 +25,9 @@ private:
     // Window dimensions
     unsigned int windowWidth, windowHeight;
 
+    // Projection matrix
+    glm::mat4 projection;
+
     // Callback functions
     std::function<void()> onResetCallback;
     std::function<void(float)> onZoomCallback;
@@ -54,8 +57,9 @@ public:
 
     // Getters
     glm::mat4 getViewMatrix() const;
-    float getYaw() const { return yaw; }
-    float getPitch() const { return pitch; }
+    glm::mat4 getProjectionMatrix() const { return projection; }
+    float getYaw() const { return static_cast<float>(yaw); }
+    float getPitch() const { return static_cast<float>(pitch); }
     float getZoomLevel() const { return zoomLevel; }
     glm::vec3 getCameraPosition() const { return cameraPos * zoomLevel; }
 
@@ -68,6 +72,9 @@ public:
 
     // Update window size (for responsive design)
     void updateWindowSize(unsigned int width, unsigned int height);
+
+    // Update projection matrix based on current window size
+    void updateProjectionMatrix();
 };
 
 #endif // SCENE_CONTROLLER_H

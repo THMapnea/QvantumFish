@@ -3,7 +3,6 @@
 #include <cmath>
 #include <glm/gtc/matrix_transform.hpp>
 
-
 // Static instance pointer for GLFW callbacks
 static SceneController* s_SceneControllerInstance = nullptr;
 
@@ -24,6 +23,9 @@ SceneController::SceneController(unsigned int width, unsigned int height,
 
     // Store instance for static callbacks
     s_SceneControllerInstance = this;
+
+    // Initialize projection matrix
+    updateProjectionMatrix();
 }
 
 void SceneController::setupCallbacks(GLFWwindow* window) {
@@ -161,4 +163,11 @@ void SceneController::reset() {
 void SceneController::updateWindowSize(unsigned int width, unsigned int height) {
     windowWidth = width;
     windowHeight = height;
+    updateProjectionMatrix();
+}
+
+void SceneController::updateProjectionMatrix() {
+    // Calculate aspect ratio for Bloch sphere quadrant (top-right quadrant)
+    float quadrantAspectRatio = (float)(windowWidth / 2) / (float)(windowHeight / 2);
+    projection = glm::perspective(glm::radians(45.0f), quadrantAspectRatio, 0.1f, 100.0f);
 }

@@ -22,9 +22,6 @@
 #include "SceneController.h"
 #include "Qubit.h"
 
-const unsigned int WIDTH = 1200;
-const unsigned int HEIGHT = 800;
-
 // Global variables
 BlochSphere* blochSphere = nullptr;
 VectorArrow* quantumVector = nullptr;
@@ -41,6 +38,20 @@ float sphereScale = 1.0f;
 unsigned int divisionLinesVAO = 0;
 unsigned int divisionLinesVBO = 0;
 unsigned int divisionLinesShader = 0;
+
+// Current window dimensions
+int windowWidth = 1200;
+int windowHeight = 800;
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+    windowWidth = width;
+    windowHeight = height;
+
+    // Update scene controller with new dimensions
+    if (sceneController) {
+        sceneController->updateWindowSize(width, height);
+    }
+}
 
 void initializeScene() {
     // Color scheme matching the sphere style
@@ -175,7 +186,7 @@ void renderDivisionLines(float time) {
 
     // Set up for 2D rendering (full screen)
     glDisable(GL_DEPTH_TEST);
-    glViewport(0, 0, WIDTH, HEIGHT);
+    glViewport(0, 0, windowWidth, windowHeight);
 
     // Use division lines shader
     glUseProgram(divisionLinesShader);
@@ -194,17 +205,20 @@ void renderDivisionLines(float time) {
     glUseProgram(prevProgram);
 }
 
-void renderBlochSphereView(float time, const glm::mat4& projection, const glm::mat4& model) {
-    // Set up viewport for top-right quadrant (1/4 of screen)
-    int sphereViewportX = WIDTH / 2;
-    int sphereViewportY = HEIGHT / 2;
-    int sphereViewportWidth = WIDTH / 2;
-    int sphereViewportHeight = HEIGHT / 2;
+void renderBlochSphereView(float time) {
+    // Calculate quadrant dimensions based on current window size
+    int sphereViewportX = windowWidth / 2;
+    int sphereViewportY = windowHeight / 2;
+    int sphereViewportWidth = windowWidth / 2;
+    int sphereViewportHeight = windowHeight / 2;
 
+    // Set up viewport for top-right quadrant (1/4 of screen)
     glViewport(sphereViewportX, sphereViewportY, sphereViewportWidth, sphereViewportHeight);
 
-    // Get view matrix from scene controller for the sphere view
+    // Get matrices from scene controller
     glm::mat4 view = sceneController->getViewMatrix();
+    glm::mat4 projection = sceneController->getProjectionMatrix();
+    glm::mat4 model = glm::mat4(1.0f);
     float yaw = sceneController->getYaw();
     float pitch = sceneController->getPitch();
 
@@ -224,17 +238,17 @@ void renderBlochSphereView(float time, const glm::mat4& projection, const glm::m
 
 void renderOtherQuadrants() {
     // Bottom-left quadrant - Placeholder for future content
-    glViewport(0, 0, WIDTH / 2, HEIGHT / 2);
+    glViewport(0, 0, windowWidth / 2, windowHeight / 2);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Bottom-right quadrant - Placeholder for future content
-    glViewport(WIDTH / 2, 0, WIDTH / 2, HEIGHT / 2);
+    glViewport(windowWidth / 2, 0, windowWidth / 2, windowHeight / 2);
     glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Top-left quadrant - Placeholder for future content
-    glViewport(0, HEIGHT / 2, WIDTH / 2, HEIGHT / 2);
+    glViewport(0, windowHeight / 2, windowWidth / 2, windowHeight / 2);
     glClearColor(0.12f, 0.12f, 0.12f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -246,7 +260,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "QvantumFish - Quantum Visualization Dashboard", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(windowWidth, windowHeight, "QvantumFish - Quantum Visualization Dashboard", NULL, NULL);
     if (!window) {
         std::cerr << "Failed to create window\n";
         glfwTerminate();
@@ -254,8 +268,11 @@ int main() {
     }
     glfwMakeContextCurrent(window);
 
-    // Initialize Scene Controller
-    sceneController = new SceneController(WIDTH, HEIGHT);
+    // Set framebuffer size callback
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+    // Initialize Scene Controller with initial window size
+    sceneController = new SceneController(windowWidth, windowHeight);
 
     // Setup GLFW callbacks
     sceneController->setupCallbacks(window);
@@ -287,11 +304,6 @@ int main() {
     // Initialize division lines
     initializeDivisionLines();
 
-    // Projection matrix for the Bloch sphere view (adjusted for quadrant size)
-    float aspectRatio = (float)(WIDTH / 2) / (float)(HEIGHT / 2);
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
-    glm::mat4 model = glm::mat4(1.0f);
-
     std::cout << "Controls:" << std::endl;
     std::cout << "  - Mouse drag: Rotate Bloch Sphere view" << std::endl;
     std::cout << "  - Mouse wheel: Zoom in/out Bloch Sphere" << std::endl;
@@ -320,6 +332,7 @@ int main() {
         ImGui::Separator();
         ImGui::Text("Quadrant Layout");
         ImGui::BulletText("Top-right: Bloch Sphere");
+        ImGui::Text("Window Size: %d x %d", windowWidth, windowHeight);
 
         ImGui::End();
 
@@ -331,7 +344,7 @@ int main() {
 
         // Render the 4 quadrants
         renderOtherQuadrants();
-        renderBlochSphereView(time, projection, model);
+        renderBlochSphereView(time);
 
         // Render division lines (must be done after all viewport rendering)
         renderDivisionLines(time);
