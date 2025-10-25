@@ -43,7 +43,7 @@ unsigned int divisionLinesShader = 0;
 int windowWidth = 1200;
 int windowHeight = 800;
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     windowWidth = width;
     windowHeight = height;
 
@@ -53,7 +53,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     }
 }
 
-void initializeScene() {
+static void initializeScene() {
     // Color scheme matching the sphere style
     glm::vec3 axesColor = glm::vec3(0.4f, 0.6f, 0.8f);
     glm::vec3 vectorColor = glm::vec3(1.0f, 0.3f, 0.3f);
@@ -96,7 +96,7 @@ void initializeScene() {
     std::cout << "  Vector position: (" << vectorPos.x << ", " << vectorPos.y << ", " << vectorPos.z << ")" << std::endl;
 }
 
-void initializeDivisionLines() {
+static void initializeDivisionLines() {
     // Division lines vertices in normalized device coordinates
     float vertices[] = {
         // Vertical line (center X)
@@ -205,7 +205,7 @@ void renderDivisionLines(float time) {
     glUseProgram(prevProgram);
 }
 
-void renderBlochSphereView(float time) {
+static void renderBlochSphereView(float time) {
     // Calculate quadrant dimensions based on current window size
     int sphereViewportX = windowWidth / 2;
     int sphereViewportY = windowHeight / 2;
@@ -236,7 +236,7 @@ void renderBlochSphereView(float time) {
     glLineWidth(2.0f);
 }
 
-void renderOtherQuadrants() {
+static void renderOtherQuadrants() {
     // Bottom-left quadrant - Placeholder for future content
     glViewport(0, 0, windowWidth / 2, windowHeight / 2);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
