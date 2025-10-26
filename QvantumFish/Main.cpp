@@ -1,4 +1,4 @@
-#define _USE_MATH_DEFINES
+﻿#define _USE_MATH_DEFINES
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -33,6 +33,13 @@ SceneController* sceneController = nullptr;
 // ImGui state
 bool showDemoWindow = false;
 float sphereScale = 1.0f;
+
+// Visibility flags
+bool showSphere = true;
+bool showAxes = true;
+bool showVector = true;
+bool showProjections = true;
+bool showArcs = true;
 
 // Division lines shader and buffers
 unsigned int divisionLinesVAO = 0;
@@ -225,15 +232,28 @@ static void renderBlochSphereView(float time) {
     // Apply scaling to the sphere if needed
     glm::mat4 scaledModel = glm::scale(model, glm::vec3(sphereScale));
 
-    // Render the Bloch Sphere components
-    coordinateAxes->render(time, view, projection, scaledModel, yaw, pitch);
-    blochSphere->render(time, view, projection, scaledModel, yaw, pitch);
-    projectionLines->render(time, view, projection, scaledModel, yaw, pitch);
-    angleArcs->render(time, view, projection, scaledModel, yaw, pitch);
+    // Render the Bloch Sphere components based on visibility flags
+    if (showAxes) {
+        coordinateAxes->render(time, view, projection, scaledModel, yaw, pitch);
+    }
 
-    glLineWidth(2.5f);
-    quantumVector->render(time, view, projection, scaledModel, yaw, pitch);
-    glLineWidth(2.0f);
+    if (showSphere) {
+        blochSphere->render(time, view, projection, scaledModel, yaw, pitch);
+    }
+
+    if (showProjections) {
+        projectionLines->render(time, view, projection, scaledModel, yaw, pitch);
+    }
+
+    if (showArcs) {
+        angleArcs->render(time, view, projection, scaledModel, yaw, pitch);
+    }
+
+    if (showVector) {
+        glLineWidth(2.5f);
+        quantumVector->render(time, view, projection, scaledModel, yaw, pitch);
+        glLineWidth(2.0f);
+    }
 }
 
 static void renderOtherQuadrants() {
@@ -320,7 +340,7 @@ int main() {
 
         // Main control panel window
         ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(300, 150), ImGuiCond_FirstUseEver);
+        ImGui::SetNextWindowSize(ImVec2(300, 250), ImGuiCond_FirstUseEver);
 
         ImGui::Begin("Quantum Visualization Controls");
 
@@ -330,10 +350,29 @@ int main() {
         }
 
         ImGui::Separator();
+        ImGui::Text("Component Visibility");
+        ImGui::Checkbox("Show Sphere", &showSphere);
+        ImGui::Checkbox("Show Axes", &showAxes);
+        ImGui::Checkbox("Show Vector", &showVector);
+        ImGui::Checkbox("Show Projections", &showProjections);
+        ImGui::Checkbox("Show Arcs", &showArcs);
+
+        // Add a button to toggle all components
+        if (ImGui::Button("Toggle All")) {
+            bool allVisible = showSphere && showAxes && showVector && showProjections && showArcs;
+            showSphere = !allVisible;
+            showAxes = !allVisible;
+            showVector = !allVisible;
+            showProjections = !allVisible;
+            showArcs = !allVisible;
+        }
+
+        ImGui::Separator();
         ImGui::Text("Quadrant Layout");
         ImGui::BulletText("Top-right: Bloch Sphere");
         ImGui::BulletText("Right mouse key and\n move to rotate the sphere");
         ImGui::BulletText("Right mouse key and scroll\n with mouse wheel to zoom in and out");
+        ImGui::BulletText("R key to reset the view");
         ImGui::Text("Window Size: %d x %d", windowWidth, windowHeight);
 
         ImGui::End();
