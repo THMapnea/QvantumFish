@@ -107,12 +107,12 @@ std::vector<float> CoordinateAxes::generateTextVertices() {
     int circleSegments = 16;
     float circleRadius = markerSize * 1.2f;
 
-    // |0> at NORTH POLE - positioned in XZ plane (Y=0) so it faces front
+    // ⟨0| at NORTH POLE - positioned in XZ plane (Y=0) so it faces front
     float centerX_N = 0.0f;
     float centerY_N = 0.0f;
     float centerZ_N = labelOffset;
 
-    // |1> at SOUTH POLE - positioned in XZ plane (Y=0)
+    // ⟨1| at SOUTH POLE - positioned in XZ plane (Y=0)
     float centerX_S = 0.0f;
     float centerY_S = 0.0f;
     float centerZ_S = -labelOffset;
@@ -137,11 +137,13 @@ std::vector<float> CoordinateAxes::generateTextVertices() {
     float centerY_NY = -labelOffset;
     float centerZ_NY = 0.0f;
 
-    // NORTH POLE: |0>
-    // 1. LEFT VERTICAL BAR | 
-    float barX_N = centerX_N - spacing - lineSize;
-    vertices.push_back(barX_N); vertices.push_back(centerY_N); vertices.push_back(centerZ_N - lineSize);
-    vertices.push_back(barX_N); vertices.push_back(centerY_N); vertices.push_back(centerZ_N + lineSize);
+    // NORTH POLE: ⟨0|
+    // 1. LEFT ANGLE BRACKET ⟨
+    float bracketLeftX_N = centerX_N - spacing - lineSize;
+    vertices.push_back(bracketLeftX_N + markerSize); vertices.push_back(centerY_N); vertices.push_back(centerZ_N + lineSize);
+    vertices.push_back(bracketLeftX_N); vertices.push_back(centerY_N); vertices.push_back(centerZ_N);
+    vertices.push_back(bracketLeftX_N); vertices.push_back(centerY_N); vertices.push_back(centerZ_N);
+    vertices.push_back(bracketLeftX_N + markerSize); vertices.push_back(centerY_N); vertices.push_back(centerZ_N - lineSize);
 
     // 2. ZERO 0 - Circle (in XZ plane)
     for (int i = 0; i < circleSegments; i++) {
@@ -155,29 +157,27 @@ std::vector<float> CoordinateAxes::generateTextVertices() {
         vertices.push_back(centerZ_N + sin(angle2) * circleRadius);
     }
 
-    // 3. RIGHT ANGLE BRACKET >
-    float bracketX_N = centerX_N + spacing + lineSize;
-    vertices.push_back(bracketX_N - markerSize); vertices.push_back(centerY_N); vertices.push_back(centerZ_N + lineSize);
-    vertices.push_back(bracketX_N); vertices.push_back(centerY_N); vertices.push_back(centerZ_N);
-    vertices.push_back(bracketX_N); vertices.push_back(centerY_N); vertices.push_back(centerZ_N);
-    vertices.push_back(bracketX_N - markerSize); vertices.push_back(centerY_N); vertices.push_back(centerZ_N - lineSize);
+    // 3. RIGHT VERTICAL BAR |
+    float barX_N = centerX_N + spacing + lineSize;
+    vertices.push_back(barX_N); vertices.push_back(centerY_N); vertices.push_back(centerZ_N - lineSize);
+    vertices.push_back(barX_N); vertices.push_back(centerY_N); vertices.push_back(centerZ_N + lineSize);
 
-    // SOUTH POLE: |1>
-    // 1. LEFT VERTICAL BAR |
-    float barX_S = centerX_S - spacing - lineSize;
-    vertices.push_back(barX_S); vertices.push_back(centerY_S); vertices.push_back(centerZ_S - lineSize);
-    vertices.push_back(barX_S); vertices.push_back(centerY_S); vertices.push_back(centerZ_S + lineSize);
+    // SOUTH POLE: ⟨1|
+    // 1. LEFT ANGLE BRACKET ⟨
+    float bracketLeftX_S = centerX_S - spacing - lineSize;
+    vertices.push_back(bracketLeftX_S + markerSize); vertices.push_back(centerY_S); vertices.push_back(centerZ_S + lineSize);
+    vertices.push_back(bracketLeftX_S); vertices.push_back(centerY_S); vertices.push_back(centerZ_S);
+    vertices.push_back(bracketLeftX_S); vertices.push_back(centerY_S); vertices.push_back(centerZ_S);
+    vertices.push_back(bracketLeftX_S + markerSize); vertices.push_back(centerY_S); vertices.push_back(centerZ_S - lineSize);
 
     // 2. ONE 1 - Vertical line
     vertices.push_back(centerX_S); vertices.push_back(centerY_S); vertices.push_back(centerZ_S - lineSize);
     vertices.push_back(centerX_S); vertices.push_back(centerY_S); vertices.push_back(centerZ_S + lineSize);
 
-    // 3. RIGHT ANGLE BRACKET >
-    float bracketX_S = centerX_S + spacing + lineSize;
-    vertices.push_back(bracketX_S - markerSize); vertices.push_back(centerY_S); vertices.push_back(centerZ_S + lineSize);
-    vertices.push_back(bracketX_S); vertices.push_back(centerY_S); vertices.push_back(centerZ_S);
-    vertices.push_back(bracketX_S); vertices.push_back(centerY_S); vertices.push_back(centerZ_S);
-    vertices.push_back(bracketX_S - markerSize); vertices.push_back(centerY_S); vertices.push_back(centerZ_S - lineSize);
+    // 3. RIGHT VERTICAL BAR |
+    float barX_S = centerX_S + spacing + lineSize;
+    vertices.push_back(barX_S); vertices.push_back(centerY_S); vertices.push_back(centerZ_S - lineSize);
+    vertices.push_back(barX_S); vertices.push_back(centerY_S); vertices.push_back(centerZ_S + lineSize);
 
     // POSITIVE X-AXIS: |+>
     // 1. LEFT VERTICAL BAR |
