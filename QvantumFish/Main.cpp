@@ -266,7 +266,9 @@ static void renderTopRightQuadrant(float time) {
     }
 }
 
-static void renderOtherQuadrants() {
+
+
+static void renderTopLeftQuadrant() {
     // Skip rendering if window is minimized
     if (windowMinimized) return;
 
@@ -278,21 +280,47 @@ static void renderOtherQuadrants() {
         return;
     }
 
-    // Bottom-left quadrant - Placeholder for future content
-    glViewport(0, 0, quadrantWidth, quadrantHeight);
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Bottom-right quadrant - Placeholder for future content
-    glViewport(windowWidth / 2, 0, quadrantWidth, quadrantHeight);
-    glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     // Top-left quadrant - Placeholder for future content
-    glViewport(0, windowHeight / 2, quadrantWidth, quadrantHeight);
+    glViewport(0, windowHeight / 2, windowWidth / 2, windowHeight / 2);
     glClearColor(0.12f, 0.12f, 0.12f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+
+
+static void renderBottomLeftQuadrant() {
+    // Skip rendering if window is minimized
+    if (windowMinimized) return;
+
+    // Ensure we have valid dimensions
+    int quadrantWidth = windowWidth / 2;
+    int quadrantHeight = windowHeight / 2;
+
+    if (quadrantWidth <= 0 || quadrantHeight <= 0) {
+        return;
+    }
+    // Bottom-left quadrant - Placeholder for future content
+    glViewport(0, 0, windowWidth / 2, windowHeight / 2);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+static void renderBottomRightQuadrant() {
+    // Skip rendering if window is minimized
+    if (windowMinimized) return;
+
+    // Ensure we have valid dimensions
+    int quadrantWidth = windowWidth / 2;
+    int quadrantHeight = windowHeight / 2;
+
+    if (quadrantWidth <= 0 || quadrantHeight <= 0) {
+        return;
+    }
+    // Bottom-right quadrant - Placeholder for future content
+    glViewport(windowWidth / 2, 0, windowWidth / 2, windowHeight / 2);
+    glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
 
 int main() {
     // Initialize GLFW
@@ -411,7 +439,9 @@ int main() {
         float time = static_cast<float>(glfwGetTime());
 
         // Render the 4 quadrants
-        renderOtherQuadrants();
+        renderBottomLeftQuadrant();
+        renderBottomRightQuadrant();
+        renderTopLeftQuadrant();
         renderTopRightQuadrant(time);
 
         // Render division lines (must be done after all viewport rendering)
