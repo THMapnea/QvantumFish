@@ -46,6 +46,11 @@ unsigned int divisionLinesVAO = 0;
 unsigned int divisionLinesVBO = 0;
 unsigned int divisionLinesShader = 0;
 
+// Background quad shader and buffers
+unsigned int backgroundVAO = 0;
+unsigned int backgroundVBO = 0;
+unsigned int backgroundShader = 0;
+
 // Current window dimensions
 int windowWidth = 1200;
 int windowHeight = 800;
@@ -60,6 +65,84 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     if (sceneController && !windowMinimized) {
         sceneController->updateWindowSize(width, height);
     }
+}
+
+static void initializeBackgroundQuad() {
+    // Background quad vertices (normalized device coordinates)
+    float vertices[] = {
+        -1.0f, -1.0f, 0.0f,
+         1.0f, -1.0f, 0.0f,
+         1.0f,  1.0f, 0.0f,
+        -1.0f,  1.0f, 0.0f
+    };
+
+    unsigned int indices[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    // Create and compile shader
+    const char* vertexShaderSource = R"(
+        #version 330 core
+        layout (location = 0) in vec3 aPos;
+        void main() {
+            gl_Position = vec4(aPos, 1.0);
+        }
+    )";
+
+    const char* fragmentShaderSource = R"(
+        #version 330 core
+        out vec4 FragColor;
+        uniform vec3 color;
+        void main() {
+            FragColor = vec4(color, 1.0);
+        }
+    )";
+
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+
+    backgroundShader = glCreateProgram();
+    glAttachShader(backgroundShader, vertexShader);
+    glAttachShader(backgroundShader, fragmentShader);
+    glLinkProgram(backgroundShader);
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    // Create VAO, VBO, and EBO
+    glGenVertexArrays(1, &backgroundVAO);
+    glGenBuffers(1, &backgroundVBO);
+    unsigned int backgroundEBO;
+    glGenBuffers(1, &backgroundEBO);
+
+    glBindVertexArray(backgroundVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, backgroundVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, backgroundEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+    glDeleteBuffers(1, &backgroundEBO); // EBO is stored in VAO state
+}
+
+static void renderBackgroundQuad(const glm::vec3& color) {
+    glUseProgram(backgroundShader);
+    glUniform3f(glGetUniformLocation(backgroundShader, "color"), color.r, color.g, color.b);
+
+    glBindVertexArray(backgroundVAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 }
 
 static void initializeScene() {
@@ -181,6 +264,13 @@ static void cleanupScene() {
         glDeleteBuffers(1, &divisionLinesVBO);
         glDeleteProgram(divisionLinesShader);
     }
+
+    // Cleanup background quad
+    if (backgroundVAO) {
+        glDeleteVertexArrays(1, &backgroundVAO);
+        glDeleteBuffers(1, &backgroundVBO);
+        glDeleteProgram(backgroundShader);
+    }
 }
 
 static void renderDivisionLines(float time) {
@@ -232,6 +322,9 @@ static void renderTopRightQuadrant(float time) {
     // Set up viewport for top-right quadrant (1/4 of screen)
     glViewport(sphereViewportX, sphereViewportY, sphereViewportWidth, sphereViewportHeight);
 
+    // Clear only this quadrant's depth buffer to allow proper depth testing
+    glClear(GL_DEPTH_BUFFER_BIT);
+
     // Get matrices from scene controller
     glm::mat4 view = sceneController->getViewMatrix();
     glm::mat4 projection = sceneController->getProjectionMatrix();
@@ -266,9 +359,7 @@ static void renderTopRightQuadrant(float time) {
     }
 }
 
-
-
-static void renderTopLeftQuadrant() {
+static void renderTopLeftQuadrant() {  // Removed time parameter
     // Skip rendering if window is minimized
     if (windowMinimized) return;
 
@@ -280,14 +371,22 @@ static void renderTopLeftQuadrant() {
         return;
     }
 
-    // Top-left quadrant - Placeholder for future content
-    glViewport(0, windowHeight / 2, windowWidth / 2, windowHeight / 2);
-    glClearColor(0.12f, 0.12f, 0.12f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // Top-left quadrant - Set viewport
+    glViewport(0, windowHeight / 2, quadrantWidth, quadrantHeight);
+
+    // Clear only depth buffer for this quadrant
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // Set a solid background color for this quadrant
+    glDisable(GL_DEPTH_TEST);
+    renderBackgroundQuad(glm::vec3(0.12f, 0.12f, 0.12f));
+    glEnable(GL_DEPTH_TEST);
+
+    // TODO: Add your top-left quadrant content here
+    // For now, it's just a solid color background
 }
 
-
-static void renderBottomLeftQuadrant() {
+static void renderBottomLeftQuadrant() {  // Removed time parameter
     // Skip rendering if window is minimized
     if (windowMinimized) return;
 
@@ -298,13 +397,23 @@ static void renderBottomLeftQuadrant() {
     if (quadrantWidth <= 0 || quadrantHeight <= 0) {
         return;
     }
-    // Bottom-left quadrant - Placeholder for future content
-    glViewport(0, 0, windowWidth / 2, windowHeight / 2);
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Bottom-left quadrant - Set viewport
+    glViewport(0, 0, quadrantWidth, quadrantHeight);
+
+    // Clear only depth buffer for this quadrant
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // Set a solid background color for this quadrant
+    glDisable(GL_DEPTH_TEST);
+    renderBackgroundQuad(glm::vec3(0.1f, 0.1f, 0.1f));
+    glEnable(GL_DEPTH_TEST);
+
+    // TODO: Add your bottom-left quadrant content here
+    // For now, it's just a solid color background
 }
 
-static void renderBottomRightQuadrant() {
+static void renderBottomRightQuadrant() {  // Removed time parameter
     // Skip rendering if window is minimized
     if (windowMinimized) return;
 
@@ -315,12 +424,21 @@ static void renderBottomRightQuadrant() {
     if (quadrantWidth <= 0 || quadrantHeight <= 0) {
         return;
     }
-    // Bottom-right quadrant - Placeholder for future content
-    glViewport(windowWidth / 2, 0, windowWidth / 2, windowHeight / 2);
-    glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-}
 
+    // Bottom-right quadrant - Set viewport
+    glViewport(windowWidth / 2, 0, quadrantWidth, quadrantHeight);
+
+    // Clear only depth buffer for this quadrant
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // Set a solid background color for this quadrant
+    glDisable(GL_DEPTH_TEST);
+    renderBackgroundQuad(glm::vec3(0.15f, 0.15f, 0.15f));
+    glEnable(GL_DEPTH_TEST);
+
+    // TODO: Add your bottom-right quadrant content here
+    // For now, it's just a solid color background
+}
 
 int main() {
     // Initialize GLFW
@@ -369,6 +487,9 @@ int main() {
 
     // Initialize the scene
     initializeScene();
+
+    // Initialize background quad
+    initializeBackgroundQuad();
 
     // Initialize division lines
     initializeDivisionLines();
@@ -432,13 +553,13 @@ int main() {
 
         ImGui::End();
 
-        // Clear the entire window with black background
+        // Clear the entire window with black background ONCE at the beginning
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         float time = static_cast<float>(glfwGetTime());
 
-        // Render the 4 quadrants
+        // Render the 4 quadrants - each one only clears depth buffer, not color buffer
         renderBottomLeftQuadrant();
         renderBottomRightQuadrant();
         renderTopLeftQuadrant();
