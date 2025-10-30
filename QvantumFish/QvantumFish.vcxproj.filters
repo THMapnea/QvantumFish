@@ -58,6 +58,9 @@
     <Filter Include="File di origine\Dashboard\Elements">
       <UniqueIdentifier>{ffb0160b-8bd7-4187-96da-3fe36204c76f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Gates">
+      <UniqueIdentifier>{48529439-a66f-41ae-af95-4568ccc00e50}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">

@@ -212,7 +212,7 @@ static void renderDivisionLines(float time) {
     glUseProgram(prevProgram);
 }
 
-static void renderBlochSphereView(float time) {
+static void renderTopRightQuadrant(float time) {
     // Calculate quadrant dimensions based on current window size
     int sphereViewportX = windowWidth / 2;
     int sphereViewportY = windowHeight / 2;
@@ -385,7 +385,7 @@ int main() {
 
         // Render the 4 quadrants
         renderOtherQuadrants();
-        renderBlochSphereView(time);
+        renderTopRightQuadrant(time);
 
         // Render division lines (must be done after all viewport rendering)
         renderDivisionLines(time);
