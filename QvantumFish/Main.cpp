@@ -49,13 +49,15 @@ unsigned int divisionLinesShader = 0;
 // Current window dimensions
 int windowWidth = 1200;
 int windowHeight = 800;
+bool windowMinimized = false;
 
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     windowWidth = width;
     windowHeight = height;
+    windowMinimized = (width == 0 || height == 0);
 
-    // Update scene controller with new dimensions
-    if (sceneController) {
+    // Update scene controller with new dimensions (only if not minimized)
+    if (sceneController && !windowMinimized) {
         sceneController->updateWindowSize(width, height);
     }
 }
@@ -182,7 +184,7 @@ static void cleanupScene() {
 }
 
 static void renderDivisionLines(float time) {
-    if (divisionLinesShader == 0) return;
+    if (divisionLinesShader == 0 || windowMinimized) return;
 
     // Save current state
     GLint prevViewport[4];
@@ -213,11 +215,19 @@ static void renderDivisionLines(float time) {
 }
 
 static void renderTopRightQuadrant(float time) {
+    // Skip rendering if window is minimized
+    if (windowMinimized) return;
+
     // Calculate quadrant dimensions based on current window size
     int sphereViewportX = windowWidth / 2;
     int sphereViewportY = windowHeight / 2;
     int sphereViewportWidth = windowWidth / 2;
     int sphereViewportHeight = windowHeight / 2;
+
+    // Ensure viewport dimensions are valid
+    if (sphereViewportWidth <= 0 || sphereViewportHeight <= 0) {
+        return;
+    }
 
     // Set up viewport for top-right quadrant (1/4 of screen)
     glViewport(sphereViewportX, sphereViewportY, sphereViewportWidth, sphereViewportHeight);
@@ -257,18 +267,29 @@ static void renderTopRightQuadrant(float time) {
 }
 
 static void renderOtherQuadrants() {
+    // Skip rendering if window is minimized
+    if (windowMinimized) return;
+
+    // Ensure we have valid dimensions
+    int quadrantWidth = windowWidth / 2;
+    int quadrantHeight = windowHeight / 2;
+
+    if (quadrantWidth <= 0 || quadrantHeight <= 0) {
+        return;
+    }
+
     // Bottom-left quadrant - Placeholder for future content
-    glViewport(0, 0, windowWidth / 2, windowHeight / 2);
+    glViewport(0, 0, quadrantWidth, quadrantHeight);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Bottom-right quadrant - Placeholder for future content
-    glViewport(windowWidth / 2, 0, windowWidth / 2, windowHeight / 2);
+    glViewport(windowWidth / 2, 0, quadrantWidth, quadrantHeight);
     glClearColor(0.15f, 0.15f, 0.15f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Top-left quadrant - Placeholder for future content
-    glViewport(0, windowHeight / 2, windowWidth / 2, windowHeight / 2);
+    glViewport(0, windowHeight / 2, quadrantWidth, quadrantHeight);
     glClearColor(0.12f, 0.12f, 0.12f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
@@ -331,6 +352,12 @@ int main() {
     std::cout << "  - ESC key: Exit" << std::endl;
 
     while (!glfwWindowShouldClose(window)) {
+        // Skip rendering if window is minimized to save resources
+        if (windowMinimized) {
+            glfwWaitEvents();
+            continue;
+        }
+
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
