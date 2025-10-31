@@ -1,5 +1,8 @@
 #include "BottomRightQuadrant.h"
 #include <glad/glad.h>
+#include <ImGui/imgui.h>
+#include <ImGui/imgui_impl_glfw.h>
+#include <ImGui/imgui_impl_opengl3.h>
 #include <iostream>
 
 BottomRightQuadrant::BottomRightQuadrant()
@@ -28,8 +31,10 @@ void BottomRightQuadrant::render(int viewportX, int viewportY, int viewportWidth
     // Clear only depth buffer for this quadrant
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    // TODO: Add your bottom-right quadrant content here
-    // Potential content: Quantum gates interface, algorithm controls
-
-    // For now, this quadrant content is handled by the background rendering in main
+    ImGui::SetNextWindowPos(ImVec2(viewportX, viewportY), ImGuiCond_Always);
+    ImGui::Begin("Fixed Window", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+    {
+        ImGui::Text("Quantum State Information");
+    }
+    ImGui::End();
 }

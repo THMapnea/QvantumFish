@@ -352,7 +352,6 @@ static void renderBottomRightQuadrant() {
 
     // Set background for this quadrant (with proper viewport)
     glDisable(GL_DEPTH_TEST);
-    renderBackgroundQuad(bottomRightQuadrant->getBackgroundColor(), viewportX, viewportY, viewportWidth, viewportHeight);
     glEnable(GL_DEPTH_TEST);
 
     // Render the bottom-right quadrant content
