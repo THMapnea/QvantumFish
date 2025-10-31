@@ -1,28 +1,23 @@
-#ifndef BOTTOM_RIGHT_QUADRANT_H
-#define BOTTOM_RIGHT_QUADRANT_H
+#ifndef BOTTOMRIGHTQUADRANT_H
+#define BOTTOMRIGHTQUADRANT_H
 
 #include <glm/glm.hpp>
-
+#include "Qubit.h"
 
 class BottomRightQuadrant {
 private:
     glm::vec3 backgroundColor;
+    const Qubit* currentQubit;
+    
+    void displayQubitInformation();
 
 public:
     BottomRightQuadrant();
     ~BottomRightQuadrant();
 
-    // Initialization
     void initialize();
-
-    // Rendering
     void render(int viewportX, int viewportY, int viewportWidth, int viewportHeight);
-
-    // Getters
-    glm::vec3 getBackgroundColor() const { return backgroundColor; }
-
-    // Setters
-    void setBackgroundColor(const glm::vec3& color) { backgroundColor = color; }
+    void setQubit(const Qubit* qubit);
 };
 
-#endif // BOTTOM_RIGHT_QUADRANT_H
+#endif // BOTTOMRIGHTQUADRANT_H

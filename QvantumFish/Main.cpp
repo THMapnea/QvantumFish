@@ -51,6 +51,11 @@ int windowWidth = 1200;
 int windowHeight = 800;
 bool windowMinimized = false;
 
+// Qubit state controls
+static int selectedState = 0;
+static float customTheta = 45.0f;
+static float customPhi = 90.0f;
+
 static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
     windowWidth = width;
     windowHeight = height;
@@ -166,10 +171,14 @@ static void initializeScene() {
     bottomRightQuadrant = new BottomRightQuadrant();
     bottomRightQuadrant->initialize();
 
+    // Connect the bottom right quadrant to the top right quadrant's qubit
+    bottomRightQuadrant->setQubit(&topRightQuadrant->getCurrentQubit());
+
     // Set line width for the entire scene
     glLineWidth(2.0f);
 
     std::cout << "All quadrants initialized successfully." << std::endl;
+    std::cout << "Bottom right quadrant connected to top right quadrant's qubit." << std::endl;
 }
 
 static void initializeDivisionLines() {
@@ -352,6 +361,7 @@ static void renderBottomRightQuadrant() {
 
     // Set background for this quadrant (with proper viewport)
     glDisable(GL_DEPTH_TEST);
+    renderBackgroundQuad(glm::vec3(0.1f, 0.1f, 0.1f), viewportX, viewportY, viewportWidth, viewportHeight);
     glEnable(GL_DEPTH_TEST);
 
     // Render the bottom-right quadrant content
@@ -384,6 +394,63 @@ static void renderTopRightQuadrant(float time) {
         viewportWidth, viewportHeight);
 }
 
+// Function to update qubit state from ImGui controls
+static void updateQubitFromControls() {
+    if (!topRightQuadrant) return;
+
+    ImGui::Begin("Qubit State Controls");
+
+    ImGui::Text("Predefined States:");
+    const char* states[] = { "|0⟩", "|1⟩", "|+⟩", "|-⟩", "|+i⟩", "|-i⟩", "Custom" };
+    if (ImGui::Combo("State", &selectedState, states, IM_ARRAYSIZE(states))) {
+        Qubit newQubit = Qubit::ketZero();
+        switch (selectedState) {
+        case 0: newQubit = Qubit::ketZero(); break;
+        case 1: newQubit = Qubit::ketOne(); break;
+        case 2: newQubit = Qubit::ketPlus(); break;
+        case 3: newQubit = Qubit::ketMinus(); break;
+        case 4: newQubit = Qubit::ketPlusI(); break;
+        case 5: newQubit = Qubit::ketMinusI(); break;
+        case 6:
+            // Custom state - will be handled by sliders
+            break;
+        }
+        if (selectedState != 6) {
+            topRightQuadrant->updateQubitState(newQubit);
+            // Update the bottom quadrant with the new qubit reference
+            bottomRightQuadrant->setQubit(&topRightQuadrant->getCurrentQubit());
+        }
+    }
+
+    if (selectedState == 6) {
+        ImGui::Separator();
+        ImGui::Text("Custom State Parameters:");
+        if (ImGui::SliderFloat("Theta (degrees)", &customTheta, 0.0f, 180.0f)) {
+            // Update custom qubit state
+            double theta_rad = customTheta * M_PI / 180.0;
+            double phi_rad = customPhi * M_PI / 180.0;
+            Qubit customQubit(std::cos(theta_rad / 2.0), std::exp(std::complex<double>(0, phi_rad)) * std::sin(theta_rad / 2.0));
+            topRightQuadrant->updateQubitState(customQubit);
+            bottomRightQuadrant->setQubit(&topRightQuadrant->getCurrentQubit());
+        }
+        if (ImGui::SliderFloat("Phi (degrees)", &customPhi, 0.0f, 360.0f)) {
+            // Update custom qubit state
+            double theta_rad = customTheta * M_PI / 180.0;
+            double phi_rad = customPhi * M_PI / 180.0;
+            Qubit customQubit(std::cos(theta_rad / 2.0), std::exp(std::complex<double>(0, phi_rad)) * std::sin(theta_rad / 2.0));
+            topRightQuadrant->updateQubitState(customQubit);
+            bottomRightQuadrant->setQubit(&topRightQuadrant->getCurrentQubit());
+        }
+
+        // Display the current custom state equation
+        double theta_rad = customTheta * M_PI / 180.0;
+        double phi_rad = customPhi * M_PI / 180.0;
+        ImGui::Text("State: |ψ⟩ = cos(%.1f°)|0⟩ + e^(i%.1f°)sin(%.1f°)|1⟩",
+            customTheta / 2, customPhi, customTheta / 2);
+    }
+
+    ImGui::End();
+}
 
 int main() {
     // Initialize GLFW
@@ -520,7 +587,7 @@ int main() {
         ImGui::BulletText("Top-right: Bloch Sphere");
         ImGui::BulletText("Top-left: [Future Content]");
         ImGui::BulletText("Bottom-left: [Future Content]");
-        ImGui::BulletText("Bottom-right: [Future Content]");
+        ImGui::BulletText("Bottom-right: Qubit Information");
         ImGui::BulletText("Right mouse key and move to rotate the sphere");
         ImGui::BulletText("Right mouse key and scroll with mouse wheel to zoom in and out");
         ImGui::BulletText("R key to reset the view");
@@ -541,6 +608,9 @@ int main() {
         }
 
         ImGui::End();
+
+        // Qubit state controls window
+        updateQubitFromControls();
 
         // Demo window (optional)
         if (showDemoWindow) {

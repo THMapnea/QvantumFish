@@ -19,6 +19,9 @@ private:
     ProjectionLines* projectionLines;
     AngleArcs* angleArcs;
 
+    // Current qubit state
+    Qubit currentQubit;
+
     // Colors
     glm::vec3 axesColor;
     glm::vec3 vectorColor;
@@ -68,6 +71,9 @@ public:
 
     // Get current vector position
     glm::vec3 getVectorPosition() const;
+
+    // Get current qubit (for bottom quadrant)
+    const Qubit& getCurrentQubit() const { return currentQubit; }
 
     void cleanup();
 };

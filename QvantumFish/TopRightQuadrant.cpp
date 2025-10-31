@@ -9,6 +9,8 @@
 TopRightQuadrant::TopRightQuadrant()
     : coordinateAxes(nullptr), blochSphere(nullptr), quantumVector(nullptr),
     projectionLines(nullptr), angleArcs(nullptr),
+    // Initialize with default qubit
+    currentQubit(Qubit::ketZero()),
     axesColor(glm::vec3(0.4f, 0.6f, 0.8f)),
     vectorColor(glm::vec3(1.0f, 0.3f, 0.3f)),
     projectionColor(glm::vec3(0.8f, 0.8f, 0.2f)),
@@ -29,10 +31,10 @@ void TopRightQuadrant::initialize() {
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
     // 3. Create initial qubit and quantum vector
-    Qubit q = Qubit(std::cos(M_PI / 9), std::exp(std::complex<double>(0, 1) * (M_PI / 2)) * std::sin(M_PI / 9));
-    q.advancedLook();
+    currentQubit = Qubit(std::cos(M_PI / 9), std::exp(std::complex<double>(0, 1) * (M_PI / 2)) * std::sin(M_PI / 9));
+    currentQubit.advancedLook();
 
-    glm::vec3 vectorPos = q.getBlochSphereCoordinates().convertToVec3();
+    glm::vec3 vectorPos = currentQubit.getBlochSphereCoordinates().convertToVec3();
 
     // Create Quantum Vector
     quantumVector = new VectorArrow(vectorPos, 1.0f, 0.15f, 0.06f, 8, 16);
@@ -112,7 +114,10 @@ void TopRightQuadrant::toggleAllComponents() {
 }
 
 void TopRightQuadrant::updateQubitState(const Qubit& qubit) {
-    glm::vec3 vectorPos = qubit.getBlochSphereCoordinates().convertToVec3();
+    // Update the stored qubit
+    currentQubit = qubit;
+
+    glm::vec3 vectorPos = currentQubit.getBlochSphereCoordinates().convertToVec3();
 
     if (quantumVector) {
         delete quantumVector;
