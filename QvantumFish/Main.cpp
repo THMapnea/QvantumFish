@@ -21,25 +21,14 @@
 #include "AngleArcs.h"
 #include "SceneController.h"
 #include "Qubit.h"
+#include "TopRightQuadrant.h"
 
 // Global variables
-BlochSphere* blochSphere = nullptr;
-VectorArrow* quantumVector = nullptr;
-CoordinateAxes* coordinateAxes = nullptr;
-ProjectionLines* projectionLines = nullptr;
-AngleArcs* angleArcs = nullptr;
+TopRightQuadrant* topRightQuadrant = nullptr;
 SceneController* sceneController = nullptr;
 
 // ImGui state
 bool showDemoWindow = false;
-float sphereScale = 1.0f;
-
-// Visibility flags
-bool showSphere = true;
-bool showAxes = true;
-bool showVector = true;
-bool showProjections = true;
-bool showArcs = true;
 
 // Division lines shader and buffers
 unsigned int divisionLinesVAO = 0;
@@ -146,46 +135,12 @@ static void renderBackgroundQuad(const glm::vec3& color) {
 }
 
 static void initializeScene() {
-    // Color scheme matching the sphere style
-    glm::vec3 axesColor = glm::vec3(0.4f, 0.6f, 0.8f);
-    glm::vec3 vectorColor = glm::vec3(1.0f, 0.3f, 0.3f);
-    glm::vec3 projectionColor = glm::vec3(0.8f, 0.8f, 0.2f);
-    glm::vec3 arcColor = glm::vec3(0.2f, 0.8f, 0.2f);
+    // Create and initialize the top-right quadrant (Bloch sphere visualization)
+    topRightQuadrant = new TopRightQuadrant();
+    topRightQuadrant->initialize();
 
-    // 1. Create Coordinate Axes
-    coordinateAxes = new CoordinateAxes(1.2f, 0.02f, axesColor, axesColor, axesColor);
-
-    // 2. Create Bloch Sphere
-    blochSphere = new BlochSphere(1.0f, 32, 32);
-
-    // 3. Create qubit and quantum vector
-    Qubit q = Qubit(std::cos(M_PI / 9), std::exp(std::complex<double>(0, 1) * (M_PI / 2)) * std::sin(M_PI / 9));
-    q.advancedLook();
-
-    glm::vec3 vectorPos = q.getBlochSphereCoordinates().convertToVec3();
-
-    // Create Quantum Vector
-    quantumVector = new VectorArrow(vectorPos, 1.0f, 0.15f, 0.06f, 8, 16);
-    quantumVector->setColor(vectorColor);
-
-    // 4. Create projection lines
-    projectionLines = new ProjectionLines(vectorPos, projectionColor, 0.03f, 25);
-
-    // 5. Create angle arcs
-    angleArcs = new AngleArcs(vectorPos, arcColor, 0.25f, 32);
-
-    // Set line width
+    // Set line width for the entire scene
     glLineWidth(2.0f);
-
-    // Print scene information
-    float theta = acos(vectorPos.z / glm::length(vectorPos));
-    float phi = atan2(vectorPos.y, vectorPos.x);
-
-    std::cout << "Bloch Sphere Visualization initialized." << std::endl;
-    std::cout << "Current qubit state:" << std::endl;
-    std::cout << "  Theta (polar angle): " << theta << " rad (" << theta * 180.0f / M_PI << ")" << std::endl;
-    std::cout << "  Phi (azimuthal angle): " << phi << " rad (" << phi * 180.0f / M_PI << ")" << std::endl;
-    std::cout << "  Vector position: (" << vectorPos.x << ", " << vectorPos.y << ", " << vectorPos.z << ")" << std::endl;
 }
 
 static void initializeDivisionLines() {
@@ -251,11 +206,7 @@ static void initializeDivisionLines() {
 }
 
 static void cleanupScene() {
-    delete angleArcs;
-    delete projectionLines;
-    delete quantumVector;
-    delete blochSphere;
-    delete coordinateAxes;
+    delete topRightQuadrant;
     delete sceneController;
 
     // Cleanup division lines
@@ -305,8 +256,7 @@ static void renderDivisionLines(float time) {
 }
 
 static void renderTopRightQuadrant(float time) {
-    // Skip rendering if window is minimized
-    if (windowMinimized) return;
+    if (!topRightQuadrant || windowMinimized) return;
 
     // Calculate quadrant dimensions based on current window size
     int sphereViewportX = windowWidth / 2;
@@ -314,52 +264,13 @@ static void renderTopRightQuadrant(float time) {
     int sphereViewportWidth = windowWidth / 2;
     int sphereViewportHeight = windowHeight / 2;
 
-    // Ensure viewport dimensions are valid
-    if (sphereViewportWidth <= 0 || sphereViewportHeight <= 0) {
-        return;
-    }
-
-    // Set up viewport for top-right quadrant (1/4 of screen)
-    glViewport(sphereViewportX, sphereViewportY, sphereViewportWidth, sphereViewportHeight);
-
-    // Clear only this quadrant's depth buffer to allow proper depth testing
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    // Get matrices from scene controller
-    glm::mat4 view = sceneController->getViewMatrix();
-    glm::mat4 projection = sceneController->getProjectionMatrix();
-    glm::mat4 model = glm::mat4(1.0f);
-    float yaw = sceneController->getYaw();
-    float pitch = sceneController->getPitch();
-
-    // Apply scaling to the sphere if needed
-    glm::mat4 scaledModel = glm::scale(model, glm::vec3(sphereScale));
-
-    // Render the Bloch Sphere components based on visibility flags
-    if (showAxes) {
-        coordinateAxes->render(time, view, projection, scaledModel, yaw, pitch);
-    }
-
-    if (showSphere) {
-        blochSphere->render(time, view, projection, scaledModel, yaw, pitch);
-    }
-
-    if (showProjections) {
-        projectionLines->render(time, view, projection, scaledModel, yaw, pitch);
-    }
-
-    if (showArcs) {
-        angleArcs->render(time, view, projection, scaledModel, yaw, pitch);
-    }
-
-    if (showVector) {
-        glLineWidth(2.5f);
-        quantumVector->render(time, view, projection, scaledModel, yaw, pitch);
-        glLineWidth(2.0f);
-    }
+    // Render the top-right quadrant (Bloch sphere)
+    topRightQuadrant->render(time, sceneController,
+        sphereViewportX, sphereViewportY,
+        sphereViewportWidth, sphereViewportHeight);
 }
 
-static void renderTopLeftQuadrant() {  // Removed time parameter
+static void renderTopLeftQuadrant() {
     // Skip rendering if window is minimized
     if (windowMinimized) return;
 
@@ -386,7 +297,7 @@ static void renderTopLeftQuadrant() {  // Removed time parameter
     // For now, it's just a solid color background
 }
 
-static void renderBottomLeftQuadrant() {  // Removed time parameter
+static void renderBottomLeftQuadrant() {
     // Skip rendering if window is minimized
     if (windowMinimized) return;
 
@@ -413,7 +324,7 @@ static void renderBottomLeftQuadrant() {  // Removed time parameter
     // For now, it's just a solid color background
 }
 
-static void renderBottomRightQuadrant() {  // Removed time parameter
+static void renderBottomRightQuadrant() {
     // Skip rendering if window is minimized
     if (windowMinimized) return;
 
@@ -527,31 +438,77 @@ int main() {
 
         ImGui::Separator();
         ImGui::Text("Component Visibility");
-        ImGui::Checkbox("Show Sphere", &showSphere);
-        ImGui::Checkbox("Show Axes", &showAxes);
-        ImGui::Checkbox("Show Vector", &showVector);
-        ImGui::Checkbox("Show Projections", &showProjections);
-        ImGui::Checkbox("Show Arcs", &showArcs);
+        if (topRightQuadrant) {
+            // Use local variables bound to the quadrant's state
+            static bool showSphere = topRightQuadrant->getShowSphere();
+            static bool showAxes = topRightQuadrant->getShowAxes();
+            static bool showVector = topRightQuadrant->getShowVector();
+            static bool showProjections = topRightQuadrant->getShowProjections();
+            static bool showArcs = topRightQuadrant->getShowArcs();
+            static float sphereScale = topRightQuadrant->getSphereScale();
 
-        // Add a button to toggle all components
-        if (ImGui::Button("Toggle All")) {
-            bool allVisible = showSphere && showAxes && showVector && showProjections && showArcs;
-            showSphere = !allVisible;
-            showAxes = !allVisible;
-            showVector = !allVisible;
-            showProjections = !allVisible;
-            showArcs = !allVisible;
+            if (ImGui::Checkbox("Show Sphere", &showSphere)) {
+                topRightQuadrant->setShowSphere(showSphere);
+            }
+            if (ImGui::Checkbox("Show Axes", &showAxes)) {
+                topRightQuadrant->setShowAxes(showAxes);
+            }
+            if (ImGui::Checkbox("Show Vector", &showVector)) {
+                topRightQuadrant->setShowVector(showVector);
+            }
+            if (ImGui::Checkbox("Show Projections", &showProjections)) {
+                topRightQuadrant->setShowProjections(showProjections);
+            }
+            if (ImGui::Checkbox("Show Arcs", &showArcs)) {
+                topRightQuadrant->setShowArcs(showArcs);
+            }
+
+            ImGui::Separator();
+            ImGui::Text("Sphere Scale");
+            if (ImGui::SliderFloat("Scale", &sphereScale, 0.5f, 2.0f)) {
+                topRightQuadrant->setSphereScale(sphereScale);
+            }
+
+            // Add a button to toggle all components
+            if (ImGui::Button("Toggle All")) {
+                topRightQuadrant->toggleAllComponents();
+                // Update local variables after toggle
+                showSphere = topRightQuadrant->getShowSphere();
+                showAxes = topRightQuadrant->getShowAxes();
+                showVector = topRightQuadrant->getShowVector();
+                showProjections = topRightQuadrant->getShowProjections();
+                showArcs = topRightQuadrant->getShowArcs();
+            }
         }
 
         ImGui::Separator();
         ImGui::Text("Quadrant Layout");
         ImGui::BulletText("Top-right: Bloch Sphere");
-        ImGui::BulletText("Right mouse key and\n move to rotate the sphere");
-        ImGui::BulletText("Right mouse key and scroll\n with mouse wheel to zoom in and out");
+        ImGui::BulletText("Right mouse key and move to rotate the sphere");
+        ImGui::BulletText("Right mouse key and scroll with mouse wheel to zoom in and out");
         ImGui::BulletText("R key to reset the view");
         ImGui::Text("Window Size: %d x %d", windowWidth, windowHeight);
 
+        // Display current vector position
+        if (topRightQuadrant) {
+            glm::vec3 vectorPos = topRightQuadrant->getVectorPosition();
+            ImGui::Separator();
+            ImGui::Text("Current Qubit State:");
+            ImGui::Text("Position: (%.3f, %.3f, %.3f)", vectorPos.x, vectorPos.y, vectorPos.z);
+
+            // Calculate angles
+            float theta = acos(vectorPos.z / glm::length(vectorPos));
+            float phi = atan2(vectorPos.y, vectorPos.x);
+            ImGui::Text("Theta: %.2f°", theta * 180.0f / M_PI);
+            ImGui::Text("Phi: %.2f°", phi * 180.0f / M_PI);
+        }
+
         ImGui::End();
+
+        // Demo window (optional)
+        if (showDemoWindow) {
+            ImGui::ShowDemoWindow(&showDemoWindow);
+        }
 
         // Clear the entire window with black background ONCE at the beginning
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);

@@ -19,9 +19,6 @@
     <Filter Include="File di origine\Qubit">
       <UniqueIdentifier>{cca81cc9-c456-4855-9586-4a27df0bf172}</UniqueIdentifier>
     </Filter>
-    <Filter Include="File di origine\Graphic\BlochSphere">
-      <UniqueIdentifier>{c08a30e1-d9d8-4091-8893-566674b96dab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="File di origine\Graphic\VectorsSphere">
       <UniqueIdentifier>{58439aef-530f-4642-8673-5da1b2bf2d84}</UniqueIdentifier>
     </Filter>
@@ -61,6 +58,15 @@
     <Filter Include="File di origine\Gates">
       <UniqueIdentifier>{48529439-a66f-41ae-af95-4568ccc00e50}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Graphic\Quadrants">
+      <UniqueIdentifier>{73c66803-fdf7-4119-80e5-5945b35e6c72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\Graphic\Quadrants\TopRightQuadrant">
+      <UniqueIdentifier>{d81df74f-1a70-4b68-99bf-622223627027}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\Graphic\Quadrants\TopRightQuadrant\BlochSphere">
+      <UniqueIdentifier>{c08a30e1-d9d8-4091-8893-566674b96dab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -70,7 +76,7 @@
       <Filter>File di origine\Qubit</Filter>
     </ClCompile>
     <ClCompile Include="BlochSphere.cpp">
-      <Filter>File di origine\Graphic\BlochSphere</Filter>
+      <Filter>File di origine\Graphic\Quadrants\TopRightQuadrant\BlochSphere</Filter>
     </ClCompile>
     <ClCompile Include="VectorSphere.cpp">
       <Filter>File di origine\Graphic\VectorsSphere</Filter>
@@ -119,6 +125,9 @@
     </ClCompile>
     <ClCompile Include="Libraries\include\ImGui\imgui_widgets.cpp">
       <Filter>File di origine\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="TopRightQuadrant.cpp">
+      <Filter>File di origine\Graphic\Quadrants\TopRightQuadrant</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -181,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="Libraries\include\ImGui\imstb_truetype.h">
       <Filter>File di intestazione\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="TopRightQuadrant.h">
+      <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

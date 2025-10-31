@@ -146,6 +146,7 @@
     <ClCompile Include="ProjectionLines.cpp" />
     <ClCompile Include="Qubit.cpp" />
     <ClCompile Include="SceneController.cpp" />
+    <ClCompile Include="TopRightQuadrant.cpp" />
     <ClCompile Include="VectorArrow.cpp" />
     <ClCompile Include="VectorSphere.cpp" />
   </ItemGroup>
@@ -168,6 +169,7 @@
     <ClInclude Include="ProjectionLines.h" />
     <ClInclude Include="Qubit.h" />
     <ClInclude Include="SceneController.h" />
+    <ClInclude Include="TopRightQuadrant.h" />
     <ClInclude Include="VectorArrow.h" />
     <ClInclude Include="VectorSphere.h" />
   </ItemGroup>
