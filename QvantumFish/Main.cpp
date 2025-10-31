@@ -131,13 +131,25 @@ static void initializeBackgroundQuad() {
     glDeleteBuffers(1, &backgroundEBO); // EBO is stored in VAO state
 }
 
-static void renderBackgroundQuad(const glm::vec3& color) {
+static void renderBackgroundQuad(const glm::vec3& color, int viewportX, int viewportY, int viewportWidth, int viewportHeight) {
+    // Save current viewport
+    GLint prevViewport[4];
+    glGetIntegerv(GL_VIEWPORT, prevViewport);
+
+    // Set viewport for this specific quadrant
+    glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
+
+    // Use background shader
     glUseProgram(backgroundShader);
     glUniform3f(glGetUniformLocation(backgroundShader, "color"), color.r, color.g, color.b);
 
+    // Render the quad
     glBindVertexArray(backgroundVAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
+
+    // Restore previous viewport
+    glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
 }
 
 static void initializeScene() {
@@ -275,21 +287,6 @@ static void renderDivisionLines(float time) {
     glUseProgram(prevProgram);
 }
 
-static void renderTopRightQuadrant(float time) {
-    if (!topRightQuadrant || windowMinimized) return;
-
-    // Calculate quadrant dimensions
-    int viewportX = windowWidth / 2;
-    int viewportY = windowHeight / 2;
-    int viewportWidth = windowWidth / 2;
-    int viewportHeight = windowHeight / 2;
-
-    // Render the top-right quadrant (Bloch sphere)
-    topRightQuadrant->render(time, sceneController,
-        viewportX, viewportY,
-        viewportWidth, viewportHeight);
-}
-
 static void renderTopLeftQuadrant() {
     if (!topLeftQuadrant || windowMinimized) return;
 
@@ -299,9 +296,15 @@ static void renderTopLeftQuadrant() {
     int viewportWidth = windowWidth / 2;
     int viewportHeight = windowHeight / 2;
 
-    // Set background for this quadrant
+    // Set up viewport for this quadrant
+    glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
+
+    // Clear depth buffer for this quadrant
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // Set background for this quadrant (with proper viewport)
     glDisable(GL_DEPTH_TEST);
-    renderBackgroundQuad(topLeftQuadrant->getBackgroundColor());
+    renderBackgroundQuad(topLeftQuadrant->getBackgroundColor(), viewportX, viewportY, viewportWidth, viewportHeight);
     glEnable(GL_DEPTH_TEST);
 
     // Render the top-left quadrant content
@@ -317,9 +320,15 @@ static void renderBottomLeftQuadrant() {
     int viewportWidth = windowWidth / 2;
     int viewportHeight = windowHeight / 2;
 
-    // Set background for this quadrant
+    // Set up viewport for this quadrant
+    glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
+
+    // Clear depth buffer for this quadrant
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // Set background for this quadrant (with proper viewport)
     glDisable(GL_DEPTH_TEST);
-    renderBackgroundQuad(bottomLeftQuadrant->getBackgroundColor());
+    renderBackgroundQuad(bottomLeftQuadrant->getBackgroundColor(), viewportX, viewportY, viewportWidth, viewportHeight);
     glEnable(GL_DEPTH_TEST);
 
     // Render the bottom-left quadrant content
@@ -335,14 +344,47 @@ static void renderBottomRightQuadrant() {
     int viewportWidth = windowWidth / 2;
     int viewportHeight = windowHeight / 2;
 
-    // Set background for this quadrant
+    // Set up viewport for this quadrant
+    glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
+
+    // Clear depth buffer for this quadrant
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // Set background for this quadrant (with proper viewport)
     glDisable(GL_DEPTH_TEST);
-    renderBackgroundQuad(bottomRightQuadrant->getBackgroundColor());
+    renderBackgroundQuad(bottomRightQuadrant->getBackgroundColor(), viewportX, viewportY, viewportWidth, viewportHeight);
     glEnable(GL_DEPTH_TEST);
 
     // Render the bottom-right quadrant content
     bottomRightQuadrant->render(viewportX, viewportY, viewportWidth, viewportHeight);
 }
+
+static void renderTopRightQuadrant(float time) {
+    if (!topRightQuadrant || windowMinimized) return;
+
+    // Calculate quadrant dimensions
+    int viewportX = windowWidth / 2;
+    int viewportY = windowHeight / 2;
+    int viewportWidth = windowWidth / 2;
+    int viewportHeight = windowHeight / 2;
+
+    // Set up viewport for this quadrant
+    glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
+
+    // Clear depth buffer for this quadrant
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // Set black background for Bloch sphere quadrant (with proper viewport)
+    glDisable(GL_DEPTH_TEST);
+    renderBackgroundQuad(glm::vec3(0.0f, 0.0f, 0.0f), viewportX, viewportY, viewportWidth, viewportHeight);
+    glEnable(GL_DEPTH_TEST);
+
+    // Render the top-right quadrant (Bloch sphere)
+    topRightQuadrant->render(time, sceneController,
+        viewportX, viewportY,
+        viewportWidth, viewportHeight);
+}
+
 
 int main() {
     // Initialize GLFW
