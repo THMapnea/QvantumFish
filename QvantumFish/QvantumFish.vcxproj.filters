@@ -76,6 +76,9 @@
     <Filter Include="File di origine\Graphic\Quadrants\BottomLeftQuadrant">
       <UniqueIdentifier>{a4c1b806-81f8-41e9-9c2b-a78db2aba09e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Utility\HelperWidgets">
+      <UniqueIdentifier>{b6d42bd0-3c4b-4f2e-8034-ef0982da4891}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">

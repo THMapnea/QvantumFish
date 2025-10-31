@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 
+
 class BottomRightQuadrant {
 private:
     glm::vec3 backgroundColor;
