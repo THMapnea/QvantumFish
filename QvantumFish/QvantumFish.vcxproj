@@ -132,6 +132,8 @@
     <ClCompile Include="AngleArcs.cpp" />
     <ClCompile Include="BlochSphere.cpp" />
     <ClCompile Include="BlochSphereCoordinates.cpp" />
+    <ClCompile Include="BottomLeftQuadrant.cpp" />
+    <ClCompile Include="BottomRightQuadrant.cpp" />
     <ClCompile Include="CoordinatesAxes.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Libraries\include\ImGui\imgui.cpp" />
@@ -146,6 +148,7 @@
     <ClCompile Include="ProjectionLines.cpp" />
     <ClCompile Include="Qubit.cpp" />
     <ClCompile Include="SceneController.cpp" />
+    <ClCompile Include="TopLeftQuadrant.cpp" />
     <ClCompile Include="TopRightQuadrant.cpp" />
     <ClCompile Include="VectorArrow.cpp" />
     <ClCompile Include="VectorSphere.cpp" />
@@ -154,6 +157,8 @@
     <ClInclude Include="AngleArcs.h" />
     <ClInclude Include="BlochSphere.h" />
     <ClInclude Include="BlochSphereCoordinates.h" />
+    <ClInclude Include="BottomLeftQuadrant.h" />
+    <ClInclude Include="BottomRightQuadrant.h" />
     <ClInclude Include="CoordinatesAxes.h" />
     <ClInclude Include="Libraries\include\glad\glad.h" />
     <ClInclude Include="Libraries\include\ImGui\imconfig.h" />
@@ -169,6 +174,7 @@
     <ClInclude Include="ProjectionLines.h" />
     <ClInclude Include="Qubit.h" />
     <ClInclude Include="SceneController.h" />
+    <ClInclude Include="TopLeftQuadrant.h" />
     <ClInclude Include="TopRightQuadrant.h" />
     <ClInclude Include="VectorArrow.h" />
     <ClInclude Include="VectorSphere.h" />

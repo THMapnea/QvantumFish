@@ -67,6 +67,15 @@
     <Filter Include="File di origine\Graphic\Quadrants\TopRightQuadrant\BlochSphere">
       <UniqueIdentifier>{c08a30e1-d9d8-4091-8893-566674b96dab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Graphic\Quadrants\TopLeftQuadrant">
+      <UniqueIdentifier>{3f6165db-3c54-41d9-916c-f8d80b2ccd59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\Graphic\Quadrants\BottomRightQuadrant">
+      <UniqueIdentifier>{b5c82a56-e20d-4614-9076-8a872ee9e532}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File di origine\Graphic\Quadrants\BottomLeftQuadrant">
+      <UniqueIdentifier>{a4c1b806-81f8-41e9-9c2b-a78db2aba09e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -128,6 +137,15 @@
     </ClCompile>
     <ClCompile Include="TopRightQuadrant.cpp">
       <Filter>File di origine\Graphic\Quadrants\TopRightQuadrant</Filter>
+    </ClCompile>
+    <ClCompile Include="TopLeftQuadrant.cpp">
+      <Filter>File di origine\Graphic\Quadrants\TopLeftQuadrant</Filter>
+    </ClCompile>
+    <ClCompile Include="BottomRightQuadrant.cpp">
+      <Filter>File di origine\Graphic\Quadrants\BottomRightQuadrant</Filter>
+    </ClCompile>
+    <ClCompile Include="BottomLeftQuadrant.cpp">
+      <Filter>File di origine\Graphic\Quadrants\BottomLeftQuadrant</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -192,6 +210,15 @@
       <Filter>File di intestazione\ImGui</Filter>
     </ClInclude>
     <ClInclude Include="TopRightQuadrant.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="TopLeftQuadrant.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="BottomRightQuadrant.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="BottomLeftQuadrant.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

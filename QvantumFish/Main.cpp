@@ -22,9 +22,15 @@
 #include "SceneController.h"
 #include "Qubit.h"
 #include "TopRightQuadrant.h"
+#include "TopLeftQuadrant.h"
+#include "BottomLeftQuadrant.h"
+#include "BottomRightQuadrant.h"
 
 // Global variables
 TopRightQuadrant* topRightQuadrant = nullptr;
+TopLeftQuadrant* topLeftQuadrant = nullptr;
+BottomLeftQuadrant* bottomLeftQuadrant = nullptr;
+BottomRightQuadrant* bottomRightQuadrant = nullptr;
 SceneController* sceneController = nullptr;
 
 // ImGui state
@@ -135,12 +141,23 @@ static void renderBackgroundQuad(const glm::vec3& color) {
 }
 
 static void initializeScene() {
-    // Create and initialize the top-right quadrant (Bloch sphere visualization)
+    // Create and initialize all quadrants
     topRightQuadrant = new TopRightQuadrant();
     topRightQuadrant->initialize();
 
+    topLeftQuadrant = new TopLeftQuadrant();
+    topLeftQuadrant->initialize();
+
+    bottomLeftQuadrant = new BottomLeftQuadrant();
+    bottomLeftQuadrant->initialize();
+
+    bottomRightQuadrant = new BottomRightQuadrant();
+    bottomRightQuadrant->initialize();
+
     // Set line width for the entire scene
     glLineWidth(2.0f);
+
+    std::cout << "All quadrants initialized successfully." << std::endl;
 }
 
 static void initializeDivisionLines() {
@@ -207,6 +224,9 @@ static void initializeDivisionLines() {
 
 static void cleanupScene() {
     delete topRightQuadrant;
+    delete topLeftQuadrant;
+    delete bottomLeftQuadrant;
+    delete bottomRightQuadrant;
     delete sceneController;
 
     // Cleanup division lines
@@ -258,97 +278,70 @@ static void renderDivisionLines(float time) {
 static void renderTopRightQuadrant(float time) {
     if (!topRightQuadrant || windowMinimized) return;
 
-    // Calculate quadrant dimensions based on current window size
-    int sphereViewportX = windowWidth / 2;
-    int sphereViewportY = windowHeight / 2;
-    int sphereViewportWidth = windowWidth / 2;
-    int sphereViewportHeight = windowHeight / 2;
+    // Calculate quadrant dimensions
+    int viewportX = windowWidth / 2;
+    int viewportY = windowHeight / 2;
+    int viewportWidth = windowWidth / 2;
+    int viewportHeight = windowHeight / 2;
 
     // Render the top-right quadrant (Bloch sphere)
     topRightQuadrant->render(time, sceneController,
-        sphereViewportX, sphereViewportY,
-        sphereViewportWidth, sphereViewportHeight);
+        viewportX, viewportY,
+        viewportWidth, viewportHeight);
 }
 
 static void renderTopLeftQuadrant() {
-    // Skip rendering if window is minimized
-    if (windowMinimized) return;
+    if (!topLeftQuadrant || windowMinimized) return;
 
-    // Ensure we have valid dimensions
-    int quadrantWidth = windowWidth / 2;
-    int quadrantHeight = windowHeight / 2;
+    // Calculate quadrant dimensions
+    int viewportX = 0;
+    int viewportY = windowHeight / 2;
+    int viewportWidth = windowWidth / 2;
+    int viewportHeight = windowHeight / 2;
 
-    if (quadrantWidth <= 0 || quadrantHeight <= 0) {
-        return;
-    }
-
-    // Top-left quadrant - Set viewport
-    glViewport(0, windowHeight / 2, quadrantWidth, quadrantHeight);
-
-    // Clear only depth buffer for this quadrant
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    // Set a solid background color for this quadrant
+    // Set background for this quadrant
     glDisable(GL_DEPTH_TEST);
-    renderBackgroundQuad(glm::vec3(0.12f, 0.12f, 0.12f));
+    renderBackgroundQuad(topLeftQuadrant->getBackgroundColor());
     glEnable(GL_DEPTH_TEST);
 
-    // TODO: Add your top-left quadrant content here
-    // For now, it's just a solid color background
+    // Render the top-left quadrant content
+    topLeftQuadrant->render(viewportX, viewportY, viewportWidth, viewportHeight);
 }
 
 static void renderBottomLeftQuadrant() {
-    // Skip rendering if window is minimized
-    if (windowMinimized) return;
+    if (!bottomLeftQuadrant || windowMinimized) return;
 
-    // Ensure we have valid dimensions
-    int quadrantWidth = windowWidth / 2;
-    int quadrantHeight = windowHeight / 2;
+    // Calculate quadrant dimensions
+    int viewportX = 0;
+    int viewportY = 0;
+    int viewportWidth = windowWidth / 2;
+    int viewportHeight = windowHeight / 2;
 
-    if (quadrantWidth <= 0 || quadrantHeight <= 0) {
-        return;
-    }
-
-    // Bottom-left quadrant - Set viewport
-    glViewport(0, 0, quadrantWidth, quadrantHeight);
-
-    // Clear only depth buffer for this quadrant
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    // Set a solid background color for this quadrant
+    // Set background for this quadrant
     glDisable(GL_DEPTH_TEST);
-    renderBackgroundQuad(glm::vec3(0.1f, 0.1f, 0.1f));
+    renderBackgroundQuad(bottomLeftQuadrant->getBackgroundColor());
     glEnable(GL_DEPTH_TEST);
 
-    // TODO: Add your bottom-left quadrant content here
-    // For now, it's just a solid color background
+    // Render the bottom-left quadrant content
+    bottomLeftQuadrant->render(viewportX, viewportY, viewportWidth, viewportHeight);
 }
 
 static void renderBottomRightQuadrant() {
-    // Skip rendering if window is minimized
-    if (windowMinimized) return;
+    if (!bottomRightQuadrant || windowMinimized) return;
 
-    // Ensure we have valid dimensions
-    int quadrantWidth = windowWidth / 2;
-    int quadrantHeight = windowHeight / 2;
+    // Calculate quadrant dimensions
+    int viewportX = windowWidth / 2;
+    int viewportY = 0;
+    int viewportWidth = windowWidth / 2;
+    int viewportHeight = windowHeight / 2;
 
-    if (quadrantWidth <= 0 || quadrantHeight <= 0) {
-        return;
-    }
-
-    // Bottom-right quadrant - Set viewport
-    glViewport(windowWidth / 2, 0, quadrantWidth, quadrantHeight);
-
-    // Clear only depth buffer for this quadrant
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    // Set a solid background color for this quadrant
+    // Set background for this quadrant
     glDisable(GL_DEPTH_TEST);
-    renderBackgroundQuad(glm::vec3(0.15f, 0.15f, 0.15f));
+    renderBackgroundQuad(bottomRightQuadrant->getBackgroundColor());
     glEnable(GL_DEPTH_TEST);
 
-    // TODO: Add your bottom-right quadrant content here
-    // For now, it's just a solid color background
+    // Render the bottom-right quadrant content
+    bottomRightQuadrant->render(viewportX, viewportY, viewportWidth, viewportHeight);
 }
 
 int main() {
@@ -484,6 +477,9 @@ int main() {
         ImGui::Separator();
         ImGui::Text("Quadrant Layout");
         ImGui::BulletText("Top-right: Bloch Sphere");
+        ImGui::BulletText("Top-left: [Future Content]");
+        ImGui::BulletText("Bottom-left: [Future Content]");
+        ImGui::BulletText("Bottom-right: [Future Content]");
         ImGui::BulletText("Right mouse key and move to rotate the sphere");
         ImGui::BulletText("Right mouse key and scroll with mouse wheel to zoom in and out");
         ImGui::BulletText("R key to reset the view");
@@ -516,7 +512,7 @@ int main() {
 
         float time = static_cast<float>(glfwGetTime());
 
-        // Render the 4 quadrants - each one only clears depth buffer, not color buffer
+        // Render the 4 quadrants
         renderBottomLeftQuadrant();
         renderBottomRightQuadrant();
         renderTopLeftQuadrant();
