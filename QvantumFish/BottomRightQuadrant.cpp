@@ -1,18 +1,4 @@
-﻿/*
-
-________/\\\___________________________________________________________________________________________________/\\\\\\\\\\\\\\\_____________________/\\\_________
- _____/\\\\/\\\\_______________________________________________________________________________________________\/\\\///////////_____________________\/\\\_________
-  ___/\\\//\////\\\_________________________________________________/\\\________________________________________\/\\\______________/\\\______________\/\\\_________
-   __/\\\______\//\\\__/\\\____/\\\__/\\\\\\\\\_____/\\/\\\\\\____/\\\\\\\\\\\__/\\\____/\\\____/\\\\\__/\\\\\___\/\\\\\\\\\\\_____\///___/\\\\\\\\\\_\/\\\_________
-    _\//\\\______/\\\__\//\\\__/\\\__\////////\\\___\/\\\////\\\__\////\\\////__\/\\\___\/\\\__/\\\///\\\\\///\\\_\/\\\///////_______/\\\_\/\\\//////__\/\\\\\\\\\\__
-     __\///\\\\/\\\\/____\//\\\/\\\_____/\\\\\\\\\\__\/\\\__\//\\\____\/\\\______\/\\\___\/\\\_\/\\\_\//\\\__\/\\\_\/\\\_____________\/\\\_\/\\\\\\\\\\_\/\\\/////\\\_
-      ____\////\\\//_______\//\\\\\_____/\\\/////\\\__\/\\\___\/\\\____\/\\\_/\\__\/\\\___\/\\\_\/\\\__\/\\\__\/\\\_\/\\\_____________\/\\\_\////////\\\_\/\\\___\/\\\_
-       _______\///\\\\\\_____\//\\\_____\//\\\\\\\\/\\_\/\\\___\/\\\____\//\\\\\___\//\\\\\\\\\__\/\\\__\/\\\__\/\\\_\/\\\_____________\/\\\__/\\\\\\\\\\_\/\\\___\/\\\_
-        _________\//////_______\///_______\////////\//__\///____\///______\/////_____\/////////___\///___\///___\///__\///______________\///__\//////////__\///____\///__
-
-*/
-
-#define _USE_MATH_DEFINES
+﻿#define _USE_MATH_DEFINES
 
 #include "BottomRightQuadrant.h"
 #include <glad/glad.h>
@@ -147,12 +133,19 @@ void BottomRightQuadrant::displayQubitInformation() {
 
     BlochSphereCoordinates coords = currentQubit->getBlochSphereCoordinates();
 
+    // Define consistent color scheme
+    ImVec4 sectionTitleColor(0.4f, 0.8f, 1.0f, 1.0f);      // Cyan-blue for section titles
+    ImVec4 valueColor(1.0f, 1.0f, 1.0f, 1.0f);            // White for values
+    ImVec4 highlightColor(0.2f, 0.8f, 0.2f, 1.0f);        // Green for highlights
+    ImVec4 warningColor(1.0f, 0.6f, 0.2f, 1.0f);          // Orange for warnings
+    ImVec4 progressColor(0.2f, 0.6f, 1.0f, 1.0f);         // Blue for progress bars
+
     // Display state vector information
-    ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.2f, 1.0f), "QUANTUM STATE VECTOR");
+    ImGui::TextColored(sectionTitleColor, "QUANTUM STATE VECTOR");
     ImGui::Separator();
 
     // Display state in Dirac notation
-    ImGui::Text("State: |psi> = a|0> + b|1>");
+    ImGui::TextColored(valueColor, "State: |psi> = a|0> + b|1>");
 
     // Format complex numbers for display
     char alphaReal[64], alphaImag[64], betaReal[64], betaImag[64];
@@ -161,96 +154,98 @@ void BottomRightQuadrant::displayQubitInformation() {
     snprintf(betaReal, sizeof(betaReal), "%.4f", beta.real());
     snprintf(betaImag, sizeof(betaImag), "%.4f", std::abs(beta.imag()));
 
-    ImGui::Text("a = %s %s i", alphaReal, alpha.imag() >= 0 ? "+" : "-");
+    ImGui::TextColored(valueColor, "a = %s %s i", alphaReal, alpha.imag() >= 0 ? "+" : "-");
     if (std::abs(alpha.imag()) > 1e-10) {
         ImGui::SameLine();
-        ImGui::Text("%s", alphaImag);
+        ImGui::TextColored(valueColor, "%s", alphaImag);
     }
 
-    ImGui::Text("b = %s %s i", betaReal, beta.imag() >= 0 ? "+" : "-");
+    ImGui::TextColored(valueColor, "b = %s %s i", betaReal, beta.imag() >= 0 ? "+" : "-");
     if (std::abs(beta.imag()) > 1e-10) {
         ImGui::SameLine();
-        ImGui::Text("%s", betaImag);
+        ImGui::TextColored(valueColor, "%s", betaImag);
     }
 
     ImGui::Spacing();
     ImGui::Spacing();
 
     // Display measurement probabilities
-    ImGui::TextColored(ImVec4(0.2f, 0.8f, 1.0f, 1.0f), "MEASUREMENT PROBABILITIES");
+    ImGui::TextColored(sectionTitleColor, "MEASUREMENT PROBABILITIES");
     ImGui::Separator();
 
-    ImGui::Text("P(|0>) = %.4f (%.1f%%)", probZero, probZero * 100.0);
+    ImGui::TextColored(valueColor, "P(|0>) = %.4f (%.1f%%)", probZero, probZero * 100.0);
+    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, progressColor);
     ImGui::ProgressBar(probZero, ImVec2(-1, 20), "");
+    ImGui::PopStyleColor();
 
-    ImGui::Text("P(|1>) = %.4f (%.1f%%)", probOne, probOne * 100.0);
+    ImGui::TextColored(valueColor, "P(|1>) = %.4f (%.1f%%)", probOne, probOne * 100.0);
+    ImGui::PushStyleColor(ImGuiCol_PlotHistogram, progressColor);
     ImGui::ProgressBar(probOne, ImVec2(-1, 20), "");
+    ImGui::PopStyleColor();
 
     ImGui::Spacing();
     ImGui::Spacing();
 
     // Display Bloch sphere coordinates
-    ImGui::TextColored(ImVec4(0.8f, 0.2f, 0.8f, 1.0f), "BLOCH SPHERE COORDINATES");
+    ImGui::TextColored(sectionTitleColor, "BLOCH SPHERE COORDINATES");
     ImGui::Separator();
 
-    ImGui::Text("Spherical Coordinates:");
-    ImGui::Text("  Polar angle (theta): %.4f rad (%.1f)", theta, theta * 180.0 / M_PI);
-    ImGui::Text("  Azimuthal angle (phi): %.4f rad (%.1f)", phi, phi * 180.0 / M_PI);
+    ImGui::TextColored(valueColor, "Spherical Coordinates:");
+    ImGui::TextColored(valueColor, "  Polar angle (theta): %.4f rad (%.1f°)", theta, theta * 180.0 / M_PI);
+    ImGui::TextColored(valueColor, "  Azimuthal angle (phi): %.4f rad (%.1f°)", phi, phi * 180.0 / M_PI);
 
     ImGui::Spacing();
 
-    ImGui::Text("Cartesian Coordinates:");
-    ImGui::Text("  X: %.4f", coords.sphericalX());
-    ImGui::Text("  Y: %.4f", coords.sphericalY());
-    ImGui::Text("  Z: %.4f", coords.sphericalZ());
+    ImGui::TextColored(valueColor, "Cartesian Coordinates:");
+    ImGui::TextColored(valueColor, "  X: %.4f", coords.sphericalX());
+    ImGui::TextColored(valueColor, "  Y: %.4f", coords.sphericalY());
+    ImGui::TextColored(valueColor, "  Z: %.4f", coords.sphericalZ());
 
     ImGui::Spacing();
     ImGui::Spacing();
 
     // Display state equation
-    ImGui::TextColored(ImVec4(0.2f, 0.8f, 0.2f, 1.0f), "STATE REPRESENTATION");
+    ImGui::TextColored(sectionTitleColor, "STATE REPRESENTATION");
     ImGui::Separator();
 
     char stateEq[256];
     snprintf(stateEq, sizeof(stateEq),
         "|psi> = cos(theta/2)|0> + e^(i phi)sin(theta/2)|1>\n"
-        "    = cos(%.1f)|0> + e^(i%.1f)sin(%.1f)|1>",
+        "    = cos(%.1f°)|0> + e^(i%.1f°)sin(%.1f°)|1>",
         theta * 90.0 / M_PI, phi * 180.0 / M_PI, theta * 90.0 / M_PI);
-    ImGui::TextWrapped("%s", stateEq);
+    ImGui::TextColored(valueColor, "%s", stateEq);
 
-    // Display normalization check
+    // Display normalization check - using the same cyan color as section titles
     ImGui::Spacing();
     ImGui::Spacing();
     double totalProb = probZero + probOne;
-    ImGui::TextColored(totalProb > 0.999 && totalProb < 1.001 ?
-        ImVec4(0.2f, 0.8f, 0.2f, 1.0f) : ImVec4(1.0f, 0.2f, 0.2f, 1.0f),
-        "Normalization: |a|^2 + |b|^2 = %.6f", totalProb);
+    ImGui::TextColored(valueColor, "Normalization: |a|^2 + |b|^2 = %.6f", totalProb);
 
     // Additional quantum information
     ImGui::Spacing();
     ImGui::Spacing();
-    ImGui::TextColored(ImVec4(0.8f, 0.5f, 0.2f, 1.0f), "QUANTUM PROPERTIES");
+    ImGui::TextColored(sectionTitleColor, "QUANTUM PROPERTIES");
     ImGui::Separator();
 
     // Calculate and display superposition information
     if (probZero > 0.45 && probZero < 0.55 && probOne > 0.45 && probOne < 0.55) {
-        ImGui::Text("State is in equal superposition");
+        ImGui::TextColored(highlightColor, "State is in equal superposition");
     }
 
     // Display phase information
     if (std::abs(phi) < 1e-10) {
-        ImGui::Text("Phase: Real (phi circa 0)");
+        ImGui::TextColored(valueColor, "Phase: Real (phi ≈ 0)");
     }
     else if (std::abs(phi - M_PI) < 1e-10) {
-        ImGui::Text("Phase: Negative real (phi = pi)");
+        ImGui::TextColored(valueColor, "Phase: Negative real (phi = π)");
     }
     else if (std::abs(phi - M_PI / 2) < 1e-10) {
-        ImGui::Text("Phase: Imaginary (phi = pi/2)");
+        ImGui::TextColored(valueColor, "Phase: Imaginary (phi = π/2)");
     }
     else if (std::abs(phi - 3 * M_PI / 2) < 1e-10) {
-        ImGui::Text("Phase: Negative imaginary (phi = 3pi/2)");
+        ImGui::TextColored(valueColor, "Phase: Negative imaginary (phi = 3π/2)");
     }
     else {
-        ImGui::Text("Phase: Complex (phi = %.2f rad)", phi);
+        ImGui::TextColored(valueColor, "Phase: Complex (phi = %.2f rad)", phi);
     }
 }
