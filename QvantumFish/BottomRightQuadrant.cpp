@@ -191,8 +191,8 @@ void BottomRightQuadrant::displayQubitInformation() {
     ImGui::Separator();
 
     ImGui::TextColored(valueColor, "Spherical Coordinates:");
-    ImGui::TextColored(valueColor, "  Polar angle (theta): %.4f rad (%.1f°)", theta, theta * 180.0 / M_PI);
-    ImGui::TextColored(valueColor, "  Azimuthal angle (phi): %.4f rad (%.1f°)", phi, phi * 180.0 / M_PI);
+    ImGui::TextColored(valueColor, "  Polar angle (theta): %.4f rad (%.1f)", theta, theta * 180.0 / M_PI);
+    ImGui::TextColored(valueColor, "  Azimuthal angle (phi): %.4f rad (%.1f)", phi, phi * 180.0 / M_PI);
 
     ImGui::Spacing();
 
@@ -211,7 +211,7 @@ void BottomRightQuadrant::displayQubitInformation() {
     char stateEq[256];
     snprintf(stateEq, sizeof(stateEq),
         "|psi> = cos(theta/2)|0> + e^(i phi)sin(theta/2)|1>\n"
-        "    = cos(%.1f°)|0> + e^(i%.1f°)sin(%.1f°)|1>",
+        "    = cos(%.1f)|0> + e^(i%.1f)sin(%.1f)|1>",
         theta * 90.0 / M_PI, phi * 180.0 / M_PI, theta * 90.0 / M_PI);
     ImGui::TextColored(valueColor, "%s", stateEq);
 
@@ -234,16 +234,16 @@ void BottomRightQuadrant::displayQubitInformation() {
 
     // Display phase information
     if (std::abs(phi) < 1e-10) {
-        ImGui::TextColored(valueColor, "Phase: Real (phi ≈ 0)");
+        ImGui::TextColored(valueColor, "Phase: Real (phi circa 0)");
     }
     else if (std::abs(phi - M_PI) < 1e-10) {
-        ImGui::TextColored(valueColor, "Phase: Negative real (phi = π)");
+        ImGui::TextColored(valueColor, "Phase: Negative real (phi = pi)");
     }
     else if (std::abs(phi - M_PI / 2) < 1e-10) {
-        ImGui::TextColored(valueColor, "Phase: Imaginary (phi = π/2)");
+        ImGui::TextColored(valueColor, "Phase: Imaginary (phi = pi/2)");
     }
     else if (std::abs(phi - 3 * M_PI / 2) < 1e-10) {
-        ImGui::TextColored(valueColor, "Phase: Negative imaginary (phi = 3π/2)");
+        ImGui::TextColored(valueColor, "Phase: Negative imaginary (phi = 3pi/2)");
     }
     else {
         ImGui::TextColored(valueColor, "Phase: Complex (phi = %.2f rad)", phi);
