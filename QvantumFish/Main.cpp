@@ -595,20 +595,6 @@ int main() {
         ImGui::BulletText("R key to reset the view");
         ImGui::Text("Window Size: %d x %d", windowWidth, windowHeight);
 
-        // Display current vector position
-        if (topRightQuadrant) {
-            glm::vec3 vectorPos = topRightQuadrant->getVectorPosition();
-            ImGui::Separator();
-            ImGui::Text("Current Qubit State:");
-            ImGui::Text("Position: (%.3f, %.3f, %.3f)", vectorPos.x, vectorPos.y, vectorPos.z);
-
-            // Calculate angles
-            float theta = acos(vectorPos.z / glm::length(vectorPos));
-            float phi = atan2(vectorPos.y, vectorPos.x);
-            ImGui::Text("Theta: %.2f°", theta * 180.0f / M_PI);
-            ImGui::Text("Phi: %.2f°", phi * 180.0f / M_PI);
-        }
-
         ImGui::End();
 
         // Demo window (optional)
