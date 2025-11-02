@@ -103,12 +103,11 @@ std::vector<float> AngleArcs::generatePhiArc() {
     std::vector<float> vertices;
 
     // Calculate phi angle (angle between projection and positive X-axis)
-    // Project vector onto XY plane
     glm::vec3 projection = glm::vec3(vectorPosition.x, vectorPosition.y, 0.0f);
     float projLength = glm::length(projection);
 
     if (projLength < 0.001f) {
-        return vertices; // No meaningful phi angle if projection is near zero
+        return vertices;
     }
 
     float phi = atan2(vectorPosition.y, vectorPosition.x);
@@ -118,21 +117,16 @@ std::vector<float> AngleArcs::generatePhiArc() {
         return vertices;
     }
 
-    // Arc in the XY plane (disk plane)
-    float startAngle = 0.0f; // Start from positive X-axis
+    float startAngle = 0.0f;
     float endAngle = phi;
 
-    // Ensure we take the shorter arc
-    if (abs(endAngle - startAngle) > M_PI) {
-        if (endAngle > startAngle) {
-            endAngle -= 2.0f * M_PI;
-        }
-        else {
-            endAngle += 2.0f * M_PI;
-        }
+    // Convert negative angles to positive to get continuous rotation beyond 180°
+    // This ensures angles from 180° to 360° are represented correctly
+    if (phi < 0) {
+        endAngle = phi + 2.0f * M_PI;
     }
 
-    // Generate arc points
+    // Generate arc points - this will now create arcs from 0° up to 360°
     for (int i = 0; i <= arcSegments; ++i) {
         float angle = startAngle + static_cast<float>(i) / arcSegments * (endAngle - startAngle);
         float x = arcRadius * cos(angle);
