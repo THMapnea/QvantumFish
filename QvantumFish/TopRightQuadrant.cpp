@@ -31,7 +31,7 @@ void TopRightQuadrant::initialize() {
     blochSphere = new BlochSphere(1.0f, 32, 32);
 
     // 3. Create initial qubit and quantum vector
-    currentQubit = Qubit(std::cos(M_PI / 9), std::exp(std::complex<double>(0, 1) * (M_PI / 2)) * std::sin(M_PI / 9));
+    currentQubit = Qubit::ketZero();
     currentQubit.advancedLook();
 
     glm::vec3 vectorPos = currentQubit.getBlochSphereCoordinates().convertToVec3();
