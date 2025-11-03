@@ -73,6 +73,9 @@
     <Filter Include="File di origine\Utility\HelperWidgets">
       <UniqueIdentifier>{b6d42bd0-3c4b-4f2e-8034-ef0982da4891}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di origine\Graphic\SplashScreen">
+      <UniqueIdentifier>{c409b413-367e-42f6-814c-775a67193485}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -143,6 +146,9 @@
     </ClCompile>
     <ClCompile Include="BottomLeftQuadrant.cpp">
       <Filter>File di origine\Graphic\Quadrants\BottomLeftQuadrant</Filter>
+    </ClCompile>
+    <ClCompile Include="SplashScreen.cpp">
+      <Filter>File di origine\Graphic\SplashScreen</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -216,6 +222,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="BottomLeftQuadrant.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="SplashScreen.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

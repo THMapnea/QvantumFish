@@ -148,6 +148,7 @@
     <ClCompile Include="ProjectionLines.cpp" />
     <ClCompile Include="Qubit.cpp" />
     <ClCompile Include="SceneController.cpp" />
+    <ClCompile Include="SplashScreen.cpp" />
     <ClCompile Include="TopLeftQuadrant.cpp" />
     <ClCompile Include="TopRightQuadrant.cpp" />
     <ClCompile Include="VectorArrow.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="ProjectionLines.h" />
     <ClInclude Include="Qubit.h" />
     <ClInclude Include="SceneController.h" />
+    <ClInclude Include="SplashScreen.h" />
     <ClInclude Include="TopLeftQuadrant.h" />
     <ClInclude Include="TopRightQuadrant.h" />
     <ClInclude Include="VectorArrow.h" />

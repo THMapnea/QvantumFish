@@ -22,6 +22,8 @@ ________/\\\____________________________________________________________________
 #include <cmath>
 #include <array>
 #include <complex>
+#include <thread>
+#include <chrono>
 #include <Eigen/Dense>
 #include <ImGui/imgui.h>
 #include <ImGui/imgui_impl_glfw.h>
@@ -38,6 +40,7 @@ ________/\\\____________________________________________________________________
 #include "TopLeftQuadrant.h"
 #include "BottomLeftQuadrant.h"
 #include "BottomRightQuadrant.h"
+#include "SplashScreen.h"
 
 // Global variables
 TopRightQuadrant* topRightQuadrant = nullptr;
@@ -452,8 +455,40 @@ static void handleQubitStateChanges() {
 }
 
 int main() {
+    // Show splash screen first (in terminal, before any GLFW initialization)
+    SplashScreen splashScreen;
+    splashScreen.start();
+
+    // Hide cursor for cleaner look
+    std::cout << "\033[?25l";
+
+    // Splash screen loop
+    auto splashStart = std::chrono::steady_clock::now();
+    while (!splashScreen.isComplete()) {
+        auto currentTime = std::chrono::steady_clock::now();
+        float time = std::chrono::duration<float>(currentTime - splashStart).count();
+        splashScreen.render();
+
+        // Control animation speed
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+
+    // Show cursor again
+    std::cout << "\033[?25h";
+
+    // Clear screen after splash
+    std::cout << "\033[2J\033[H";
+
+    // Brief pause before main application
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+    // Now initialize GLFW and the rest of the application...
     // Initialize GLFW
-    glfwInit();
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW\n";
+        return -1;
+    }
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -466,7 +501,13 @@ int main() {
     }
     glfwMakeContextCurrent(window);
 
-    // Set framebuffer size callback
+    // Initialize GLAD
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Failed to initialize GLAD\n";
+        return -1;
+    }
+
+    // Now initialize the rest of the application
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // Initialize Scene Controller with initial window size
@@ -474,11 +515,6 @@ int main() {
 
     // Setup GLFW callbacks
     sceneController->setupCallbacks(window);
-
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Failed to initialize GLAD\n";
-        return -1;
-    }
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -496,21 +532,21 @@ int main() {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Initialize the scene
+    // Initialize the scene components
+    initializeBackgroundQuad();
+    initializeDivisionLines();
     initializeScene();
 
-    // Initialize background quad
-    initializeBackgroundQuad();
-
-    // Initialize division lines
-    initializeDivisionLines();
-
+    std::cout << "QvantumFish - Quantum Visualization Dashboard" << std::endl;
+    std::cout << "=============================================" << std::endl;
     std::cout << "Controls:" << std::endl;
     std::cout << "  - Mouse drag: Rotate Bloch Sphere view" << std::endl;
     std::cout << "  - Mouse wheel: Zoom in/out Bloch Sphere" << std::endl;
     std::cout << "  - R key: Reset Bloch Sphere view" << std::endl;
     std::cout << "  - ESC key: Exit" << std::endl;
+    std::cout << "=============================================" << std::endl;
 
+    // Main application loop
     while (!glfwWindowShouldClose(window)) {
         // Skip rendering if window is minimized to save resources
         if (windowMinimized) {
@@ -632,5 +668,7 @@ int main() {
 
     cleanupScene();
     glfwTerminate();
+
+    std::cout << "QvantumFish application terminated successfully." << std::endl;
     return 0;
 }
