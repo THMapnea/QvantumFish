@@ -49,12 +49,6 @@
     <Filter Include="File di intestazione\Glad">
       <UniqueIdentifier>{e1ab79d4-2c0f-4bb5-b30a-ceac4aa3db07}</UniqueIdentifier>
     </Filter>
-    <Filter Include="File di origine\Dashboard">
-      <UniqueIdentifier>{df7ca90e-9ff7-4640-af6a-cc07c4a23a87}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="File di origine\Dashboard\Elements">
-      <UniqueIdentifier>{ffb0160b-8bd7-4187-96da-3fe36204c76f}</UniqueIdentifier>
-    </Filter>
     <Filter Include="File di origine\Gates">
       <UniqueIdentifier>{48529439-a66f-41ae-af95-4568ccc00e50}</UniqueIdentifier>
     </Filter>

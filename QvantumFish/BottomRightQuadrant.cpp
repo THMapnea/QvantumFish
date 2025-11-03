@@ -229,7 +229,7 @@ void BottomRightQuadrant::displayQubitInformation() {
 
     // Calculate and display superposition information
     if (probZero > 0.45 && probZero < 0.55 && probOne > 0.45 && probOne < 0.55) {
-        ImGui::TextColored(highlightColor, "State is in equal superposition");
+        ImGui::TextColored(valueColor, "State is in equal superposition");
     }
 
     // Display phase information
