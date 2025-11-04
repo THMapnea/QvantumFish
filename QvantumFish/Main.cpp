@@ -295,7 +295,7 @@ static void renderSplashScreen(float time) {
     const auto& asciiArt = splashScreen.getASCIIArt();
 
     // Calculate scaling - make it bigger
-    float scale = 1.2f;
+    float scale = 1.0f;
     if (windowWidth >= 1920) scale = 1.5f;
     if (windowWidth < 1400) scale = 1.0f;
     if (windowWidth < 1000) scale = 0.8f;

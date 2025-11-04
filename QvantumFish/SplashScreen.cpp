@@ -95,27 +95,6 @@ void SplashScreen::render() {
     for (int i = 0; i < 3; i++) {
         std::cout << std::endl;
     }
-
-    // Progress bar
-    std::string progressPadding(padding, ' ');
-    std::cout << progressPadding;
-    std::cout << "[";
-    int barWidth = 168;
-    int pos = static_cast<int>(barWidth * progress);
-    for (int i = 0; i < barWidth; i++) {
-        if (i < pos) {
-            std::cout << "\033[38;2;0;200;255m=\033[0m";
-        }
-        else if (i == pos) {
-            std::cout << ">";
-        }
-        else {
-            std::cout << " ";
-        }
-    }
-    std::cout << "] " << int(progress * 100.0f) << "%";
-    std::cout << std::endl;
-
     // Flush output
     std::cout << std::flush;
 }
