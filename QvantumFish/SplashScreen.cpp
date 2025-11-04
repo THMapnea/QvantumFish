@@ -25,7 +25,7 @@ void SplashScreen::initializeASCIIArt() {
             R"(       _______\///\\\\\\_____\//\\\_____\//\\\\\\\\/\\_\/\\\___\/\\\____\//\\\\\___\//\\\\\\\\\__\/\\\__\/\\\__\/\\\_\/\\\_____________\/\\\__/\\\\\\\\\\_\/\\\___\/\\\_)",
             R"(        _________\//////_______\///_______\////////\//__\///____\///______\/////_____\/////////___\///___\///___\///__\///______________\///__\//////////__\///____\///__)",
             R"()"
-            
+
     };
 }
 
@@ -38,14 +38,8 @@ void SplashScreen::render() {
 
     if (progress >= 1.0f) {
         animationComplete = true;
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-        // Clear screen when done
-        std::cout << "\033[2J\033[H";
         return;
     }
-
-    // Clear screen and move cursor to top
-    std::cout << "\033[2J\033[H";
 
     // Calculate centering
     int terminalWidth = 240;
@@ -54,6 +48,9 @@ void SplashScreen::render() {
         artWidth = std::max(artWidth, static_cast<int>(line.length()));
     }
     int padding = std::max(0, (terminalWidth - artWidth) / 2);
+
+    // Clear screen and move cursor to top
+    std::cout << "\033[2J\033[H";
 
     // Add some top padding
     for (int i = 0; i < 5; i++) {

@@ -1,17 +1,4 @@
-﻿/*
-
-________/\\\___________________________________________________________________________________________________/\\\\\\\\\\\\\\\_____________________/\\\_________
- _____/\\\\/\\\\_______________________________________________________________________________________________\/\\\///////////_____________________\/\\\_________
-  ___/\\\//\////\\\_________________________________________________/\\\________________________________________\/\\\______________/\\\______________\/\\\_________
-   __/\\\______\//\\\__/\\\____/\\\__/\\\\\\\\\_____/\\/\\\\\\____/\\\\\\\\\\\__/\\\____/\\\____/\\\\\__/\\\\\___\/\\\\\\\\\\\_____\///___/\\\\\\\\\\_\/\\\_________
-    _\//\\\______/\\\__\//\\\__/\\\__\////////\\\___\/\\\////\\\__\////\\\////__\/\\\___\/\\\__/\\\///\\\\\///\\\_\/\\\///////_______/\\\_\/\\\//////__\/\\\\\\\\\\__
-     __\///\\\\/\\\\/____\//\\\/\\\_____/\\\\\\\\\\__\/\\\__\//\\\____\/\\\______\/\\\___\/\\\_\/\\\_\//\\\__\/\\\_\/\\\_____________\/\\\_\/\\\\\\\\\\_\/\\\/////\\\_
-      ____\////\\\//_______\//\\\\\_____/\\\/////\\\__\/\\\___\/\\\____\/\\\_/\\__\/\\\___\/\\\_\/\\\__\/\\\__\/\\\_\/\\\_____________\/\\\_\////////\\\_\/\\\___\/\\\_
-       _______\///\\\\\\_____\//\\\_____\//\\\\\\\\/\\_\/\\\___\/\\\____\//\\\\\___\//\\\\\\\\\__\/\\\__\/\\\__\/\\\_\/\\\_____________\/\\\__/\\\\\\\\\\_\/\\\___\/\\\_
-        _________\//////_______\///_______\////////\//__\///____\///______\/////_____\/////////___\///___\///___\///__\///______________\///__\//////////__\///____\///__
-
-*/
-#define _USE_MATH_DEFINES
+﻿#define _USE_MATH_DEFINES
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -61,6 +48,15 @@ unsigned int divisionLinesShader = 0;
 unsigned int backgroundVAO = 0;
 unsigned int backgroundVBO = 0;
 unsigned int backgroundShader = 0;
+
+// Splash screen rendering
+unsigned int splashVAO = 0;
+unsigned int splashVBO = 0;
+unsigned int splashShader = 0;
+unsigned int splashTexture = 0;
+bool splashScreenComplete = false;
+std::chrono::steady_clock::time_point splashStartTime;
+SplashScreen splashScreen;
 
 // Current window dimensions
 int windowWidth = 1200;
@@ -173,6 +169,213 @@ static void renderBackgroundQuad(const glm::vec3& color, int viewportX, int view
     glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
 }
 
+static void initializeSplashScreen() {
+    // Simple quad for splash screen
+    float vertices[] = {
+        -1.0f, -1.0f, 0.0f,
+         1.0f, -1.0f, 0.0f,
+         1.0f,  1.0f, 0.0f,
+        -1.0f,  1.0f, 0.0f
+    };
+
+    unsigned int indices[] = {
+        0, 1, 2,
+        2, 3, 0
+    };
+
+    // Create and compile shader for splash screen
+    const char* vertexShaderSource = R"(
+        #version 330 core
+        layout (location = 0) in vec3 aPos;
+        void main() {
+            gl_Position = vec4(aPos, 1.0);
+        }
+    )";
+
+    const char* fragmentShaderSource = R"(
+        #version 330 core
+        out vec4 FragColor;
+        uniform vec3 color;
+        uniform float progress;
+        void main() {
+            // Create a simple animated background for splash
+            vec3 baseColor = vec3(0.0, 0.05, 0.1);
+            vec3 accentColor = vec3(0.0, 0.3, 0.6);
+            
+            // Animated pulse effect
+            float pulse = sin(progress * 10.0) * 0.1 + 0.9;
+            vec3 finalColor = mix(baseColor, accentColor, progress) * pulse;
+            
+            FragColor = vec4(finalColor, 1.0);
+        }
+    )";
+
+    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glCompileShader(vertexShader);
+
+    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glCompileShader(fragmentShader);
+
+    splashShader = glCreateProgram();
+    glAttachShader(splashShader, vertexShader);
+    glAttachShader(splashShader, fragmentShader);
+    glLinkProgram(splashShader);
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+
+    // Create VAO, VBO, and EBO for splash
+    glGenVertexArrays(1, &splashVAO);
+    glGenBuffers(1, &splashVBO);
+    unsigned int splashEBO;
+    glGenBuffers(1, &splashEBO);
+
+    glBindVertexArray(splashVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, splashVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, splashEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+    glDeleteBuffers(1, &splashEBO);
+
+    // Start splash screen
+    splashScreen.start();
+    splashStartTime = std::chrono::steady_clock::now();
+}
+
+static void renderSplashScreen(float time) {
+    if (splashScreenComplete) return;
+
+    auto now = std::chrono::steady_clock::now();
+    float elapsed = std::chrono::duration<float>(now - splashStartTime).count();
+    float progress = std::min(elapsed / splashScreen.getAnimationTime(), 1.0f);
+
+    if (progress >= 1.0f) {
+        splashScreenComplete = true;
+        return;
+    }
+
+    // Clear the screen with black background
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Disable depth test for 2D rendering
+    glDisable(GL_DEPTH_TEST);
+
+    // Use splash shader for background
+    glUseProgram(splashShader);
+    glUniform3f(glGetUniformLocation(splashShader, "color"), 0.0f, 0.0f, 0.0f);
+    glUniform1f(glGetUniformLocation(splashShader, "progress"), progress);
+
+    // Render the fullscreen black quad
+    glBindVertexArray(splashVAO);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+
+    // Re-enable depth test
+    glEnable(GL_DEPTH_TEST);
+
+    // Render ASCII art animation using ImGui
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+    ImGui::Begin("SplashScreen", nullptr,
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
+        ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs |
+        ImGuiWindowFlags_NoBackground);
+
+    // Get ASCII art from splash screen
+    const auto& asciiArt = splashScreen.getASCIIArt();
+
+    // Calculate scaling and positioning
+    float scale = 0.7f;
+    if (windowWidth < 1400) scale = 0.5f;
+    if (windowWidth < 1000) scale = 0.3f;
+
+    ImGui::SetWindowFontScale(scale);
+
+    // Calculate which lines should be fully visible based on progress
+    int totalLines = static_cast<int>(asciiArt.size());
+    int visibleLines = static_cast<int>(progress * totalLines);
+
+    // Add top padding
+    float startY = windowHeight * 0.1f;
+    ImGui::SetCursorPosY(startY);
+
+    // Render ASCII art with sequential line-by-line animation
+    for (int i = 0; i < totalLines; i++) {
+        // Center each line
+        float lineWidth = ImGui::CalcTextSize(asciiArt[i].c_str()).x;
+        ImGui::SetCursorPosX((windowWidth - lineWidth) * 0.5f);
+
+        if (i < visibleLines) {
+            // Line is fully visible - show in cyan
+            ImGui::TextColored(ImVec4(0.0f, 0.8f, 1.0f, 1.0f), "%s", asciiArt[i].c_str());
+        }
+        else if (i == visibleLines) {
+            // Current line being animated - reveal character by character
+            const std::string& line = asciiArt[i];
+            float lineProgress = (progress * totalLines) - i; // Progress within current line (0.0 to 1.0)
+            int charsToShow = static_cast<int>(lineProgress * line.length());
+
+            std::string visiblePart = line.substr(0, charsToShow);
+            std::string invisiblePart = std::string(line.length() - charsToShow, ' ');
+
+            ImGui::TextColored(ImVec4(0.0f, 0.8f, 1.0f, 1.0f), "%s", visiblePart.c_str());
+            // Move to next line position for the remaining space
+            if (charsToShow < line.length()) {
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(0.3f, 0.3f, 0.3f, 1.0f), "%s", invisiblePart.c_str());
+            }
+        }
+        else {
+            // Line not yet started - show as empty space (invisible)
+            ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.0f, 0.0f), "%s", asciiArt[i].c_str());
+        }
+    }
+
+    // Add bottom padding and progress bar
+    ImGui::SetCursorPosY(windowHeight * 0.85f);
+
+    // Progress bar
+    float progressBarWidth = windowWidth * 0.6f;
+    float progressBarHeight = 25.0f;
+    ImGui::SetCursorPosX((windowWidth - progressBarWidth) * 0.5f);
+
+    // Custom progress bar rendering to match ASCII style
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    ImVec2 progressBarMin = ImGui::GetCursorScreenPos();
+    ImVec2 progressBarMax = ImVec2(progressBarMin.x + progressBarWidth, progressBarMin.y + progressBarHeight);
+
+    // Background
+    draw_list->AddRectFilled(progressBarMin, progressBarMax, IM_COL32(30, 30, 30, 255));
+
+    // Progress
+    ImVec2 progressMin = progressBarMin;
+    ImVec2 progressMax = ImVec2(progressBarMin.x + progressBarWidth * progress, progressBarMax.y);
+    draw_list->AddRectFilled(progressMin, progressMax, IM_COL32(0, 200, 255, 255));
+
+    // Border
+    draw_list->AddRect(progressBarMin, progressBarMax, IM_COL32(100, 100, 100, 255));
+
+    // Progress text
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + progressBarHeight + 10.0f);
+    char progressText[32];
+    snprintf(progressText, sizeof(progressText), "Loading... %d%%", (int)(progress * 100));
+    float textWidth = ImGui::CalcTextSize(progressText).x;
+    ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
+    ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "%s", progressText);
+
+    ImGui::End();
+}
 static void initializeScene() {
     // Create and initialize all quadrants
     topRightQuadrant = new TopRightQuadrant();
@@ -278,6 +481,13 @@ static void cleanupScene() {
         glDeleteVertexArrays(1, &backgroundVAO);
         glDeleteBuffers(1, &backgroundVBO);
         glDeleteProgram(backgroundShader);
+    }
+
+    // Cleanup splash screen
+    if (splashVAO) {
+        glDeleteVertexArrays(1, &splashVAO);
+        glDeleteBuffers(1, &splashVBO);
+        glDeleteProgram(splashShader);
     }
 }
 
@@ -455,34 +665,6 @@ static void handleQubitStateChanges() {
 }
 
 int main() {
-    // Show splash screen first (in terminal, before any GLFW initialization)
-    SplashScreen splashScreen;
-    splashScreen.start();
-
-    // Hide cursor for cleaner look
-    std::cout << "\033[?25l";
-
-    // Splash screen loop
-    auto splashStart = std::chrono::steady_clock::now();
-    while (!splashScreen.isComplete()) {
-        auto currentTime = std::chrono::steady_clock::now();
-        float time = std::chrono::duration<float>(currentTime - splashStart).count();
-        splashScreen.render();
-
-        // Control animation speed
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
-
-    // Show cursor again
-    std::cout << "\033[?25h";
-
-    // Clear screen after splash
-    std::cout << "\033[2J\033[H";
-
-    // Brief pause before main application
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    // Now initialize GLFW and the rest of the application...
     // Initialize GLFW
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";
@@ -535,16 +717,7 @@ int main() {
     // Initialize the scene components
     initializeBackgroundQuad();
     initializeDivisionLines();
-    initializeScene();
-
-    std::cout << "QvantumFish - Quantum Visualization Dashboard" << std::endl;
-    std::cout << "=============================================" << std::endl;
-    std::cout << "Controls:" << std::endl;
-    std::cout << "  - Mouse drag: Rotate Bloch Sphere view" << std::endl;
-    std::cout << "  - Mouse wheel: Zoom in/out Bloch Sphere" << std::endl;
-    std::cout << "  - R key: Reset Bloch Sphere view" << std::endl;
-    std::cout << "  - ESC key: Exit" << std::endl;
-    std::cout << "=============================================" << std::endl;
+    initializeSplashScreen(); // Initialize splash screen first
 
     // Main application loop
     while (!glfwWindowShouldClose(window)) {
@@ -559,99 +732,115 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        sceneController->processInput(window);
+        float time = static_cast<float>(glfwGetTime());
 
-        // Handle qubit state changes from bottom right quadrant controls
-        handleQubitStateChanges();
+        // Render splash screen if not complete
+        if (!splashScreenComplete) {
+            renderSplashScreen(time);
 
-        // Main control panel window
-        ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
-        ImGui::SetNextWindowSize(ImVec2(300, 250), ImGuiCond_FirstUseEver);
-
-        ImGui::Begin("Quantum Visualization Controls");
-
-        ImGui::Text("View Controls");
-        if (ImGui::Button("Reset View")) {
-            sceneController->reset();
+            // Check if splash screen should complete
+            auto now = std::chrono::steady_clock::now();
+            float elapsed = std::chrono::duration<float>(now - splashStartTime).count();
+            if (elapsed >= splashScreen.getAnimationTime()) {
+                splashScreenComplete = true;
+                // Initialize the main scene after splash screen
+                initializeScene();
+            }
         }
+        else {
+            // Main application rendering
+            sceneController->processInput(window);
 
-        ImGui::Separator();
-        ImGui::Text("Component Visibility");
-        if (topRightQuadrant) {
-            // Use local variables bound to the quadrant's state
-            static bool showSphere = topRightQuadrant->getShowSphere();
-            static bool showAxes = topRightQuadrant->getShowAxes();
-            static bool showVector = topRightQuadrant->getShowVector();
-            static bool showProjections = topRightQuadrant->getShowProjections();
-            static bool showArcs = topRightQuadrant->getShowArcs();
-            static float sphereScale = topRightQuadrant->getSphereScale();
+            // Handle qubit state changes from bottom right quadrant controls
+            handleQubitStateChanges();
 
-            if (ImGui::Checkbox("Show Sphere", &showSphere)) {
-                topRightQuadrant->setShowSphere(showSphere);
-            }
-            if (ImGui::Checkbox("Show Axes", &showAxes)) {
-                topRightQuadrant->setShowAxes(showAxes);
-            }
-            if (ImGui::Checkbox("Show Vector", &showVector)) {
-                topRightQuadrant->setShowVector(showVector);
-            }
-            if (ImGui::Checkbox("Show Projections", &showProjections)) {
-                topRightQuadrant->setShowProjections(showProjections);
-            }
-            if (ImGui::Checkbox("Show Arcs", &showArcs)) {
-                topRightQuadrant->setShowArcs(showArcs);
+            // Main control panel window
+            ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
+            ImGui::SetNextWindowSize(ImVec2(300, 250), ImGuiCond_FirstUseEver);
+
+            ImGui::Begin("Quantum Visualization Controls");
+
+            ImGui::Text("View Controls");
+            if (ImGui::Button("Reset View")) {
+                sceneController->reset();
             }
 
             ImGui::Separator();
-            ImGui::Text("Sphere Scale");
-            if (ImGui::SliderFloat("Scale", &sphereScale, 0.5f, 2.0f)) {
-                topRightQuadrant->setSphereScale(sphereScale);
+            ImGui::Text("Component Visibility");
+            if (topRightQuadrant) {
+                // Use local variables bound to the quadrant's state
+                static bool showSphere = topRightQuadrant->getShowSphere();
+                static bool showAxes = topRightQuadrant->getShowAxes();
+                static bool showVector = topRightQuadrant->getShowVector();
+                static bool showProjections = topRightQuadrant->getShowProjections();
+                static bool showArcs = topRightQuadrant->getShowArcs();
+                static float sphereScale = topRightQuadrant->getSphereScale();
+
+                if (ImGui::Checkbox("Show Sphere", &showSphere)) {
+                    topRightQuadrant->setShowSphere(showSphere);
+                }
+                if (ImGui::Checkbox("Show Axes", &showAxes)) {
+                    topRightQuadrant->setShowAxes(showAxes);
+                }
+                if (ImGui::Checkbox("Show Vector", &showVector)) {
+                    topRightQuadrant->setShowVector(showVector);
+                }
+                if (ImGui::Checkbox("Show Projections", &showProjections)) {
+                    topRightQuadrant->setShowProjections(showProjections);
+                }
+                if (ImGui::Checkbox("Show Arcs", &showArcs)) {
+                    topRightQuadrant->setShowArcs(showArcs);
+                }
+
+                ImGui::Separator();
+                ImGui::Text("Sphere Scale");
+                if (ImGui::SliderFloat("Scale", &sphereScale, 0.5f, 2.0f)) {
+                    topRightQuadrant->setSphereScale(sphereScale);
+                }
+
+                // Add a button to toggle all components
+                if (ImGui::Button("Toggle All")) {
+                    topRightQuadrant->toggleAllComponents();
+                    // Update local variables after toggle
+                    showSphere = topRightQuadrant->getShowSphere();
+                    showAxes = topRightQuadrant->getShowAxes();
+                    showVector = topRightQuadrant->getShowVector();
+                    showProjections = topRightQuadrant->getShowProjections();
+                    showArcs = topRightQuadrant->getShowArcs();
+                }
             }
 
-            // Add a button to toggle all components
-            if (ImGui::Button("Toggle All")) {
-                topRightQuadrant->toggleAllComponents();
-                // Update local variables after toggle
-                showSphere = topRightQuadrant->getShowSphere();
-                showAxes = topRightQuadrant->getShowAxes();
-                showVector = topRightQuadrant->getShowVector();
-                showProjections = topRightQuadrant->getShowProjections();
-                showArcs = topRightQuadrant->getShowArcs();
+            ImGui::Separator();
+            ImGui::Text("Quadrant Layout");
+            ImGui::BulletText("Top-right: Bloch Sphere");
+            ImGui::BulletText("Top-left: [Future Content]");
+            ImGui::BulletText("Bottom-left: [Future Content]");
+            ImGui::BulletText("Bottom-right: Qubit Information & Controls");
+            ImGui::BulletText("Right mouse key and move to rotate the sphere");
+            ImGui::BulletText("Right mouse key and scroll with mouse wheel to zoom in and out");
+            ImGui::BulletText("R key to reset the view");
+            ImGui::Text("Window Size: %d x %d", windowWidth, windowHeight);
+
+            ImGui::End();
+
+            // Demo window (optional)
+            if (showDemoWindow) {
+                ImGui::ShowDemoWindow(&showDemoWindow);
             }
+
+            // Clear the entire window with black background ONCE at the beginning
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            // Render the 4 quadrants
+            renderBottomLeftQuadrant();
+            renderBottomRightQuadrant();
+            renderTopLeftQuadrant();
+            renderTopRightQuadrant(time);
+
+            // Render division lines (must be done after all viewport rendering)
+            renderDivisionLines(time);
         }
-
-        ImGui::Separator();
-        ImGui::Text("Quadrant Layout");
-        ImGui::BulletText("Top-right: Bloch Sphere");
-        ImGui::BulletText("Top-left: [Future Content]");
-        ImGui::BulletText("Bottom-left: [Future Content]");
-        ImGui::BulletText("Bottom-right: Qubit Information & Controls");
-        ImGui::BulletText("Right mouse key and move to rotate the sphere");
-        ImGui::BulletText("Right mouse key and scroll with mouse wheel to zoom in and out");
-        ImGui::BulletText("R key to reset the view");
-        ImGui::Text("Window Size: %d x %d", windowWidth, windowHeight);
-
-        ImGui::End();
-
-        // Demo window (optional)
-        if (showDemoWindow) {
-            ImGui::ShowDemoWindow(&showDemoWindow);
-        }
-
-        // Clear the entire window with black background ONCE at the beginning
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        float time = static_cast<float>(glfwGetTime());
-
-        // Render the 4 quadrants
-        renderBottomLeftQuadrant();
-        renderBottomRightQuadrant();
-        renderTopLeftQuadrant();
-        renderTopRightQuadrant(time);
-
-        // Render division lines (must be done after all viewport rendering)
-        renderDivisionLines(time);
 
         // Render ImGui on top of everything
         ImGui::Render();
