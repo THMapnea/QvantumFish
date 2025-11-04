@@ -252,6 +252,7 @@ static void renderSplashScreen(float time) {
     float progress = std::min(elapsed / splashScreen.getAnimationTime(), 1.0f);
 
     if (progress >= 1.0f) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         splashScreenComplete = true;
         return;
     }
@@ -279,6 +280,8 @@ static void renderSplashScreen(float time) {
     // Render ASCII art animation using ImGui
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2(windowWidth, windowHeight));
+
+    // Use ImGuiWindowFlags_NoScrollbar to prevent scrollbar calculations
     ImGui::Begin("SplashScreen", nullptr,
         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
@@ -291,31 +294,43 @@ static void renderSplashScreen(float time) {
     // Get ASCII art from splash screen
     const auto& asciiArt = splashScreen.getASCIIArt();
 
-    // Calculate scaling - make it much bigger
-    float scale = 1.2f; // Increased from 0.7f
-    if (windowWidth >= 1920) scale = 1.5f; // Even bigger for high-res displays
+    // Calculate scaling - make it bigger
+    float scale = 1.2f;
+    if (windowWidth >= 1920) scale = 1.5f;
     if (windowWidth < 1400) scale = 1.0f;
     if (windowWidth < 1000) scale = 0.8f;
 
     ImGui::SetWindowFontScale(scale);
 
     // Use a monospace font for proper ASCII art alignment
-    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]); // Use the default font
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
 
     // Calculate which lines should be fully visible based on progress
     int totalLines = static_cast<int>(asciiArt.size());
     int visibleLines = static_cast<int>(progress * totalLines);
 
-    // Add less top padding to give more space for bigger text
-    float startY = windowHeight * 0.05f;
+    // Calculate total height of visible ASCII art to center it vertically
+    float lineHeight = ImGui::GetTextLineHeightWithSpacing();
+    float totalTextHeight = totalLines * lineHeight;
+    float startY = (windowHeight - totalTextHeight) * 0.5f;
+
+    // Ensure we don't set cursor outside window boundaries
+    startY = std::max(0.0f, startY);
     ImGui::SetCursorPosY(startY);
 
     // Render ASCII art with sequential line-by-line animation
     for (int i = 0; i < totalLines; i++) {
-        // Center each line
+        // Center each line horizontally with a small offset to the left
         std::string lineToMeasure = asciiArt[i].empty() ? " " : asciiArt[i];
         float lineWidth = ImGui::CalcTextSize(lineToMeasure.c_str()).x;
-        ImGui::SetCursorPosX((windowWidth - lineWidth) * 0.5f);
+
+        // Apply a small left offset (about 2% of window width) to make it appear more centered
+        float leftOffset = windowWidth * 0.02f;
+        float cursorX = (windowWidth - lineWidth) * 0.7f - leftOffset;
+
+        // Ensure we don't set cursor outside window boundaries
+        cursorX = std::max(0.0f, cursorX);
+        ImGui::SetCursorPosX(cursorX);
 
         if (i < visibleLines) {
             // Line is fully visible - show in bright cyan
@@ -324,54 +339,28 @@ static void renderSplashScreen(float time) {
         else if (i == visibleLines) {
             // Current line being animated - reveal character by character
             const std::string& line = asciiArt[i];
-            float lineProgress = (progress * totalLines) - i; // Progress within current line (0.0 to 1.0)
+            float lineProgress = (progress * totalLines) - i;
             int charsToShow = static_cast<int>(lineProgress * line.length());
 
             if (charsToShow > 0) {
                 std::string visiblePart = line.substr(0, charsToShow);
                 ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "%s", visiblePart.c_str());
             }
-
-            // Don't render the invisible part to avoid alignment issues
+            else {
+                // Render empty space to maintain layout
+                ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.0f, 0.0f), " ");
+            }
         }
         else {
-            // Line not yet started - don't render anything (completely invisible)
-            // This maintains the vertical spacing
+            // Line not yet started - render as invisible to maintain spacing
             ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.0f, 0.0f), " ");
         }
+
+        // Add a dummy item to properly extend the window boundaries
+        if (i == totalLines - 1) {
+            ImGui::Dummy(ImVec2(0, 0));
+        }
     }
-
-    // Add bottom padding and progress bar
-    ImGui::SetCursorPosY(windowHeight * 0.82f);
-
-    // Progress bar - make it bigger too
-    float progressBarWidth = windowWidth * 0.7f; // Increased from 0.6f
-    float progressBarHeight = 30.0f; // Increased from 25.0f
-    ImGui::SetCursorPosX((windowWidth - progressBarWidth) * 0.5f);
-
-    // Custom progress bar rendering to match ASCII style
-    ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    ImVec2 progressBarMin = ImGui::GetCursorScreenPos();
-    ImVec2 progressBarMax = ImVec2(progressBarMin.x + progressBarWidth, progressBarMin.y + progressBarHeight);
-
-    // Background - dark gray
-    draw_list->AddRectFilled(progressBarMin, progressBarMax, IM_COL32(20, 20, 20, 255));
-
-    // Progress - bright cyan to match text
-    ImVec2 progressMin = progressBarMin;
-    ImVec2 progressMax = ImVec2(progressBarMin.x + progressBarWidth * progress, progressBarMax.y);
-    draw_list->AddRectFilled(progressMin, progressMax, IM_COL32(0, 255, 255, 255));
-
-    // Border - light gray
-    draw_list->AddRect(progressBarMin, progressBarMax, IM_COL32(150, 150, 150, 255));
-
-    // Progress text - bigger and centered
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + progressBarHeight + 15.0f);
-    char progressText[32];
-    snprintf(progressText, sizeof(progressText), "Loading... %d%%", (int)(progress * 100));
-    float textWidth = ImGui::CalcTextSize(progressText).x;
-    ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
-    ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s", progressText);
 
     // Pop the font and style
     ImGui::PopFont();
