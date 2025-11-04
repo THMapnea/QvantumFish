@@ -193,22 +193,15 @@ static void initializeSplashScreen() {
     )";
 
     const char* fragmentShaderSource = R"(
-        #version 330 core
-        out vec4 FragColor;
-        uniform vec3 color;
-        uniform float progress;
-        void main() {
-            // Create a simple animated background for splash
-            vec3 baseColor = vec3(0.0, 0.05, 0.1);
-            vec3 accentColor = vec3(0.0, 0.3, 0.6);
-            
-            // Animated pulse effect
-            float pulse = sin(progress * 10.0) * 0.1 + 0.9;
-            vec3 finalColor = mix(baseColor, accentColor, progress) * pulse;
-            
-            FragColor = vec4(finalColor, 1.0);
-        }
-    )";
+    #version 330 core
+    out vec4 FragColor;
+    uniform vec3 color;
+    uniform float progress;
+    void main() {
+        // Pure black background - no animation effects
+        FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+)";
 
     unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
@@ -263,14 +256,14 @@ static void renderSplashScreen(float time) {
         return;
     }
 
-    // Clear the screen with black background
+    // Clear the screen with pure black background
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Disable depth test for 2D rendering
     glDisable(GL_DEPTH_TEST);
 
-    // Use splash shader for background
+    // Use splash shader for solid black background
     glUseProgram(splashShader);
     glUniform3f(glGetUniformLocation(splashShader, "color"), 0.0f, 0.0f, 0.0f);
     glUniform1f(glGetUniformLocation(splashShader, "progress"), progress);
@@ -292,33 +285,41 @@ static void renderSplashScreen(float time) {
         ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoInputs |
         ImGuiWindowFlags_NoBackground);
 
+    // Set the window background to black
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 1.0f));
+
     // Get ASCII art from splash screen
     const auto& asciiArt = splashScreen.getASCIIArt();
 
-    // Calculate scaling and positioning
-    float scale = 0.7f;
-    if (windowWidth < 1400) scale = 0.5f;
-    if (windowWidth < 1000) scale = 0.3f;
+    // Calculate scaling - make it much bigger
+    float scale = 1.2f; // Increased from 0.7f
+    if (windowWidth >= 1920) scale = 1.5f; // Even bigger for high-res displays
+    if (windowWidth < 1400) scale = 1.0f;
+    if (windowWidth < 1000) scale = 0.8f;
 
     ImGui::SetWindowFontScale(scale);
+
+    // Use a monospace font for proper ASCII art alignment
+    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]); // Use the default font
 
     // Calculate which lines should be fully visible based on progress
     int totalLines = static_cast<int>(asciiArt.size());
     int visibleLines = static_cast<int>(progress * totalLines);
 
-    // Add top padding
-    float startY = windowHeight * 0.1f;
+    // Add less top padding to give more space for bigger text
+    float startY = windowHeight * 0.05f;
     ImGui::SetCursorPosY(startY);
 
     // Render ASCII art with sequential line-by-line animation
     for (int i = 0; i < totalLines; i++) {
         // Center each line
-        float lineWidth = ImGui::CalcTextSize(asciiArt[i].c_str()).x;
+        std::string lineToMeasure = asciiArt[i].empty() ? " " : asciiArt[i];
+        float lineWidth = ImGui::CalcTextSize(lineToMeasure.c_str()).x;
         ImGui::SetCursorPosX((windowWidth - lineWidth) * 0.5f);
 
         if (i < visibleLines) {
-            // Line is fully visible - show in cyan
-            ImGui::TextColored(ImVec4(0.0f, 0.8f, 1.0f, 1.0f), "%s", asciiArt[i].c_str());
+            // Line is fully visible - show in bright cyan
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "%s", asciiArt[i].c_str());
         }
         else if (i == visibleLines) {
             // Current line being animated - reveal character by character
@@ -326,28 +327,26 @@ static void renderSplashScreen(float time) {
             float lineProgress = (progress * totalLines) - i; // Progress within current line (0.0 to 1.0)
             int charsToShow = static_cast<int>(lineProgress * line.length());
 
-            std::string visiblePart = line.substr(0, charsToShow);
-            std::string invisiblePart = std::string(line.length() - charsToShow, ' ');
-
-            ImGui::TextColored(ImVec4(0.0f, 0.8f, 1.0f, 1.0f), "%s", visiblePart.c_str());
-            // Move to next line position for the remaining space
-            if (charsToShow < line.length()) {
-                ImGui::SameLine();
-                ImGui::TextColored(ImVec4(0.3f, 0.3f, 0.3f, 1.0f), "%s", invisiblePart.c_str());
+            if (charsToShow > 0) {
+                std::string visiblePart = line.substr(0, charsToShow);
+                ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "%s", visiblePart.c_str());
             }
+
+            // Don't render the invisible part to avoid alignment issues
         }
         else {
-            // Line not yet started - show as empty space (invisible)
-            ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.0f, 0.0f), "%s", asciiArt[i].c_str());
+            // Line not yet started - don't render anything (completely invisible)
+            // This maintains the vertical spacing
+            ImGui::TextColored(ImVec4(0.0f, 0.0f, 0.0f, 0.0f), " ");
         }
     }
 
     // Add bottom padding and progress bar
-    ImGui::SetCursorPosY(windowHeight * 0.85f);
+    ImGui::SetCursorPosY(windowHeight * 0.82f);
 
-    // Progress bar
-    float progressBarWidth = windowWidth * 0.6f;
-    float progressBarHeight = 25.0f;
+    // Progress bar - make it bigger too
+    float progressBarWidth = windowWidth * 0.7f; // Increased from 0.6f
+    float progressBarHeight = 30.0f; // Increased from 25.0f
     ImGui::SetCursorPosX((windowWidth - progressBarWidth) * 0.5f);
 
     // Custom progress bar rendering to match ASCII style
@@ -355,27 +354,32 @@ static void renderSplashScreen(float time) {
     ImVec2 progressBarMin = ImGui::GetCursorScreenPos();
     ImVec2 progressBarMax = ImVec2(progressBarMin.x + progressBarWidth, progressBarMin.y + progressBarHeight);
 
-    // Background
-    draw_list->AddRectFilled(progressBarMin, progressBarMax, IM_COL32(30, 30, 30, 255));
+    // Background - dark gray
+    draw_list->AddRectFilled(progressBarMin, progressBarMax, IM_COL32(20, 20, 20, 255));
 
-    // Progress
+    // Progress - bright cyan to match text
     ImVec2 progressMin = progressBarMin;
     ImVec2 progressMax = ImVec2(progressBarMin.x + progressBarWidth * progress, progressBarMax.y);
-    draw_list->AddRectFilled(progressMin, progressMax, IM_COL32(0, 200, 255, 255));
+    draw_list->AddRectFilled(progressMin, progressMax, IM_COL32(0, 255, 255, 255));
 
-    // Border
-    draw_list->AddRect(progressBarMin, progressBarMax, IM_COL32(100, 100, 100, 255));
+    // Border - light gray
+    draw_list->AddRect(progressBarMin, progressBarMax, IM_COL32(150, 150, 150, 255));
 
-    // Progress text
-    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + progressBarHeight + 10.0f);
+    // Progress text - bigger and centered
+    ImGui::SetCursorPosY(ImGui::GetCursorPosY() + progressBarHeight + 15.0f);
     char progressText[32];
     snprintf(progressText, sizeof(progressText), "Loading... %d%%", (int)(progress * 100));
     float textWidth = ImGui::CalcTextSize(progressText).x;
     ImGui::SetCursorPosX((windowWidth - textWidth) * 0.5f);
-    ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "%s", progressText);
+    ImGui::TextColored(ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s", progressText);
+
+    // Pop the font and style
+    ImGui::PopFont();
+    ImGui::PopStyleColor();
 
     ImGui::End();
 }
+
 static void initializeScene() {
     // Create and initialize all quadrants
     topRightQuadrant = new TopRightQuadrant();
