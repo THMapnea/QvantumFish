@@ -135,6 +135,7 @@
     <ClCompile Include="BottomLeftQuadrant.cpp" />
     <ClCompile Include="BottomRightQuadrant.cpp" />
     <ClCompile Include="CoordinatesAxes.cpp" />
+    <ClCompile Include="DivisionLines.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Libraries\include\ImGui\imgui.cpp" />
     <ClCompile Include="Libraries\include\ImGui\imgui_demo.cpp" />
@@ -161,6 +162,7 @@
     <ClInclude Include="BottomLeftQuadrant.h" />
     <ClInclude Include="BottomRightQuadrant.h" />
     <ClInclude Include="CoordinatesAxes.h" />
+    <ClInclude Include="DivisionLines.h" />
     <ClInclude Include="Libraries\include\glad\glad.h" />
     <ClInclude Include="Libraries\include\ImGui\imconfig.h" />
     <ClInclude Include="Libraries\include\ImGui\imgui.h" />
