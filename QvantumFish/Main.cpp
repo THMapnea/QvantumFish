@@ -28,6 +28,7 @@
 #include "BottomLeftQuadrant.h"
 #include "BottomRightQuadrant.h"
 #include "SplashScreen.h"
+#include "DivisionLines.h"  // Include the new DivisionLines class
 
 // Global variables
 TopRightQuadrant* topRightQuadrant = nullptr;
@@ -35,14 +36,10 @@ TopLeftQuadrant* topLeftQuadrant = nullptr;
 BottomLeftQuadrant* bottomLeftQuadrant = nullptr;
 BottomRightQuadrant* bottomRightQuadrant = nullptr;
 SceneController* sceneController = nullptr;
+DivisionLines divisionLines;  // Use DivisionLines class instead of separate variables
 
 // ImGui state
 bool showDemoWindow = false;
-
-// Division lines shader and buffers
-unsigned int divisionLinesVAO = 0;
-unsigned int divisionLinesVBO = 0;
-unsigned int divisionLinesShader = 0;
 
 // Background quad shader and buffers
 unsigned int backgroundVAO = 0;
@@ -386,73 +383,16 @@ static void initializeScene() {
     // Connect the bottom right quadrant to the top right quadrant's qubit
     bottomRightQuadrant->setQubit(&topRightQuadrant->getCurrentQubit());
 
+    // Initialize division lines using the new class
+    if (!divisionLines.initialize()) {
+        std::cerr << "Failed to initialize division lines" << std::endl;
+    }
+
     // Set line width for the entire scene
     glLineWidth(2.0f);
 
     std::cout << "All quadrants initialized successfully." << std::endl;
     std::cout << "Bottom right quadrant connected to top right quadrant's qubit." << std::endl;
-}
-
-static void initializeDivisionLines() {
-    // Division lines vertices in normalized device coordinates
-    float vertices[] = {
-        // Vertical line (center X)
-        0.0f,  1.0f,  // top
-        0.0f, -1.0f,  // bottom
-        // Horizontal line (center Y)
-        -1.0f, 0.0f,  // left
-         1.0f, 0.0f   // right
-    };
-
-    // Create and compile shader
-    const char* vertexShaderSource = R"(
-        #version 330 core
-        layout (location = 0) in vec2 aPos;
-        void main() {
-            gl_Position = vec4(aPos, 0.0, 1.0);
-        }
-    )";
-
-    const char* fragmentShaderSource = R"(
-        #version 330 core
-        out vec4 FragColor;
-        uniform vec3 color;
-        uniform float time;
-        void main() {
-            vec3 glowColor = color;
-            float pulse = sin(time * 2.0) * 0.1 + 0.9;
-            glowColor *= pulse;
-            FragColor = vec4(glowColor, 0.8);
-        }
-    )";
-
-    unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    unsigned int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    divisionLinesShader = glCreateProgram();
-    glAttachShader(divisionLinesShader, vertexShader);
-    glAttachShader(divisionLinesShader, fragmentShader);
-    glLinkProgram(divisionLinesShader);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-
-    // Create VAO and VBO
-    glGenVertexArrays(1, &divisionLinesVAO);
-    glGenBuffers(1, &divisionLinesVBO);
-
-    glBindVertexArray(divisionLinesVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, divisionLinesVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindVertexArray(0);
 }
 
 static void cleanupScene() {
@@ -462,12 +402,8 @@ static void cleanupScene() {
     delete bottomRightQuadrant;
     delete sceneController;
 
-    // Cleanup division lines
-    if (divisionLinesVAO) {
-        glDeleteVertexArrays(1, &divisionLinesVAO);
-        glDeleteBuffers(1, &divisionLinesVBO);
-        glDeleteProgram(divisionLinesShader);
-    }
+    // Cleanup division lines (handled by the class destructor)
+    divisionLines.cleanup();
 
     // Cleanup background quad
     if (backgroundVAO) {
@@ -485,34 +421,10 @@ static void cleanupScene() {
 }
 
 static void renderDivisionLines(float time) {
-    if (divisionLinesShader == 0 || windowMinimized) return;
+    if (windowMinimized) return;
 
-    // Save current state
-    GLint prevViewport[4];
-    glGetIntegerv(GL_VIEWPORT, prevViewport);
-    GLboolean prevDepthTest = glIsEnabled(GL_DEPTH_TEST);
-    GLint prevProgram;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &prevProgram);
-
-    // Set up for 2D rendering (full screen)
-    glDisable(GL_DEPTH_TEST);
-    glViewport(0, 0, windowWidth, windowHeight);
-
-    // Use division lines shader
-    glUseProgram(divisionLinesShader);
-    glUniform3f(glGetUniformLocation(divisionLinesShader, "color"), 0.0f, 0.7f, 0.9f);
-    glUniform1f(glGetUniformLocation(divisionLinesShader, "time"), time);
-
-    // Render lines
-    glLineWidth(2.0f);
-    glBindVertexArray(divisionLinesVAO);
-    glDrawArrays(GL_LINES, 0, 4);
-    glLineWidth(1.0f);
-
-    // Restore state
-    if (prevDepthTest) glEnable(GL_DEPTH_TEST);
-    glViewport(prevViewport[0], prevViewport[1], prevViewport[2], prevViewport[3]);
-    glUseProgram(prevProgram);
+    // Use the DivisionLines class to render
+    divisionLines.render(time, windowWidth, windowHeight);
 }
 
 static void renderTopLeftQuadrant() {
@@ -709,7 +621,6 @@ int main() {
 
     // Initialize the scene components
     initializeBackgroundQuad();
-    initializeDivisionLines();
     initializeSplashScreen(); // Initialize splash screen first
 
     // Main application loop
