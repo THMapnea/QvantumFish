@@ -27,12 +27,19 @@ private:
     bool inputActive;
     size_t cursorColumn;  // Current cursor position within line
 
+    // Mouse state
+    bool mouseClicked;
+    float lineHeight;
+
     void renderTextEditor();
     void handleInput();
     void handleCharacterInput(unsigned int c);
     void handleSpecialKeys();
     void handleNavigationKeys();
     void handleCtrlCombinations();
+    void handleMouseInput();
+    int getLineFromMousePos(float mouseY);
+    size_t getColumnFromMousePos(int line, float mouseX);
 };
 
 #endif

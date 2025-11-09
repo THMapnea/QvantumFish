@@ -11,7 +11,9 @@ TopLeftQuadrant::TopLeftQuadrant()
     scrollPosition(0),
     textModified(false),
     inputActive(false),
-    cursorColumn(0) {
+    cursorColumn(0),
+    mouseClicked(false),
+    lineHeight(0.0f) {
 
     // Initialize with editor name
     textLines.push_back("QVantumFishEditor");
@@ -94,8 +96,12 @@ void TopLeftQuadrant::renderTextEditor() {
     ImGui::BeginChild("TextArea", ImVec2(0, textAreaHeight), true,
         ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
-    // Handle keyboard input for text editing
+    // Calculate line height for mouse positioning
+    lineHeight = ImGui::GetTextLineHeight();
+
+    // Handle keyboard and mouse input for text editing
     handleInput();
+    handleMouseInput();
 
     // Display line numbers if enabled
     float lineNumberWidth = showLineNumbers ? 50.0f : 0.0f;
@@ -221,6 +227,90 @@ void TopLeftQuadrant::handleInput() {
 
     // Handle Ctrl combinations
     handleCtrlCombinations();
+}
+
+void TopLeftQuadrant::handleMouseInput() {
+    ImGuiIO& io = ImGui::GetIO();
+
+    // Get the text content area position and size
+    ImVec2 textContentPos = ImGui::GetCursorScreenPos(); // Position of text content area
+    ImVec2 textContentSize = ImGui::GetContentRegionAvail(); // Size of text content area
+
+    // Check if mouse is within the text content area
+    bool isMouseInTextArea = io.MousePos.x >= textContentPos.x &&
+        io.MousePos.x <= textContentPos.x + textContentSize.x &&
+        io.MousePos.y >= textContentPos.y &&
+        io.MousePos.y <= textContentPos.y + textContentSize.y;
+
+    if (isMouseInTextArea) {
+        // Handle left mouse click
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+            // Calculate relative mouse position within text content area
+            float relativeMouseY = io.MousePos.y - textContentPos.y;
+            float relativeMouseX = io.MousePos.x - textContentPos.x;
+
+            // Get line and column from mouse position
+            int newLine = getLineFromMousePos(relativeMouseY);
+            size_t newColumn = getColumnFromMousePos(newLine, relativeMouseX);
+
+            // Update cursor position
+            if (newLine >= 0 && newLine < (int)textLines.size()) {
+                cursorPosition = newLine;
+                cursorColumn = newColumn;
+                inputActive = true;
+            }
+        }
+
+        // Handle mouse wheel scrolling
+        if (io.MouseWheel != 0.0f) {
+            // You can implement scroll functionality here if needed
+            // For now, we'll rely on ImGui's built-in scrolling
+        }
+    }
+}
+
+int TopLeftQuadrant::getLineFromMousePos(float mouseY) {
+    if (lineHeight <= 0) return cursorPosition;
+
+    int line = static_cast<int>(mouseY / lineHeight);
+
+    // Clamp line to valid range
+    if (line < 0) return 0;
+    if (line >= (int)textLines.size()) return (int)textLines.size() - 1;
+
+    return line;
+}
+
+size_t TopLeftQuadrant::getColumnFromMousePos(int line, float mouseX) {
+    if (line < 0 || line >= (int)textLines.size()) {
+        return 0;
+    }
+
+    const std::string& currentLine = textLines[line];
+
+    // If the line is empty, cursor goes to position 0
+    if (currentLine.empty()) {
+        return 0;
+    }
+
+    // Find the closest character position based on text width
+    float accumulatedWidth = 0.0f;
+    size_t closestColumn = 0;
+    float minDistance = std::numeric_limits<float>::max();
+
+    // Check each character position
+    for (size_t i = 0; i <= currentLine.length(); i++) {
+        std::string substring = currentLine.substr(0, i);
+        float width = ImGui::CalcTextSize(substring.c_str()).x;
+
+        float distance = std::abs(mouseX - width);
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestColumn = i;
+        }
+    }
+
+    return closestColumn;
 }
 
 void TopLeftQuadrant::handleCharacterInput(unsigned int c) {
