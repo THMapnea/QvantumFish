@@ -2,26 +2,34 @@
 #define TOP_LEFT_QUADRANT_H
 
 #include <glm/glm.hpp>
+#include <string>
+#include <vector>
 
 class TopLeftQuadrant {
-private:
-    glm::vec3 backgroundColor;
-
 public:
     TopLeftQuadrant();
     ~TopLeftQuadrant();
-    
-    // Initialization
+
     void initialize();
-    
-    // Rendering
     void render(int viewportX, int viewportY, int viewportWidth, int viewportHeight);
-    
-    // Getters
+
     glm::vec3 getBackgroundColor() const { return backgroundColor; }
-    
-    // Setters
-    void setBackgroundColor(const glm::vec3& color) { backgroundColor = color; }
+
+private:
+    glm::vec3 backgroundColor;
+
+    // Text editor state
+    std::vector<std::string> textLines;
+    bool showLineNumbers;
+    int cursorPosition;
+    int scrollPosition;
+    char inputBuffer[1024];
+    bool textModified;
+    bool inputActive;
+
+    void renderTextEditor();
+    void handleInput();
+    void updateCurrentLine();
 };
 
-#endif // TOP_LEFT_QUADRANT_H
+#endif
