@@ -10,12 +10,10 @@ TopLeftQuadrant::TopLeftQuadrant()
     cursorPosition(0),
     scrollPosition(0),
     textModified(false),
-    inputActive(false) {
+    inputActive(false),
+    cursorColumn(0) {
 
-    // Initialize input buffer
-    inputBuffer[0] = '\0';
-
-    // Initialize with just the editor name
+    // Initialize with editor name
     textLines.push_back("QVantumFishEditor");
 }
 
@@ -24,7 +22,7 @@ TopLeftQuadrant::~TopLeftQuadrant() {
 }
 
 void TopLeftQuadrant::initialize() {
-    std::cout << "TopLeftQuadrant initialized with VS Code style text editor." << std::endl;
+    std::cout << "TopLeftQuadrant initialized with direct text editing." << std::endl;
 }
 
 void TopLeftQuadrant::render(int viewportX, int viewportY, int viewportWidth, int viewportHeight) {
@@ -41,13 +39,6 @@ void TopLeftQuadrant::render(int viewportX, int viewportY, int viewportWidth, in
 
     // Render the text editor using ImGui
     renderTextEditor();
-}
-
-void TopLeftQuadrant::updateCurrentLine() {
-    if (cursorPosition >= 0 && cursorPosition < (int)textLines.size() && textModified) {
-        textLines[cursorPosition] = inputBuffer;
-        textModified = false;
-    }
 }
 
 void TopLeftQuadrant::renderTextEditor() {
@@ -67,15 +58,15 @@ void TopLeftQuadrant::renderTextEditor() {
         ImGuiWindowFlags_NoCollapse |
         ImGuiWindowFlags_MenuBar);
 
-    // Menu bar - simplified to match application style
+    // Menu bar
     if (ImGui::BeginMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("New", "Ctrl+N")) {
                 textLines.clear();
                 textLines.push_back("");
                 cursorPosition = 0;
+                cursorColumn = 0;
                 textModified = false;
-                inputBuffer[0] = '\0';
             }
             if (ImGui::MenuItem("Save", "Ctrl+S")) {
                 std::cout << "Save functionality placeholder" << std::endl;
@@ -93,7 +84,7 @@ void TopLeftQuadrant::renderTextEditor() {
     // Text editor area with application-consistent styling
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.06f, 0.06f, 0.06f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 1.0f, 1.0f)); // Cyan text to match app theme
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 1.0f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, ImVec4(0.08f, 0.08f, 0.08f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_ScrollbarGrab, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
 
@@ -103,7 +94,7 @@ void TopLeftQuadrant::renderTextEditor() {
     ImGui::BeginChild("TextArea", ImVec2(0, textAreaHeight), true,
         ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
-    // Handle keyboard input
+    // Handle keyboard input for text editing
     handleInput();
 
     // Display line numbers if enabled
@@ -117,7 +108,14 @@ void TopLeftQuadrant::renderTextEditor() {
             std::string lineNum = std::to_string(i + 1);
             float textWidth = ImGui::CalcTextSize(lineNum.c_str()).x;
             ImGui::SetCursorPosX(lineNumberWidth - textWidth - 8);
-            ImGui::Text("%s", lineNum.c_str());
+
+            // Highlight current line number
+            if (i == (size_t)cursorPosition) {
+                ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "%s", lineNum.c_str());
+            }
+            else {
+                ImGui::Text("%s", lineNum.c_str());
+            }
         }
 
         ImGui::PopStyleColor();
@@ -136,74 +134,46 @@ void TopLeftQuadrant::renderTextEditor() {
 
     // Display all text lines
     for (size_t i = 0; i < textLines.size(); i++) {
-        // Highlight current line
+        // Highlight current line background
         if (i == (size_t)cursorPosition) {
             ImVec2 lineStart = ImGui::GetCursorScreenPos();
             ImVec2 lineEnd = ImVec2(lineStart.x + ImGui::GetWindowWidth(), lineStart.y + ImGui::GetTextLineHeight());
             ImGui::GetWindowDrawList()->AddRectFilled(lineStart, lineEnd, ImGui::GetColorU32(ImVec4(0.15f, 0.15f, 0.15f, 1.0f)));
         }
 
-        // Display the line
+        // Display the line text
         ImGui::TextUnformatted(textLines[i].c_str());
 
         // Draw cursor for current line
         if (i == (size_t)cursorPosition && inputActive) {
+            // Ensure cursor column is within bounds
+            if (cursorColumn > textLines[i].length()) {
+                cursorColumn = textLines[i].length();
+            }
+
+            // Calculate cursor position based on text width
+            std::string textBeforeCursor = textLines[i].substr(0, cursorColumn);
+            float textWidth = ImGui::CalcTextSize(textBeforeCursor.c_str()).x;
+
             ImVec2 cursorPos = ImGui::GetCursorScreenPos();
             cursorPos.y -= ImGui::GetTextLineHeight();
-            float cursorX = cursorPos.x + ImGui::CalcTextSize(textLines[i].c_str()).x;
+            cursorPos.x += textWidth - ImGui::GetScrollX();
+
             ImGui::GetWindowDrawList()->AddLine(
-                ImVec2(cursorX, cursorPos.y),
-                ImVec2(cursorX, cursorPos.y + ImGui::GetTextLineHeight()),
-                ImGui::GetColorU32(ImVec4(0.0f, 1.0f, 1.0f, 1.0f)), // Cyan cursor
+                ImVec2(cursorPos.x, cursorPos.y),
+                ImVec2(cursorPos.x, cursorPos.y + ImGui::GetTextLineHeight()),
+                ImGui::GetColorU32(ImVec4(0.0f, 1.0f, 1.0f, 1.0f)),
                 2.0f
             );
         }
-    }
-
-    // Input box for editing current line - SIMPLIFIED APPROACH
-    if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
-        // Only update buffer if we're not currently editing
-        if (!inputActive) {
-            strncpy_s(inputBuffer, textLines[cursorPosition].c_str(), sizeof(inputBuffer) - 1);
-            inputBuffer[sizeof(inputBuffer) - 1] = '\0';
-        }
-
-        ImGui::SetKeyboardFocusHere();
-        ImGui::PushItemWidth(-1);
-
-        // Track if input is active
-        bool enterPressed = ImGui::InputText("##TextInput", inputBuffer, sizeof(inputBuffer),
-            ImGuiInputTextFlags_EnterReturnsTrue);
-
-        inputActive = ImGui::IsItemActive();
-
-        if (enterPressed) {
-            // Update the line and move to next line
-            updateCurrentLine();
-            if (cursorPosition < (int)textLines.size() - 1) {
-                cursorPosition++;
-            }
-            else {
-                textLines.push_back("");
-                cursorPosition++;
-            }
-            inputActive = false;
-        }
-        else if (inputActive) {
-            // Real-time updates while typing
-            textLines[cursorPosition] = inputBuffer;
-            textModified = true;
-        }
-
-        ImGui::PopItemWidth();
     }
 
     ImGui::EndChild();
     ImGui::EndChild();
 
     // Status bar
-    ImGui::PopStyleColor(5); // Pop text area colors
-    ImGui::PopStyleColor(3); // Pop window colors
+    ImGui::PopStyleColor(5);
+    ImGui::PopStyleColor(3);
 
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
     ImGui::BeginChild("StatusBar", ImVec2(0, 25), false);
@@ -215,7 +185,7 @@ void TopLeftQuadrant::renderTextEditor() {
 
     ImGui::SameLine();
     ImGui::SetCursorPosX(100);
-    ImGui::Text("Ln %d", cursorPosition + 1);
+    ImGui::Text("Ln %d, Col %zu", cursorPosition + 1, cursorColumn + 1);
 
     ImGui::SameLine();
     if (textModified) {
@@ -232,55 +202,159 @@ void TopLeftQuadrant::renderTextEditor() {
 void TopLeftQuadrant::handleInput() {
     ImGuiIO& io = ImGui::GetIO();
 
-    // Only handle navigation keys when not actively typing
-    if (!inputActive) {
-        if (ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
-            updateCurrentLine();
-            cursorPosition++;
-            if (cursorPosition >= (int)textLines.size()) {
-                cursorPosition = (int)textLines.size() - 1;
-            }
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
-            updateCurrentLine();
-            cursorPosition--;
-            if (cursorPosition < 0) {
-                cursorPosition = 0;
-            }
-        }
-        else if ((ImGui::IsKeyPressed(ImGuiKey_Enter) || ImGui::IsKeyPressed(ImGuiKey_KeypadEnter)) && !inputActive) {
-            updateCurrentLine();
-            // Insert new line at current position
-            textLines.insert(textLines.begin() + cursorPosition + 1, "");
-            cursorPosition++;
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_Backspace) && !inputActive) {
-            if (cursorPosition > 0 && textLines.size() > 1) {
-                textLines.erase(textLines.begin() + cursorPosition);
-                cursorPosition--;
-                if (cursorPosition < 0) cursorPosition = 0;
-            }
-        }
-        else if (ImGui::IsKeyPressed(ImGuiKey_Tab) && !inputActive) {
-            if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
-                textLines[cursorPosition] = "    " + textLines[cursorPosition];
+    // Set input as active when the text area is focused
+    inputActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
+
+    if (!inputActive) return;
+
+    // Handle character input
+    for (int i = 0; i < io.InputQueueCharacters.Size; i++) {
+        unsigned int c = io.InputQueueCharacters[i];
+        handleCharacterInput(c);
+    }
+
+    // Handle special keys
+    handleSpecialKeys();
+
+    // Handle navigation keys
+    handleNavigationKeys();
+
+    // Handle Ctrl combinations
+    handleCtrlCombinations();
+}
+
+void TopLeftQuadrant::handleCharacterInput(unsigned int c) {
+    if (c > 0 && c < 256 && c != 13) { // Skip Enter key (handled separately)
+        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
+            // Insert character at cursor position
+            std::string& line = textLines[cursorPosition];
+            if (cursorColumn <= line.length()) {
+                line.insert(cursorColumn, 1, (char)c);
+                cursorColumn++;
                 textModified = true;
             }
         }
     }
+}
 
-    // Handle Ctrl combinations (work regardless of input state)
+void TopLeftQuadrant::handleSpecialKeys() {
+    if (ImGui::IsKeyPressed(ImGuiKey_Backspace)) {
+        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
+            std::string& line = textLines[cursorPosition];
+            if (cursorColumn > 0 && !line.empty()) {
+                line.erase(cursorColumn - 1, 1);
+                cursorColumn--;
+                textModified = true;
+            }
+            else if (cursorColumn == 0 && cursorPosition > 0) {
+                // Merge with previous line
+                std::string& prevLine = textLines[cursorPosition - 1];
+                size_t prevLineLength = prevLine.length();
+                prevLine += line;
+                textLines.erase(textLines.begin() + cursorPosition);
+                cursorPosition--;
+                cursorColumn = prevLineLength;
+                textModified = true;
+            }
+        }
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_Enter) || ImGui::IsKeyPressed(ImGuiKey_KeypadEnter)) {
+        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
+            std::string& currentLine = textLines[cursorPosition];
+            std::string newLine = currentLine.substr(cursorColumn);
+            currentLine = currentLine.substr(0, cursorColumn);
+
+            textLines.insert(textLines.begin() + cursorPosition + 1, newLine);
+            cursorPosition++;
+            cursorColumn = 0;
+            textModified = true;
+        }
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_Tab)) {
+        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
+            textLines[cursorPosition].insert(cursorColumn, "    ");
+            cursorColumn += 4;
+            textModified = true;
+        }
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
+        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
+            std::string& line = textLines[cursorPosition];
+            if (cursorColumn < line.length()) {
+                line.erase(cursorColumn, 1);
+                textModified = true;
+            }
+            else if (cursorPosition < (int)textLines.size() - 1) {
+                // Merge with next line
+                line += textLines[cursorPosition + 1];
+                textLines.erase(textLines.begin() + cursorPosition + 1);
+                textModified = true;
+            }
+        }
+    }
+}
+
+void TopLeftQuadrant::handleNavigationKeys() {
+    if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow)) {
+        if (cursorColumn > 0) {
+            cursorColumn--;
+        }
+        else if (cursorPosition > 0) {
+            cursorPosition--;
+            cursorColumn = textLines[cursorPosition].length();
+        }
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
+        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
+            if (cursorColumn < textLines[cursorPosition].length()) {
+                cursorColumn++;
+            }
+            else if (cursorPosition < (int)textLines.size() - 1) {
+                cursorPosition++;
+                cursorColumn = 0;
+            }
+        }
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
+        if (cursorPosition < (int)textLines.size() - 1) {
+            cursorPosition++;
+            // Keep cursor column within bounds of new line
+            if (cursorColumn > textLines[cursorPosition].length()) {
+                cursorColumn = textLines[cursorPosition].length();
+            }
+        }
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
+        if (cursorPosition > 0) {
+            cursorPosition--;
+            // Keep cursor column within bounds of new line
+            if (cursorColumn > textLines[cursorPosition].length()) {
+                cursorColumn = textLines[cursorPosition].length();
+            }
+        }
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_Home)) {
+        cursorColumn = 0;
+    }
+    else if (ImGui::IsKeyPressed(ImGuiKey_End)) {
+        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
+            cursorColumn = textLines[cursorPosition].length();
+        }
+    }
+}
+
+void TopLeftQuadrant::handleCtrlCombinations() {
+    ImGuiIO& io = ImGui::GetIO();
+
     if (io.KeyCtrl) {
         if (ImGui::IsKeyPressed(ImGuiKey_N)) {
             textLines.clear();
             textLines.push_back("");
             cursorPosition = 0;
+            cursorColumn = 0;
             textModified = false;
-            inputBuffer[0] = '\0';
-            inputActive = false;
         }
         else if (ImGui::IsKeyPressed(ImGuiKey_S)) {
-            updateCurrentLine();
             std::cout << "Save placeholder - Content has " << textLines.size() << " lines" << std::endl;
             textModified = false;
         }

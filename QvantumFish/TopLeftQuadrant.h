@@ -23,13 +23,16 @@ private:
     bool showLineNumbers;
     int cursorPosition;
     int scrollPosition;
-    char inputBuffer[1024];
     bool textModified;
     bool inputActive;
+    size_t cursorColumn;  // Current cursor position within line
 
     void renderTextEditor();
     void handleInput();
-    void updateCurrentLine();
+    void handleCharacterInput(unsigned int c);
+    void handleSpecialKeys();
+    void handleNavigationKeys();
+    void handleCtrlCombinations();
 };
 
 #endif
