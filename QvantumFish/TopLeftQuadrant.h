@@ -8,7 +8,7 @@
 class TopLeftQuadrant {
 public:
     TopLeftQuadrant();
-    ~TopLeftQuadrant();
+    ~TopLeftQuadrant() = default;
 
     void initialize();
     void render(int viewportX, int viewportY, int viewportWidth, int viewportHeight);
@@ -22,14 +22,9 @@ private:
     std::vector<std::string> textLines;
     bool showLineNumbers;
     int cursorPosition;
-    int scrollPosition;
     bool textModified;
     bool inputActive;
-    size_t cursorColumn;  // Current cursor position within line
-
-    // Mouse state
-    bool mouseClicked;
-    float lineHeight;
+    size_t cursorColumn;
 
     void renderTextEditor();
     void handleInput();
@@ -37,9 +32,11 @@ private:
     void handleSpecialKeys();
     void handleNavigationKeys();
     void handleCtrlCombinations();
-    void handleMouseInput();
-    int getLineFromMousePos(float mouseY);
-    size_t getColumnFromMousePos(int line, float mouseX);
+
+    // Helper methods
+    void ensureCursorInBounds();
+    void insertNewLine();
+    void deleteCharacter(bool isBackspace);
 };
 
 #endif

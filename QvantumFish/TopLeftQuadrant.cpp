@@ -8,47 +8,39 @@ TopLeftQuadrant::TopLeftQuadrant()
     : backgroundColor(glm::vec3(0.12f, 0.12f, 0.12f)),
     showLineNumbers(true),
     cursorPosition(0),
-    scrollPosition(0),
     textModified(false),
     inputActive(false),
-    cursorColumn(0),
-    mouseClicked(false),
-    lineHeight(0.0f) {
+    cursorColumn(0) {
 
-    // Initialize with editor name
     textLines.push_back("QVantumFishEditor");
-}
-
-TopLeftQuadrant::~TopLeftQuadrant() {
-    // Cleanup if needed
+    textLines.push_back("// Welcome to your code editor");
+    textLines.push_back("// Start typing your code here...");
 }
 
 void TopLeftQuadrant::initialize() {
-    std::cout << "TopLeftQuadrant initialized with direct text editing." << std::endl;
+    std::cout << "TopLeftQuadrant initialized with text editor functionality." << std::endl;
 }
 
 void TopLeftQuadrant::render(int viewportX, int viewportY, int viewportWidth, int viewportHeight) {
-    // Skip rendering if viewport dimensions are invalid
     if (viewportWidth <= 0 || viewportHeight <= 0) {
         return;
     }
 
-    // Set up viewport for this quadrant
     glViewport(viewportX, viewportY, viewportWidth, viewportHeight);
-
-    // Clear only depth buffer for this quadrant
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    // Render the text editor using ImGui
     renderTextEditor();
 }
 
 void TopLeftQuadrant::renderTextEditor() {
-    // Set up the text editor window to fill the entire quadrant
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x / 2, ImGui::GetIO().DisplaySize.y / 2));
+    const ImGuiIO& io = ImGui::GetIO();
+    const float displayWidth = io.DisplaySize.x;
+    const float displayHeight = io.DisplaySize.y;
 
-    // Use the same dark theme as the rest of the application
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(ImVec2(displayWidth / 2, displayHeight / 2));
+
+    // Dark theme styling
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.08f, 0.08f, 0.08f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_MenuBarBg, ImVec4(0.12f, 0.12f, 0.12f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
@@ -83,36 +75,30 @@ void TopLeftQuadrant::renderTextEditor() {
         ImGui::EndMenuBar();
     }
 
-    // Text editor area with application-consistent styling
+    // Text editor area styling
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.06f, 0.06f, 0.06f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 1.0f, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f)); // Better contrast
     ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, ImVec4(0.08f, 0.08f, 0.08f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_ScrollbarGrab, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
 
-    float textAreaHeight = ImGui::GetContentRegionAvail().y - 25;
-    if (textAreaHeight < 100) textAreaHeight = 100;
-
+    const float textAreaHeight = std::max(ImGui::GetContentRegionAvail().y - 25.0f, 100.0f);
     ImGui::BeginChild("TextArea", ImVec2(0, textAreaHeight), true,
         ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
-    // Calculate line height for mouse positioning
-    lineHeight = ImGui::GetTextLineHeight();
-
-    // Display line numbers if enabled
-    float lineNumberWidth = showLineNumbers ? 50.0f : 0.0f;
+    // Line numbers panel
+    const float lineNumberWidth = showLineNumbers ? 50.0f : 0.0f;
 
     if (showLineNumbers) {
         ImGui::BeginChild("LineNumbers", ImVec2(lineNumberWidth, 0), false);
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 
-        for (size_t i = 0; i < textLines.size(); i++) {
-            std::string lineNum = std::to_string(i + 1);
-            float textWidth = ImGui::CalcTextSize(lineNum.c_str()).x;
-            ImGui::SetCursorPosX(lineNumberWidth - textWidth - 8);
+        for (size_t i = 0; i < textLines.size(); ++i) {
+            const std::string lineNum = std::to_string(i + 1);
+            const float textWidth = ImGui::CalcTextSize(lineNum.c_str()).x;
+            ImGui::SetCursorPosX(lineNumberWidth - textWidth - 8.0f);
 
-            // Highlight current line number
-            if (i == (size_t)cursorPosition) {
+            if (i == static_cast<size_t>(cursorPosition)) {
                 ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "%s", lineNum.c_str());
             }
             else {
@@ -125,45 +111,42 @@ void TopLeftQuadrant::renderTextEditor() {
         ImGui::SameLine();
 
         // Separator line
-        ImVec2 separatorStart = ImGui::GetCursorScreenPos();
-        ImVec2 separatorEnd = ImVec2(separatorStart.x, separatorStart.y + ImGui::GetWindowHeight());
-        ImGui::GetWindowDrawList()->AddLine(separatorStart, separatorEnd, ImGui::GetColorU32(ImVec4(0.3f, 0.3f, 0.3f, 1.0f)), 1.0f);
-        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 8);
+        const ImVec2 separatorStart = ImGui::GetCursorScreenPos();
+        const ImVec2 separatorEnd = ImVec2(separatorStart.x, separatorStart.y + ImGui::GetWindowHeight());
+        ImGui::GetWindowDrawList()->AddLine(separatorStart, separatorEnd,
+            ImGui::GetColorU32(ImVec4(0.3f, 0.3f, 0.3f, 1.0f)), 1.0f);
+        ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 8.0f);
     }
 
     // Text content area
     ImGui::BeginChild("TextContent", ImVec2(0, 0), false);
-
-    // Handle keyboard and mouse input for text editing
     handleInput();
-    handleMouseInput();
 
-    // Display all text lines
-    for (size_t i = 0; i < textLines.size(); i++) {
+    // Display text lines with syntax highlighting and cursor
+    for (size_t i = 0; i < textLines.size(); ++i) {
         // Highlight current line background
-        if (i == (size_t)cursorPosition) {
-            ImVec2 lineStart = ImGui::GetCursorScreenPos();
-            ImVec2 lineEnd = ImVec2(lineStart.x + ImGui::GetWindowWidth(), lineStart.y + ImGui::GetTextLineHeight());
-            ImGui::GetWindowDrawList()->AddRectFilled(lineStart, lineEnd, ImGui::GetColorU32(ImVec4(0.15f, 0.15f, 0.15f, 1.0f)));
+        if (i == static_cast<size_t>(cursorPosition)) {
+            const ImVec2 lineStart = ImGui::GetCursorScreenPos();
+            const ImVec2 lineEnd = ImVec2(lineStart.x + ImGui::GetWindowWidth(),
+                lineStart.y + ImGui::GetTextLineHeight());
+            ImGui::GetWindowDrawList()->AddRectFilled(lineStart, lineEnd,
+                ImGui::GetColorU32(ImVec4(0.15f, 0.15f, 0.15f, 1.0f)));
         }
 
-        // Display the line text
+        // Display line text
         ImGui::TextUnformatted(textLines[i].c_str());
 
         // Draw cursor for current line
-        if (i == (size_t)cursorPosition && inputActive) {
-            // Ensure cursor column is within bounds
-            if (cursorColumn > textLines[i].length()) {
-                cursorColumn = textLines[i].length();
-            }
+        if (i == static_cast<size_t>(cursorPosition) && inputActive) {
+            ensureCursorInBounds();
 
-            // Calculate cursor position based on text width
-            std::string textBeforeCursor = textLines[i].substr(0, cursorColumn);
-            float textWidth = ImGui::CalcTextSize(textBeforeCursor.c_str()).x;
+            const std::string textBeforeCursor = textLines[i].substr(0, cursorColumn);
+            const float textWidth = ImGui::CalcTextSize(textBeforeCursor.c_str()).x;
 
-            ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-            cursorPos.y -= ImGui::GetTextLineHeight();
-            cursorPos.x += textWidth - ImGui::GetScrollX();
+            const ImVec2 cursorPos = ImVec2(
+                ImGui::GetCursorScreenPos().x + textWidth - ImGui::GetScrollX(),
+                ImGui::GetCursorScreenPos().y - ImGui::GetTextLineHeight()
+            );
 
             ImGui::GetWindowDrawList()->AddLine(
                 ImVec2(cursorPos.x, cursorPos.y),
@@ -176,21 +159,20 @@ void TopLeftQuadrant::renderTextEditor() {
 
     ImGui::EndChild();
     ImGui::EndChild();
+    ImGui::PopStyleColor(5); // Text area colors
+    ImGui::PopStyleColor(3); // Window colors
 
     // Status bar
-    ImGui::PopStyleColor(5);
-    ImGui::PopStyleColor(3);
-
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
     ImGui::BeginChild("StatusBar", ImVec2(0, 25), false);
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.7f, 0.7f, 1.0f));
-    ImGui::SetCursorPosY(5);
-    ImGui::SetCursorPosX(10);
+    ImGui::SetCursorPosY(5.0f);
+    ImGui::SetCursorPosX(10.0f);
     ImGui::Text("Lines: %zu", textLines.size());
 
     ImGui::SameLine();
-    ImGui::SetCursorPosX(100);
+    ImGui::SetCursorPosX(100.0f);
     ImGui::Text("Ln %d, Col %zu", cursorPosition + 1, cursorColumn + 1);
 
     ImGui::SameLine();
@@ -206,115 +188,28 @@ void TopLeftQuadrant::renderTextEditor() {
 }
 
 void TopLeftQuadrant::handleInput() {
-    ImGuiIO& io = ImGui::GetIO();
-
-    // Set input as active when the text area is focused
+    const ImGuiIO& io = ImGui::GetIO();
     inputActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
 
     if (!inputActive) return;
 
     // Handle character input
-    for (int i = 0; i < io.InputQueueCharacters.Size; i++) {
-        unsigned int c = io.InputQueueCharacters[i];
+    for (int i = 0; i < io.InputQueueCharacters.Size; ++i) {
+        const unsigned int c = io.InputQueueCharacters[i];
         handleCharacterInput(c);
     }
 
-    // Handle special keys
     handleSpecialKeys();
-
-    // Handle navigation keys
     handleNavigationKeys();
-
-    // Handle Ctrl combinations
     handleCtrlCombinations();
 }
 
-void TopLeftQuadrant::handleMouseInput() {
-    ImGuiIO& io = ImGui::GetIO();
-
-    // Get the text content area position and size
-    ImVec2 textContentPos = ImGui::GetCursorScreenPos(); // Position of text content area
-    float scrollY = ImGui::GetScrollY(); // Current scroll position
-
-    // Check if mouse is within the text content area
-    bool isMouseInTextArea = ImGui::IsMouseHoveringRect(
-        textContentPos,
-        ImVec2(textContentPos.x + ImGui::GetContentRegionAvail().x,
-            textContentPos.y + ImGui::GetContentRegionAvail().y)
-    );
-
-    if (isMouseInTextArea) {
-        // Handle left mouse click
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            // Calculate relative mouse position within text content area, accounting for scroll
-            float relativeMouseY = io.MousePos.y - textContentPos.y + scrollY;
-            float relativeMouseX = io.MousePos.x - textContentPos.x + ImGui::GetScrollX();
-
-            // Get line and column from mouse position
-            int newLine = getLineFromMousePos(relativeMouseY);
-            size_t newColumn = getColumnFromMousePos(newLine, relativeMouseX);
-
-            // Update cursor position
-            if (newLine >= 0 && newLine < (int)textLines.size()) {
-                cursorPosition = newLine;
-                cursorColumn = newColumn;
-                inputActive = true;
-            }
-        }
-    }
-}
-
-int TopLeftQuadrant::getLineFromMousePos(float mouseY) {
-    if (lineHeight <= 0) return cursorPosition;
-
-    int line = static_cast<int>(mouseY / lineHeight);
-
-    // Clamp line to valid range
-    if (line < 0) return 0;
-    if (line >= (int)textLines.size()) return (int)textLines.size() - 1;
-
-    return line;
-}
-
-size_t TopLeftQuadrant::getColumnFromMousePos(int line, float mouseX) {
-    if (line < 0 || line >= (int)textLines.size()) {
-        return 0;
-    }
-
-    const std::string& currentLine = textLines[line];
-
-    // If the line is empty, cursor goes to position 0
-    if (currentLine.empty()) {
-        return 0;
-    }
-
-    // Find the closest character position based on text width
-    float accumulatedWidth = 0.0f;
-    size_t closestColumn = 0;
-    float minDistance = std::numeric_limits<float>::max();
-
-    // Check each character position
-    for (size_t i = 0; i <= currentLine.length(); i++) {
-        std::string substring = currentLine.substr(0, i);
-        float width = ImGui::CalcTextSize(substring.c_str()).x;
-
-        float distance = std::abs(mouseX - width);
-        if (distance < minDistance) {
-            minDistance = distance;
-            closestColumn = i;
-        }
-    }
-
-    return closestColumn;
-}
-
 void TopLeftQuadrant::handleCharacterInput(unsigned int c) {
-    if (c > 0 && c < 256 && c != 13) { // Skip Enter key (handled separately)
-        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
-            // Insert character at cursor position
+    if (c >= 32 && c < 256 && c != 13) { // Printable characters only, skip Enter
+        if (cursorPosition >= 0 && cursorPosition < static_cast<int>(textLines.size())) {
             std::string& line = textLines[cursorPosition];
             if (cursorColumn <= line.length()) {
-                line.insert(cursorColumn, 1, (char)c);
+                line.insert(cursorColumn, 1, static_cast<char>(c));
                 cursorColumn++;
                 textModified = true;
             }
@@ -324,58 +219,20 @@ void TopLeftQuadrant::handleCharacterInput(unsigned int c) {
 
 void TopLeftQuadrant::handleSpecialKeys() {
     if (ImGui::IsKeyPressed(ImGuiKey_Backspace)) {
-        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
-            std::string& line = textLines[cursorPosition];
-            if (cursorColumn > 0 && !line.empty()) {
-                line.erase(cursorColumn - 1, 1);
-                cursorColumn--;
-                textModified = true;
-            }
-            else if (cursorColumn == 0 && cursorPosition > 0) {
-                // Merge with previous line
-                std::string& prevLine = textLines[cursorPosition - 1];
-                size_t prevLineLength = prevLine.length();
-                prevLine += line;
-                textLines.erase(textLines.begin() + cursorPosition);
-                cursorPosition--;
-                cursorColumn = prevLineLength;
-                textModified = true;
-            }
-        }
+        deleteCharacter(true);
     }
     else if (ImGui::IsKeyPressed(ImGuiKey_Enter) || ImGui::IsKeyPressed(ImGuiKey_KeypadEnter)) {
-        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
-            std::string& currentLine = textLines[cursorPosition];
-            std::string newLine = currentLine.substr(cursorColumn);
-            currentLine = currentLine.substr(0, cursorColumn);
-
-            textLines.insert(textLines.begin() + cursorPosition + 1, newLine);
-            cursorPosition++;
-            cursorColumn = 0;
-            textModified = true;
-        }
+        insertNewLine();
     }
     else if (ImGui::IsKeyPressed(ImGuiKey_Tab)) {
-        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
+        if (cursorPosition >= 0 && cursorPosition < static_cast<int>(textLines.size())) {
             textLines[cursorPosition].insert(cursorColumn, "    ");
             cursorColumn += 4;
             textModified = true;
         }
     }
     else if (ImGui::IsKeyPressed(ImGuiKey_Delete)) {
-        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
-            std::string& line = textLines[cursorPosition];
-            if (cursorColumn < line.length()) {
-                line.erase(cursorColumn, 1);
-                textModified = true;
-            }
-            else if (cursorPosition < (int)textLines.size() - 1) {
-                // Merge with next line
-                line += textLines[cursorPosition + 1];
-                textLines.erase(textLines.begin() + cursorPosition + 1);
-                textModified = true;
-            }
-        }
+        deleteCharacter(false);
     }
 }
 
@@ -390,46 +247,40 @@ void TopLeftQuadrant::handleNavigationKeys() {
         }
     }
     else if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
-        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
+        if (cursorPosition >= 0 && cursorPosition < static_cast<int>(textLines.size())) {
             if (cursorColumn < textLines[cursorPosition].length()) {
                 cursorColumn++;
             }
-            else if (cursorPosition < (int)textLines.size() - 1) {
+            else if (cursorPosition < static_cast<int>(textLines.size()) - 1) {
                 cursorPosition++;
                 cursorColumn = 0;
             }
         }
     }
     else if (ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
-        if (cursorPosition < (int)textLines.size() - 1) {
+        if (cursorPosition < static_cast<int>(textLines.size()) - 1) {
             cursorPosition++;
-            // Keep cursor column within bounds of new line
-            if (cursorColumn > textLines[cursorPosition].length()) {
-                cursorColumn = textLines[cursorPosition].length();
-            }
+            ensureCursorInBounds();
         }
     }
     else if (ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
         if (cursorPosition > 0) {
             cursorPosition--;
-            // Keep cursor column within bounds of new line
-            if (cursorColumn > textLines[cursorPosition].length()) {
-                cursorColumn = textLines[cursorPosition].length();
-            }
+            ensureCursorInBounds();
         }
     }
     else if (ImGui::IsKeyPressed(ImGuiKey_Home)) {
         cursorColumn = 0;
     }
     else if (ImGui::IsKeyPressed(ImGuiKey_End)) {
-        if (cursorPosition >= 0 && cursorPosition < (int)textLines.size()) {
+        if (cursorPosition >= 0 && cursorPosition < static_cast<int>(textLines.size())) {
             cursorColumn = textLines[cursorPosition].length();
         }
     }
 }
 
 void TopLeftQuadrant::handleCtrlCombinations() {
-    ImGuiIO& io = ImGui::GetIO();
+    const ImGuiIO& io = ImGui::GetIO();
 
     if (io.KeyCtrl) {
         if (ImGui::IsKeyPressed(ImGuiKey_N)) {
@@ -442,6 +293,65 @@ void TopLeftQuadrant::handleCtrlCombinations() {
         else if (ImGui::IsKeyPressed(ImGuiKey_S)) {
             std::cout << "Save placeholder - Content has " << textLines.size() << " lines" << std::endl;
             textModified = false;
+        }
+    }
+}
+
+void TopLeftQuadrant::ensureCursorInBounds() {
+    if (cursorPosition >= 0 && cursorPosition < static_cast<int>(textLines.size())) {
+        if (cursorColumn > textLines[cursorPosition].length()) {
+            cursorColumn = textLines[cursorPosition].length();
+        }
+    }
+}
+
+void TopLeftQuadrant::insertNewLine() {
+    if (cursorPosition >= 0 && cursorPosition < static_cast<int>(textLines.size())) {
+        std::string& currentLine = textLines[cursorPosition];
+        const std::string newLine = currentLine.substr(cursorColumn);
+        currentLine = currentLine.substr(0, cursorColumn);
+
+        textLines.insert(textLines.begin() + cursorPosition + 1, newLine);
+        cursorPosition++;
+        cursorColumn = 0;
+        textModified = true;
+    }
+}
+
+void TopLeftQuadrant::deleteCharacter(bool isBackspace) {
+    if (cursorPosition < 0 || cursorPosition >= static_cast<int>(textLines.size())) {
+        return;
+    }
+
+    std::string& line = textLines[cursorPosition];
+
+    if (isBackspace) {
+        if (cursorColumn > 0 && !line.empty()) {
+            line.erase(cursorColumn - 1, 1);
+            cursorColumn--;
+            textModified = true;
+        }
+        else if (cursorColumn == 0 && cursorPosition > 0) {
+            // Merge with previous line
+            std::string& prevLine = textLines[cursorPosition - 1];
+            const size_t prevLineLength = prevLine.length();
+            prevLine += line;
+            textLines.erase(textLines.begin() + cursorPosition);
+            cursorPosition--;
+            cursorColumn = prevLineLength;
+            textModified = true;
+        }
+    }
+    else { // Delete key
+        if (cursorColumn < line.length()) {
+            line.erase(cursorColumn, 1);
+            textModified = true;
+        }
+        else if (cursorPosition < static_cast<int>(textLines.size()) - 1) {
+            // Merge with next line
+            line += textLines[cursorPosition + 1];
+            textLines.erase(textLines.begin() + cursorPosition + 1);
+            textModified = true;
         }
     }
 }
