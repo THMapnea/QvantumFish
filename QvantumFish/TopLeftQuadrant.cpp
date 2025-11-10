@@ -6,12 +6,12 @@
 
 TopLeftQuadrant::TopLeftQuadrant()
     : backgroundColor(glm::vec3(0.12f, 0.12f, 0.12f)),
-    showLineNumbers(true),
-    cursorPosition(0),
-    textModified(false),
-    inputActive(false),
-    cursorColumn(0) {
-
+      showLineNumbers(true),
+      cursorPosition(0),
+      textModified(false),
+      inputActive(false),
+      cursorColumn(0) {
+    
     textLines.push_back("QVantumFishEditor");
     textLines.push_back("// Welcome to your code editor");
     textLines.push_back("// Start typing your code here...");
@@ -78,30 +78,40 @@ void TopLeftQuadrant::renderTextEditor() {
     // Text editor area styling
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.06f, 0.06f, 0.06f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f)); // Better contrast
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.9f, 0.9f, 0.9f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, ImVec4(0.08f, 0.08f, 0.08f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_ScrollbarGrab, ImVec4(0.3f, 0.3f, 0.3f, 1.0f));
 
     const float textAreaHeight = std::max(ImGui::GetContentRegionAvail().y - 25.0f, 100.0f);
+    
+    // MAIN TEXT AREA - Only this should have scrolling
     ImGui::BeginChild("TextArea", ImVec2(0, textAreaHeight), true,
         ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
-    // Line numbers panel
-    const float lineNumberWidth = showLineNumbers ? 50.0f : 0.0f;
+    // Store the scroll position for synchronization
+    static float scrollY = 0.0f;
+    scrollY = ImGui::GetScrollY();
 
+    // Create a horizontal layout for line numbers and text content
+    ImGui::BeginGroup();
+    
+    // Line numbers panel - NO SCROLLING, synchronized with main scroll
     if (showLineNumbers) {
-        ImGui::BeginChild("LineNumbers", ImVec2(lineNumberWidth, 0), false);
+        ImGui::BeginChild("LineNumbers", ImVec2(50, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        
+        // Apply the same scroll manually to line numbers
+        ImGui::SetScrollY(scrollY);
+        
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 
         for (size_t i = 0; i < textLines.size(); ++i) {
             const std::string lineNum = std::to_string(i + 1);
             const float textWidth = ImGui::CalcTextSize(lineNum.c_str()).x;
-            ImGui::SetCursorPosX(lineNumberWidth - textWidth - 8.0f);
+            ImGui::SetCursorPosX(50.0f - textWidth - 8.0f);
 
             if (i == static_cast<size_t>(cursorPosition)) {
                 ImGui::TextColored(ImVec4(0.0f, 1.0f, 1.0f, 1.0f), "%s", lineNum.c_str());
-            }
-            else {
+            } else {
                 ImGui::Text("%s", lineNum.c_str());
             }
         }
@@ -113,13 +123,17 @@ void TopLeftQuadrant::renderTextEditor() {
         // Separator line
         const ImVec2 separatorStart = ImGui::GetCursorScreenPos();
         const ImVec2 separatorEnd = ImVec2(separatorStart.x, separatorStart.y + ImGui::GetWindowHeight());
-        ImGui::GetWindowDrawList()->AddLine(separatorStart, separatorEnd,
-            ImGui::GetColorU32(ImVec4(0.3f, 0.3f, 0.3f, 1.0f)), 1.0f);
+        ImGui::GetWindowDrawList()->AddLine(separatorStart, separatorEnd, 
+                                           ImGui::GetColorU32(ImVec4(0.3f, 0.3f, 0.3f, 1.0f)), 1.0f);
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 8.0f);
     }
 
-    // Text content area
-    ImGui::BeginChild("TextContent", ImVec2(0, 0), false);
+    // Text content area - NO SCROLLING (parent handles scrolling)
+    ImGui::BeginChild("TextContent", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    
+    // Apply the same scroll manually to text content
+    ImGui::SetScrollY(scrollY);
+    
     handleInput();
 
     // Display text lines with syntax highlighting and cursor
@@ -127,10 +141,10 @@ void TopLeftQuadrant::renderTextEditor() {
         // Highlight current line background
         if (i == static_cast<size_t>(cursorPosition)) {
             const ImVec2 lineStart = ImGui::GetCursorScreenPos();
-            const ImVec2 lineEnd = ImVec2(lineStart.x + ImGui::GetWindowWidth(),
-                lineStart.y + ImGui::GetTextLineHeight());
-            ImGui::GetWindowDrawList()->AddRectFilled(lineStart, lineEnd,
-                ImGui::GetColorU32(ImVec4(0.15f, 0.15f, 0.15f, 1.0f)));
+            const ImVec2 lineEnd = ImVec2(lineStart.x + ImGui::GetContentRegionAvail().x, 
+                                         lineStart.y + ImGui::GetTextLineHeight());
+            ImGui::GetWindowDrawList()->AddRectFilled(lineStart, lineEnd, 
+                                                     ImGui::GetColorU32(ImVec4(0.15f, 0.15f, 0.15f, 1.0f)));
         }
 
         // Display line text
@@ -139,7 +153,7 @@ void TopLeftQuadrant::renderTextEditor() {
         // Draw cursor for current line
         if (i == static_cast<size_t>(cursorPosition) && inputActive) {
             ensureCursorInBounds();
-
+            
             const std::string textBeforeCursor = textLines[i].substr(0, cursorColumn);
             const float textWidth = ImGui::CalcTextSize(textBeforeCursor.c_str()).x;
 
@@ -157,14 +171,17 @@ void TopLeftQuadrant::renderTextEditor() {
         }
     }
 
-    ImGui::EndChild();
-    ImGui::EndChild();
+    ImGui::EndChild(); // TextContent
+    ImGui::EndGroup(); // Horizontal layout
+    
+    ImGui::EndChild(); // TextArea (main scrolling area)
+    
     ImGui::PopStyleColor(5); // Text area colors
     ImGui::PopStyleColor(3); // Window colors
 
-    // Status bar
+    // Status bar - NO SCROLLING
     ImGui::PushStyleColor(ImGuiCol_ChildBg, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
-    ImGui::BeginChild("StatusBar", ImVec2(0, 25), false);
+    ImGui::BeginChild("StatusBar", ImVec2(0, 25), false, ImGuiWindowFlags_NoScrollbar);
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.7f, 0.7f, 0.7f, 1.0f));
     ImGui::SetCursorPosY(5.0f);
@@ -341,8 +358,7 @@ void TopLeftQuadrant::deleteCharacter(bool isBackspace) {
             cursorColumn = prevLineLength;
             textModified = true;
         }
-    }
-    else { // Delete key
+    } else { // Delete key
         if (cursorColumn < line.length()) {
             line.erase(cursorColumn, 1);
             textModified = true;

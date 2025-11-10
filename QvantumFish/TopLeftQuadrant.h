@@ -32,7 +32,7 @@ private:
     void handleSpecialKeys();
     void handleNavigationKeys();
     void handleCtrlCombinations();
-
+    
     // Helper methods
     void ensureCursorInBounds();
     void insertNewLine();
