@@ -658,6 +658,17 @@ int main() {
             // Handle qubit state changes from bottom right quadrant controls
             handleQubitStateChanges();
 
+           
+            // Clear the entire window with black background ONCE at the beginning
+            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            // Render the 4 quadrants
+            renderBottomLeftQuadrant();
+            renderBottomRightQuadrant();
+            renderTopLeftQuadrant();
+            renderTopRightQuadrant(time);
+
             // Main control panel window
             ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
             ImGui::SetNextWindowSize(ImVec2(300, 250), ImGuiCond_FirstUseEver);
@@ -732,15 +743,6 @@ int main() {
                 ImGui::ShowDemoWindow(&showDemoWindow);
             }
 
-            // Clear the entire window with black background ONCE at the beginning
-            glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-            // Render the 4 quadrants
-            renderBottomLeftQuadrant();
-            renderBottomRightQuadrant();
-            renderTopLeftQuadrant();
-            renderTopRightQuadrant(time);
 
             // Render division lines (must be done after all viewport rendering)
             renderDivisionLines(time);
