@@ -99,10 +99,6 @@ void TopLeftQuadrant::renderTextEditor() {
     // Calculate line height for mouse positioning
     lineHeight = ImGui::GetTextLineHeight();
 
-    // Handle keyboard and mouse input for text editing
-    handleInput();
-    handleMouseInput();
-
     // Display line numbers if enabled
     float lineNumberWidth = showLineNumbers ? 50.0f : 0.0f;
 
@@ -137,6 +133,10 @@ void TopLeftQuadrant::renderTextEditor() {
 
     // Text content area
     ImGui::BeginChild("TextContent", ImVec2(0, 0), false);
+
+    // Handle keyboard and mouse input for text editing
+    handleInput();
+    handleMouseInput();
 
     // Display all text lines
     for (size_t i = 0; i < textLines.size(); i++) {
@@ -234,20 +234,21 @@ void TopLeftQuadrant::handleMouseInput() {
 
     // Get the text content area position and size
     ImVec2 textContentPos = ImGui::GetCursorScreenPos(); // Position of text content area
-    ImVec2 textContentSize = ImGui::GetContentRegionAvail(); // Size of text content area
+    float scrollY = ImGui::GetScrollY(); // Current scroll position
 
     // Check if mouse is within the text content area
-    bool isMouseInTextArea = io.MousePos.x >= textContentPos.x &&
-        io.MousePos.x <= textContentPos.x + textContentSize.x &&
-        io.MousePos.y >= textContentPos.y &&
-        io.MousePos.y <= textContentPos.y + textContentSize.y;
+    bool isMouseInTextArea = ImGui::IsMouseHoveringRect(
+        textContentPos,
+        ImVec2(textContentPos.x + ImGui::GetContentRegionAvail().x,
+            textContentPos.y + ImGui::GetContentRegionAvail().y)
+    );
 
     if (isMouseInTextArea) {
         // Handle left mouse click
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-            // Calculate relative mouse position within text content area
-            float relativeMouseY = io.MousePos.y - textContentPos.y;
-            float relativeMouseX = io.MousePos.x - textContentPos.x;
+            // Calculate relative mouse position within text content area, accounting for scroll
+            float relativeMouseY = io.MousePos.y - textContentPos.y + scrollY;
+            float relativeMouseX = io.MousePos.x - textContentPos.x + ImGui::GetScrollX();
 
             // Get line and column from mouse position
             int newLine = getLineFromMousePos(relativeMouseY);
@@ -259,12 +260,6 @@ void TopLeftQuadrant::handleMouseInput() {
                 cursorColumn = newColumn;
                 inputActive = true;
             }
-        }
-
-        // Handle mouse wheel scrolling
-        if (io.MouseWheel != 0.0f) {
-            // You can implement scroll functionality here if needed
-            // For now, we'll rely on ImGui's built-in scrolling
         }
     }
 }
