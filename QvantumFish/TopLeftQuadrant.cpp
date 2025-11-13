@@ -91,9 +91,10 @@ void TopLeftQuadrant::renderTextEditor() {
     // Create a horizontal layout for line numbers and text content
     ImGui::BeginGroup();
 
-    // Line numbers panel - NO SCROLLING, but will move with parent scroll
+    // Line numbers panel - NO SCROLLING, synchronized with main scroll
     if (showLineNumbers) {
-        ImGui::BeginChild("LineNumbers", ImVec2(50, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        ImGui::BeginChild("LineNumbers", ImVec2(50, 0), false,
+            ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 
@@ -122,75 +123,45 @@ void TopLeftQuadrant::renderTextEditor() {
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 8.0f);
     }
 
-    // Text content area - NO SCROLLING (parent handles scrolling)
-    ImGui::BeginChild("TextContent", ImVec2(0, 0), false, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+    // Text content area - SCROLLING ENABLED (but synchronized with parent)
+    ImGui::BeginChild("TextContent", ImVec2(0, 0), false,
+        ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
     handleInput();
 
-    // Calculate the total height needed for the text content
-    const float lineHeight = ImGui::GetTextLineHeight();
-    const float totalHeight = textLines.size() * lineHeight;
-
-    // Use a dummy to ensure the scrolling area is properly sized
-    ImGui::Dummy(ImVec2(0, totalHeight));
-
     // Display text lines with syntax highlighting and cursor
-    ImGuiListClipper clipper;
-    clipper.Begin(static_cast<int>(textLines.size()));
-
-    while (clipper.Step()) {
-        for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
-            // Set cursor position for this line
-            ImGui::SetCursorPosY(i * lineHeight);
-
-            // Highlight current line background
-            if (i == cursorPosition) {
-                const ImVec2 lineStart = ImGui::GetCursorScreenPos();
-                const ImVec2 lineEnd = ImVec2(lineStart.x + ImGui::GetContentRegionAvail().x,
-                    lineStart.y + lineHeight);
-                ImGui::GetWindowDrawList()->AddRectFilled(lineStart, lineEnd,
-                    ImGui::GetColorU32(ImVec4(0.15f, 0.15f, 0.15f, 1.0f)));
-            }
-
-            // Display line text
-            ImGui::TextUnformatted(textLines[i].c_str());
-
-            // Draw cursor for current line
-            if (i == cursorPosition && inputActive) {
-                ensureCursorInBounds();
-
-                const std::string textBeforeCursor = textLines[i].substr(0, cursorColumn);
-                const float textWidth = ImGui::CalcTextSize(textBeforeCursor.c_str()).x;
-
-                const ImVec2 cursorPos = ImVec2(
-                    ImGui::GetCursorScreenPos().x + textWidth - ImGui::GetScrollX(),
-                    ImGui::GetCursorScreenPos().y - lineHeight
-                );
-
-                ImGui::GetWindowDrawList()->AddLine(
-                    ImVec2(cursorPos.x, cursorPos.y),
-                    ImVec2(cursorPos.x, cursorPos.y + lineHeight),
-                    ImGui::GetColorU32(ImVec4(0.0f, 1.0f, 1.0f, 1.0f)),
-                    2.0f
-                );
-            }
+    for (size_t i = 0; i < textLines.size(); ++i) {
+        // Highlight current line background
+        if (i == static_cast<size_t>(cursorPosition)) {
+            const float scrollX = ImGui::GetScrollX();
+            const ImVec2 lineStart = ImVec2(ImGui::GetCursorScreenPos().x - scrollX, ImGui::GetCursorScreenPos().y);
+            const ImVec2 lineEnd = ImVec2(lineStart.x + ImGui::GetContentRegionAvail().x + scrollX,
+                lineStart.y + ImGui::GetTextLineHeight());
+            ImGui::GetWindowDrawList()->AddRectFilled(lineStart, lineEnd,
+                ImGui::GetColorU32(ImVec4(0.15f, 0.15f, 0.15f, 1.0f)));
         }
-    }
 
-    // Auto-scroll to cursor position if needed
-    if (inputActive) {
-        const float cursorY = cursorPosition * lineHeight;
-        const float scrollY = ImGui::GetScrollY();
-        const float scrollMaxY = ImGui::GetScrollMaxY();
-        const float windowHeight = ImGui::GetWindowHeight();
+        // Display line text
+        ImGui::TextUnformatted(textLines[i].c_str());
 
-        // Scroll if cursor is above visible area
-        if (cursorY < scrollY) {
-            ImGui::SetScrollY(cursorY);
-        }
-        // Scroll if cursor is below visible area
-        else if (cursorY + lineHeight > scrollY + windowHeight) {
-            ImGui::SetScrollY(cursorY + lineHeight - windowHeight);
+        // Draw cursor for current line
+        if (i == static_cast<size_t>(cursorPosition) && inputActive) {
+            ensureCursorInBounds();
+
+            const std::string textBeforeCursor = textLines[i].substr(0, cursorColumn);
+            const float textWidth = ImGui::CalcTextSize(textBeforeCursor.c_str()).x;
+
+            const ImVec2 cursorPos = ImVec2(
+                ImGui::GetCursorScreenPos().x + textWidth - ImGui::GetScrollX(),
+                ImGui::GetCursorScreenPos().y - ImGui::GetTextLineHeight()
+            );
+
+            ImGui::GetWindowDrawList()->AddLine(
+                ImVec2(cursorPos.x, cursorPos.y),
+                ImVec2(cursorPos.x, cursorPos.y + ImGui::GetTextLineHeight()),
+                ImGui::GetColorU32(ImVec4(0.0f, 1.0f, 1.0f, 1.0f)),
+                2.0f
+            );
         }
     }
 
@@ -227,7 +198,6 @@ void TopLeftQuadrant::renderTextEditor() {
     ImGui::End();
 }
 
-// The rest of your methods remain the same...
 void TopLeftQuadrant::handleInput() {
     const ImGuiIO& io = ImGui::GetIO();
     inputActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
