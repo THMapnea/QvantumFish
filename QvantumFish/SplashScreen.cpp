@@ -4,7 +4,7 @@
 #include <thread>
 
 SplashScreen::SplashScreen()
-    : animationTime(5.0f), animationComplete(false) {
+    : animationTime(2.0f), animationComplete(false) {
     initializeASCIIArt();
 }
 

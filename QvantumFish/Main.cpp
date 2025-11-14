@@ -249,7 +249,7 @@ static void renderSplashScreen(float time) {
     float progress = std::min(elapsed / splashScreen.getAnimationTime(), 1.0f);
 
     if (progress >= 1.0f) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
         splashScreenComplete = true;
         return;
     }
