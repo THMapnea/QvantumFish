@@ -13,9 +13,8 @@ TopLeftQuadrant::TopLeftQuadrant()
     cursorColumn(0),
     syncedScrollY(0.0f) {
 
-    textLines.push_back("QVantumFishEditor");
-    textLines.push_back("// Welcome to your code editor");
-    textLines.push_back("// Start typing your code here...");
+    textLines.push_back("");
+
 }
 
 void TopLeftQuadrant::initialize() {
