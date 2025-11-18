@@ -26,13 +26,16 @@ private:
     bool inputActive;
     size_t cursorColumn;
 
+    // Scroll sync: current vertical scroll of the text content child
+    float syncedScrollY;
+
     void renderTextEditor();
     void handleInput();
     void handleCharacterInput(unsigned int c);
     void handleSpecialKeys();
     void handleNavigationKeys();
     void handleCtrlCombinations();
-    
+
     // Helper methods
     void ensureCursorInBounds();
     void insertNewLine();

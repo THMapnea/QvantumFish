@@ -10,7 +10,8 @@ TopLeftQuadrant::TopLeftQuadrant()
     cursorPosition(0),
     textModified(false),
     inputActive(false),
-    cursorColumn(0) {
+    cursorColumn(0),
+    syncedScrollY(0.0f) {
 
     textLines.push_back("QVantumFishEditor");
     textLines.push_back("// Welcome to your code editor");
@@ -84,9 +85,8 @@ void TopLeftQuadrant::renderTextEditor() {
 
     const float textAreaHeight = std::max(ImGui::GetContentRegionAvail().y - 25.0f, 100.0f);
 
-    // MAIN TEXT AREA - Only this should have scrolling
-    ImGui::BeginChild("TextArea", ImVec2(0, textAreaHeight), true,
-        ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    // MAIN TEXT AREA - Remove the fake vertical scrollbar from parent
+    ImGui::BeginChild("TextArea", ImVec2(0, textAreaHeight), true, 0); // Changed: removed vertical scrollbar flags
 
     // Create a horizontal layout for line numbers and text content
     ImGui::BeginGroup();
@@ -95,6 +95,9 @@ void TopLeftQuadrant::renderTextEditor() {
     if (showLineNumbers) {
         ImGui::BeginChild("LineNumbers", ImVec2(50, 0), false,
             ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+
+        // Keep line numbers vertically in sync with the text content
+        ImGui::SetScrollY(syncedScrollY); // Added: sync scroll position
 
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 
@@ -123,9 +126,9 @@ void TopLeftQuadrant::renderTextEditor() {
         ImGui::SetCursorPosX(ImGui::GetCursorPosX() + 8.0f);
     }
 
-    // Text content area - SCROLLING ENABLED (but synchronized with parent)
+    // Text content area - SCROLLING ENABLED (allow mouse scrolling)
     ImGui::BeginChild("TextContent", ImVec2(0, 0), false,
-        ImGuiWindowFlags_HorizontalScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        ImGuiWindowFlags_HorizontalScrollbar); // Changed: removed NoScrollWithMouse flag
 
     handleInput();
 
@@ -165,6 +168,9 @@ void TopLeftQuadrant::renderTextEditor() {
         }
     }
 
+    // Capture the text view's vertical scroll for syncing the line-number pane
+    syncedScrollY = ImGui::GetScrollY(); // Added: capture scroll position
+
     ImGui::EndChild(); // TextContent
     ImGui::EndGroup(); // Horizontal layout
 
@@ -198,6 +204,7 @@ void TopLeftQuadrant::renderTextEditor() {
     ImGui::End();
 }
 
+// ... (rest of the methods remain unchanged)
 void TopLeftQuadrant::handleInput() {
     const ImGuiIO& io = ImGui::GetIO();
     inputActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
