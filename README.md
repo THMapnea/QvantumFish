@@ -12,3 +12,4 @@ ________/\\\____________________________________________________________________
 </pre>
 
 Qvantum Fish is a small project aiming to simulate the Bloch sphere to visualize single Qubit and in the future also the more generalized Q-sphere for mutiple Qubits transformations.
+The visualizer will also include a personalized compiler and dedicated language to perform operation on qubit.
