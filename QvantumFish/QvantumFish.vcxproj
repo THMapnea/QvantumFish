@@ -186,7 +186,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="scheme.md">
+    <None Include="GeneralScheme.md">
       <SubType>
       </SubType>
     </None>

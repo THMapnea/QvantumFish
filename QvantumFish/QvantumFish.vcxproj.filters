@@ -242,7 +242,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="scheme.md">
+    <None Include="GeneralScheme.md">
       <Filter>File di intestazione\Documentation</Filter>
     </None>
   </ItemGroup>
