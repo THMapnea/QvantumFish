@@ -733,7 +733,6 @@ int main() {
             ImGui::BulletText("Bottom-right: Qubit Information & Controls");
             ImGui::BulletText("Right mouse key and move to rotate the sphere");
             ImGui::BulletText("Right mouse key and scroll with mouse wheel to zoom in and out");
-            ImGui::BulletText("R key to reset the view");
             ImGui::Text("Window Size: %d x %d", windowWidth, windowHeight);
 
             ImGui::End();

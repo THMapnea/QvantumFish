@@ -110,11 +110,6 @@ void SceneController::processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    // Reset scene when R key is pressed
-    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-        reset();
-    }
-
 }
 
 glm::mat4 SceneController::getViewMatrix() const {
