@@ -79,6 +79,9 @@
     <Filter Include="File di origine\Graphic\DivisionLines">
       <UniqueIdentifier>{cabdd37e-50b5-4ef6-9d27-fa2bc1ea1774}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File di intestazione\Documentation">
+      <UniqueIdentifier>{2ebc1c48-c622-473e-ad12-073c78461169}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -236,5 +239,11 @@
     <ClInclude Include="DivisionLines.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="scheme.md">
+      <Filter>File di intestazione\Documentation</Filter>
+    </None>
   </ItemGroup>
 </Project>
