@@ -36,7 +36,7 @@ TopLeftQuadrant* topLeftQuadrant = nullptr;
 BottomLeftQuadrant* bottomLeftQuadrant = nullptr;
 BottomRightQuadrant* bottomRightQuadrant = nullptr;
 SceneController* sceneController = nullptr;
-DivisionLines divisionLines;  // Use DivisionLines class instead of separate variables
+DivisionLines divisionLines;  
 
 // ImGui state
 bool showDemoWindow = false;
