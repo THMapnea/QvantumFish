@@ -28,7 +28,7 @@
 #include "BottomLeftQuadrant.h"
 #include "BottomRightQuadrant.h"
 #include "SplashScreen.h"
-#include "DivisionLines.h"  // Include the new DivisionLines class
+#include "DivisionLines.h" 
 
 // Global variables
 TopRightQuadrant* topRightQuadrant = nullptr;
