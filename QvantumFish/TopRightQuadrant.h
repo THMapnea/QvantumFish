@@ -37,6 +37,11 @@ private:
 
     float sphereScale;
 
+    // Settings window control
+    bool settingsWindowOpen;
+    int windowWidth;
+    int windowHeight;
+
 public:
     TopRightQuadrant();
     ~TopRightQuadrant();
@@ -46,6 +51,13 @@ public:
 
     // Rendering
     void render(float time, SceneController* sceneController, int viewportX, int viewportY, int viewportWidth, int viewportHeight);
+
+    // Settings window methods
+    void showSettingsWindow(int viewportX, int viewportY, int viewportWidth, int viewportHeight);
+    void renderSettingsIcon(float time, int viewportX, int viewportY, int viewportWidth, int viewportHeight);
+    bool isSettingsWindowOpen() const { return settingsWindowOpen; }
+    void toggleSettingsWindow() { settingsWindowOpen = !settingsWindowOpen; }
+    void setSettingsWindowOpen(bool open) { settingsWindowOpen = open; }
 
     // Getters for visibility flags
     bool getShowSphere() const { return showSphere; }
@@ -74,6 +86,12 @@ public:
 
     // Get current qubit (for bottom quadrant)
     const Qubit& getCurrentQubit() const { return currentQubit; }
+
+    // Update window size for settings positioning
+    void updateWindowSize(int width, int height) {
+        windowWidth = width;
+        windowHeight = height;
+    }
 
     void cleanup();
 };

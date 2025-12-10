@@ -28,7 +28,7 @@
 #include "BottomLeftQuadrant.h"
 #include "BottomRightQuadrant.h"
 #include "SplashScreen.h"
-#include "DivisionLines.h" 
+#include "DivisionLines.h"
 
 // Global variables
 TopRightQuadrant* topRightQuadrant = nullptr;
@@ -36,10 +36,7 @@ TopLeftQuadrant* topLeftQuadrant = nullptr;
 BottomLeftQuadrant* bottomLeftQuadrant = nullptr;
 BottomRightQuadrant* bottomRightQuadrant = nullptr;
 SceneController* sceneController = nullptr;
-DivisionLines divisionLines;  
-
-// ImGui state
-bool showDemoWindow = false;
+DivisionLines divisionLines;
 
 // Background quad shader and buffers
 unsigned int backgroundVAO = 0;
@@ -70,7 +67,7 @@ static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     windowHeight = height;
     windowMinimized = (width == 0 || height == 0);
 
-    // Update scene controller with new dimensions (only if not minimized)
+    // Update scene controller with new dimensions
     if (sceneController && !windowMinimized) {
         sceneController->updateWindowSize(width, height);
     }
@@ -523,6 +520,9 @@ static void renderTopRightQuadrant(float time) {
     topRightQuadrant->render(time, sceneController,
         viewportX, viewportY,
         viewportWidth, viewportHeight);
+
+    // Render settings icon and window (TOP-RIGHT corner)
+    topRightQuadrant->renderSettingsIcon(time, viewportX, viewportY, viewportWidth, viewportHeight);
 }
 
 static void handleQubitStateChanges() {
@@ -658,7 +658,6 @@ int main() {
             // Handle qubit state changes from bottom right quadrant controls
             handleQubitStateChanges();
 
-           
             // Clear the entire window with black background ONCE at the beginning
             glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -668,80 +667,6 @@ int main() {
             renderBottomRightQuadrant();
             renderTopLeftQuadrant();
             renderTopRightQuadrant(time);
-
-            // Main control panel window
-            ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_FirstUseEver);
-            ImGui::SetNextWindowSize(ImVec2(300, 250), ImGuiCond_FirstUseEver);
-
-            ImGui::Begin("Quantum Visualization Controls");
-
-            ImGui::Text("View Controls");
-            if (ImGui::Button("Reset View")) {
-                sceneController->reset();
-            }
-
-            ImGui::Separator();
-            ImGui::Text("Component Visibility");
-            if (topRightQuadrant) {
-                // Use local variables bound to the quadrant's state
-                static bool showSphere = topRightQuadrant->getShowSphere();
-                static bool showAxes = topRightQuadrant->getShowAxes();
-                static bool showVector = topRightQuadrant->getShowVector();
-                static bool showProjections = topRightQuadrant->getShowProjections();
-                static bool showArcs = topRightQuadrant->getShowArcs();
-                static float sphereScale = topRightQuadrant->getSphereScale();
-
-                if (ImGui::Checkbox("Show Sphere", &showSphere)) {
-                    topRightQuadrant->setShowSphere(showSphere);
-                }
-                if (ImGui::Checkbox("Show Axes", &showAxes)) {
-                    topRightQuadrant->setShowAxes(showAxes);
-                }
-                if (ImGui::Checkbox("Show Vector", &showVector)) {
-                    topRightQuadrant->setShowVector(showVector);
-                }
-                if (ImGui::Checkbox("Show Projections", &showProjections)) {
-                    topRightQuadrant->setShowProjections(showProjections);
-                }
-                if (ImGui::Checkbox("Show Arcs", &showArcs)) {
-                    topRightQuadrant->setShowArcs(showArcs);
-                }
-
-                ImGui::Separator();
-                ImGui::Text("Sphere Scale");
-                if (ImGui::SliderFloat("Scale", &sphereScale, 0.5f, 2.0f)) {
-                    topRightQuadrant->setSphereScale(sphereScale);
-                }
-
-                // Add a button to toggle all components
-                if (ImGui::Button("Toggle All")) {
-                    topRightQuadrant->toggleAllComponents();
-                    // Update local variables after toggle
-                    showSphere = topRightQuadrant->getShowSphere();
-                    showAxes = topRightQuadrant->getShowAxes();
-                    showVector = topRightQuadrant->getShowVector();
-                    showProjections = topRightQuadrant->getShowProjections();
-                    showArcs = topRightQuadrant->getShowArcs();
-                }
-            }
-
-            ImGui::Separator();
-            ImGui::Text("Quadrant Layout");
-            ImGui::BulletText("Top-right: Bloch Sphere");
-            ImGui::BulletText("Top-left: [Future Content]");
-            ImGui::BulletText("Bottom-left: [Future Content]");
-            ImGui::BulletText("Bottom-right: Qubit Information & Controls");
-            ImGui::BulletText("Right mouse key and move to rotate the sphere");
-            ImGui::BulletText("Right mouse key and scroll with mouse wheel to zoom in and out");
-            ImGui::Text("Window Size: %d x %d", windowWidth, windowHeight);
-
-            ImGui::End();
-
-            // Demo window (optional)
-            if (showDemoWindow) {
-                ImGui::ShowDemoWindow(&showDemoWindow);
-            }
-
 
             // Render division lines (must be done after all viewport rendering)
             renderDivisionLines(time);
