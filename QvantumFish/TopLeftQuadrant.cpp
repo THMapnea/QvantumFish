@@ -203,7 +203,6 @@ void TopLeftQuadrant::renderTextEditor() {
     ImGui::End();
 }
 
-// ... (rest of the methods remain unchanged)
 void TopLeftQuadrant::handleInput() {
     const ImGuiIO& io = ImGui::GetIO();
     inputActive = ImGui::IsWindowFocused(ImGuiFocusedFlags_ChildWindows);
