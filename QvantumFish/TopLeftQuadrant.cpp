@@ -96,7 +96,7 @@ void TopLeftQuadrant::renderTextEditor() {
             ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
 
         // Keep line numbers vertically in sync with the text content
-        ImGui::SetScrollY(syncedScrollY); // Added: sync scroll position
+        ImGui::SetScrollY(syncedScrollY); // sync scroll position
 
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
 
@@ -127,7 +127,7 @@ void TopLeftQuadrant::renderTextEditor() {
 
     // Text content area - SCROLLING ENABLED (allow mouse scrolling)
     ImGui::BeginChild("TextContent", ImVec2(0, 0), false,
-        ImGuiWindowFlags_HorizontalScrollbar); // Changed: removed NoScrollWithMouse flag
+        ImGuiWindowFlags_HorizontalScrollbar); //removed NoScrollWithMouse flag
 
     handleInput();
 
@@ -168,7 +168,7 @@ void TopLeftQuadrant::renderTextEditor() {
     }
 
     // Capture the text view's vertical scroll for syncing the line-number pane
-    syncedScrollY = ImGui::GetScrollY(); // Added: capture scroll position
+    syncedScrollY = ImGui::GetScrollY(); //capture scroll position
 
     ImGui::EndChild(); // TextContent
     ImGui::EndGroup(); // Horizontal layout
